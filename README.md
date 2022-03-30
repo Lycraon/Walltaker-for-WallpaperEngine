@@ -50,7 +50,7 @@ Changes the color of the text on the Wallpaper
 (currently only set_by)
 unit: rgb
 
-- "zoom width/height": 
+- "Zoom width/height": 
 Zooms the image canvas in and out
 100% means 100% of width/height of Desktop
 note that if Image fit is not fill the image will apply scale of fit using zoom as upper bound
