@@ -1,0 +1,46 @@
+#i_joi{
+	height: 100%;
+	width: 100%;
+	
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: black;
+}
+
+#canvas {
+    position: absolute;
+	top: 0;
+	left: 0;
+    width: 100vw;
+    height: 100vh;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#bImg{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-repeat: no-repeat;
+	z-index:0;
+}
+
+.text{
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	color: black;
+	z-index: 100;
+	
+}
+
+a{
+	text-decoration:none;
+}
