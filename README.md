@@ -61,4 +61,10 @@ Changes the absolute position of image canvas (uses top left corner)
 shifts image by selected pixels in x(vertical) and y(horizontal) position
 unit: px
 
+# To-Do
+
+Optimize performanze while paused/in background
+
+find a way to read pictures from folder 
+(get posts from walltaker desktop download)
 
