@@ -63,8 +63,8 @@ unit: px
 
 # To-Do
 
-Optimize performanze while paused/in background
+- Optimize performanze while paused/in background
 
-find a way to read pictures from folder 
+- Find a way to read pictures from folder 
 (get posts from walltaker desktop download)
 
