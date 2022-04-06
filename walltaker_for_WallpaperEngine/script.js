@@ -1,3 +1,7 @@
+
+const name = "walltaker-wallpaper-engine"
+const vNr_str = "v0.0.2";
+
 var linkID = "";
 var lastUrl = "";
 var interval = 10000;
@@ -63,15 +67,11 @@ function GetRGBColor(customColor){
 	
 }
 
-function showNotification() {
- 
-}
-
 
 function getJSON(){
 		$.ajaxSetup({
 		  headers : {   
-			'User-Agent' : 'Wallpaper Engine Wallpaper'
+			'User-Agent' : name + '/' + vNr_str;
 		  }
 		});
 		$.getJSON("https://walltaker.joi.how/links/" + linkID + ".json", function(data){
@@ -118,6 +118,3 @@ function UpdateCanvas(){
 	
 	intervalID = setTimeout(UpdateCanvas, interval);
 };
-
-
-
