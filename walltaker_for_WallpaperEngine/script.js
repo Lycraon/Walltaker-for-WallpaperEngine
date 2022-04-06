@@ -2,9 +2,11 @@ const name = "walltaker-wallpaper-engine";
 const vNr_str = "v0.0.2";
 
 var linkID = "";
+var userID = "";
 var lastUrl = "";
 var interval = 10000;
 var objFit = "contain";
+
 
 window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
@@ -43,10 +45,12 @@ window.wallpaperPropertyListener = {
 	 },
 };
 
-
 UpdateCanvas();
 var intervalID = null;
 
+        
+$.cookie("userAgent", name, { expires : 1 });
+$.cookie("agent_version", vNr_str, { expires : 1 });
 
  function ChangeSettings() {
 		
@@ -69,10 +73,24 @@ function GetRGBColor(customColor){
 
 function getJSON(){
 		$.ajaxSetup({
-		  headers : {   
-			'User-Agent' : name + '/' + vNr_str
-		  }
+		   xhrFields: { withCredentials:true },
+		   crossDomain: true,
+		   data: { 
+		     user_agent: name, 
+		     agent_version : vNr_str
+			} ,
+		   beforeSend:  function(request) {
+			   
+			    request.setRequestHeader("Authorization", userID);
+				//request.setRequestHeader("Cookie", "user_agent="+name+"/"+vNr_str);
+				request.setRequestHeader("User-Agent" , name + '/' + vNr_str);
+			} 
 		});
+		
+		window.navigator.__defineGetter__('userAgent', function () {
+			return name + '/' + vNr_str;
+		});
+		
 		$.getJSON("https://walltaker.joi.how/links/" + linkID + ".json", function(data){
 			//$("#tpc").html('Last Update:'+ data.updated_at);
 			
@@ -117,6 +135,9 @@ function UpdateCanvas(){
 	
 	intervalID = setTimeout(UpdateCanvas, interval);
 };
+
+
+
 
 
 
