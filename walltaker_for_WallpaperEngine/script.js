@@ -76,13 +76,13 @@ function getJSON(){
 		   xhrFields: { withCredentials:true },
 		   crossDomain: true,
 		   data: { 
-		     //user_agent: name, 
+		     user_agent: name, 
 		     agent_version : vNr_str,
-			 Wallpaper-Engine-Client: vNr_str
 			} ,
 		   beforeSend:  function(request) {
 			   
 			    request.setRequestHeader("Authorization", userID);
+				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
 				//request.setRequestHeader("Cookie", "user_agent="+name+"/"+vNr_str);
 				//request.setRequestHeader("User-Agent" , name + '/' + vNr_str);
 			} 
