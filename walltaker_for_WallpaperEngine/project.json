@@ -133,6 +133,6 @@
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 0,
+	"version" : 0.0.3,
 	"visibility" : "private"
 }
