@@ -1,5 +1,5 @@
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.0.2";
+const vNr_str = "v0.0.3";
 
 var linkID = "";
 var userID = "";
