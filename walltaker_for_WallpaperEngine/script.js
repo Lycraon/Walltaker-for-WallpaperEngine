@@ -7,7 +7,6 @@ var lastUrl = "";
 var interval = 10000;
 var objFit = "contain";
 
-
 window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
 		if(properties.linkID){
@@ -25,8 +24,9 @@ window.wallpaperPropertyListener = {
 		if(properties.backg_color)
 		$("body").css("background-color",GetRGBColor(properties.backg_color.value));
 	
-		if(properties.objFit){
-			objFit = properties.objFit.value;
+		if(properties.objfit){
+			objFit = properties.objfit.value;		
+			
 			lastUrl = "";
 			getJSON();
 		}
@@ -109,12 +109,12 @@ function getJSON(){
 						//display += '<p class="text">'+interval+'</p>'
 						//display += '<p class="text">Last Change:'+ data.updated_at  +'</p>'
 						//display += '<p class="text">'+objFit+'</p>'
-						display += '<img id="bImg" src ="'+data.post_url+'" style="object-fit: '+objFit+';">';
+						display += '<img id="bImg" src ="'+data.post_url+'" style="object-fit: '+objFit+';"/>';
 					
 				}else $("body").css("background-color", "transparent");	
 				
 		
-				
+				//$("#bImg").css("object-fit",objFit);
 				$("#canvas").html(display);
 				lastUrl = data.post_url;	
 				
