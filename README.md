@@ -61,10 +61,13 @@ Changes the absolute position of image canvas (uses top left corner)
 shifts image by selected pixels in x(vertical) and y(horizontal) position
 unit: px
 
-# To-Do
+# Currently looking into:
 
-- Optimize performanze while paused/in background
+### To-Do:
+- implementing api (+key)
+- a way to set reactions for wallpapers
+- content areas for ovlerlay items (like text top right for example)
 
-- Find a way to read pictures from folder 
-(get posts from walltaker desktop download)
-
+### Testing:
+- transition animations (this one already works, but don't make sense, when image is not loaded whan animation is started)
+- preloading Images before showing (testing currently, but can't get it to work right)
