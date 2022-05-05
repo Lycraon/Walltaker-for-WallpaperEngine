@@ -67,6 +67,7 @@ unit: px
 - implementing api (+key)
 - a way to set reactions for wallpapers
 - content areas for ovlerlay items (like text top right for example)
+- Mouse Paralax effect
 
 ### Testing:
 - transition animations (this one already works, but don't make sense, when image is not loaded whan animation is started)
