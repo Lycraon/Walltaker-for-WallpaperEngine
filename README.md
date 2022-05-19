@@ -62,7 +62,7 @@ unit: px
 - text reactions: reason same as by paralax
 
 ### To-Do:
-
+- preset reactions / dropdown reactions
 
 ### Testing:
 - transition animations (this one already works, but don't make sense, when image is not loaded whan animation is started)
