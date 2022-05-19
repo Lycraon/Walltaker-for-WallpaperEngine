@@ -9,6 +9,7 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: black;
+	z-index:0;
 }
 
 #canvas {
@@ -17,27 +18,148 @@ body {
 	left: 0;
     width: 100vw;
     height: 100vh;
-	display: block;
 	margin-left: auto;
 	margin-right: auto;
+	z-index:0;
+	visibility: visible;
+	overflow: hidden;
+	display: flex;
+	justify-content: center center;
+	align-items: center center;
+	text-align: center center;
 }
 
 #bImg{
-	position: absolute;
-	top: 0;
-	left: 0;
+	
+	z-index:0;
 	width: 100%;
 	height: 100%;
-	background-repeat: no-repeat;
-	z-index:0;
 }
 
-.text{
+#top-left{
 	position: absolute;
 	top: 10px;
 	left: 10px;
 	color: black;
+	padding-left: 10px;
+	padding-right: 20px;
 	z-index: 100;
+	background-color: rgba(100, 100, 100, 1);
+	width: auto;
+	display: flex;
+	justify-content: left;
+	min-width:50px;
+	min-height:50px;
+}
+
+#top-center{
+	position: absolute;
+	top: 10px;
+	left: 50vw;	
+	margin-left: -250px;
+	color: black;
+	z-index: 100;
+	background-color: rgba(100, 100, 100, 0.4);
+	width: auto;
+	padding-left: 10px;
+	padding-right: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center ;
+	text-align: center;
+	gap: 5px;
+
+	
+}
+
+#top-right{
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	color: black;
+	padding-left: 10px;
+	padding-right: 20px;
+	z-index: 100;
+	background-color: rgba(100, 100, 100, 0.4);
+	width: auto;
+	display: flex;
+	justify-content: left;
+	
+}
+
+#bottom-left{
+	position: absolute;
+	bottom: 50px;
+	left: 10px;
+	color: black;
+	padding-left: 10px;
+	padding-right: 20px;
+	z-index: 100;
+	background-color: rgba(100, 100, 100, 0.4);
+	width: auto;
+	display: flex;
+	justify-content: left;
+	
+
+}
+
+#bottom-center{
+	position: absolute;
+	bottom: 50px;
+	left: 50vw;	
+	margin-left: -250px;
+	color: black;
+	z-index: 100;
+	background-color: rgba(100, 100, 100, 0.4);
+	width: auto;
+	padding-left: 10px;
+	padding-right: 10px;
+	display: flex;
+	justify-content: space-around;
+	align-items: center center;
+	text-align: center center;
+	gap: 5px;
+	
+	
+}
+
+#bottom-right{
+	position: absolute;
+	bottom: 50px;
+	right: 10px;
+	color: black;
+	padding-left: 10px;
+	padding-right: 20px;
+	z-index: 100;
+	background-color: rgba(100, 100, 100, 0.4);
+	width: auto;
+	display: flex;
+	justify-content: left;
+
+}
+
+
+
+#buttons{
+	width: auto;
+	margin: 0;
+	padding-top: 20px;
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+#buttons > *{
+
+	
+}
+
+.text{
+	z-index: 110;
 	
 }
 
