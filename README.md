@@ -68,7 +68,7 @@ unit: px
 - quick reactions (textinput not possible)
 - content areas
 
-### Declined
+### Discarded
 - parallax efect: not possible (no mous and keybord input for web wallpapers)
 - text reactions: reason same as by paralax
 
