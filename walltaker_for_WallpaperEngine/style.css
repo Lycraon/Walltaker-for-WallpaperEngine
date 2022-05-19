@@ -1,7 +1,6 @@
 #i_joi{
 	height: 100%;
-	width: 100%;
-	
+	width: 100%;	
 }
 
 body {
@@ -9,7 +8,7 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: black;
-	z-index:0;
+	z-index:-1;
 }
 
 #canvas {
@@ -29,140 +28,103 @@ body {
 	text-align: center center;
 }
 
-#bImg{
-	
+#bImg{	
 	z-index:0;
 	width: 100%;
 	height: 100%;
 }
 
-#top-left{
+.area {
 	position: absolute;
-	top: 10px;
-	left: 10px;
 	color: black;
-	padding-left: 10px;
-	padding-right: 20px;
-	z-index: 100;
-	background-color: rgba(100, 100, 100, 1);
+	background-color: rgba(100, 100, 100, 0.4);
 	width: auto;
 	display: flex;
+	flex-direction: column;
+	z-index: 100;
+	overflow: auto;
+}
+
+.area > * {
+	padding: 10px;
+	margin: 0;
+	max-width: 30vw;
+}
+
+#top-left{
+	top: 10px;
+	left: 10px;
+	padding-left: 10px;
+	padding-right: 20px;
 	justify-content: left;
-	min-width:50px;
-	min-height:50px;
 }
 
 #top-center{
-	position: absolute;
 	top: 10px;
 	left: 50vw;	
-	margin-left: -250px;
-	color: black;
-	z-index: 100;
-	background-color: rgba(100, 100, 100, 0.4);
-	width: auto;
+	-ms-transform: translate(-50%, 0%);
+    transform: translate(-50%, 0%);
 	padding-left: 10px;
 	padding-right: 10px;
-	display: flex;
-	flex-direction: column;
 	justify-content: center;
 	align-items: center ;
-	text-align: center;
-	gap: 5px;
-
-	
+	text-align: center;	
 }
 
 #top-right{
-	position: absolute;
 	top: 10px;
 	right: 10px;
-	color: black;
 	padding-left: 10px;
 	padding-right: 20px;
-	z-index: 100;
-	background-color: rgba(100, 100, 100, 0.4);
-	width: auto;
-	display: flex;
 	justify-content: left;
-	
 }
 
 #bottom-left{
-	position: absolute;
 	bottom: 50px;
 	left: 10px;
-	color: black;
 	padding-left: 10px;
 	padding-right: 20px;
-	z-index: 100;
-	background-color: rgba(100, 100, 100, 0.4);
-	width: auto;
-	display: flex;
 	justify-content: left;
-	
-
 }
 
 #bottom-center{
-	position: absolute;
 	bottom: 50px;
 	left: 50vw;	
-	margin-left: -250px;
-	color: black;
+	-ms-transform: translate(-50%, 0%);
+    	transform: translate(-50%, 0%);
 	z-index: 100;
-	background-color: rgba(100, 100, 100, 0.4);
-	width: auto;
 	padding-left: 10px;
 	padding-right: 10px;
-	display: flex;
 	justify-content: space-around;
 	align-items: center center;
 	text-align: center center;
-	gap: 5px;
-	
-	
 }
 
 #bottom-right{
 	position: absolute;
 	bottom: 50px;
 	right: 10px;
-	color: black;
 	padding-left: 10px;
 	padding-right: 20px;
-	z-index: 100;
-	background-color: rgba(100, 100, 100, 0.4);
-	width: auto;
 	display: flex;
 	justify-content: left;
-
 }
 
 
 
 #buttons{
-	width: auto;
 	margin: 0;
-	padding-top: 20px;
 	align-items: center;
 	justify-content: center;
 	display: flex;
 	justify-content: center;
-	gap: 10px;
 	flex-wrap: wrap;
 }
 
-#buttons > *{
-
-	
+#buttons > * {
+	margin-left: 5px;
 }
 
 .text{
 	z-index: 110;
-	
-}
-
-a{
-	text-decoration:none;
 }
