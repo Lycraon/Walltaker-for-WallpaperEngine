@@ -1,31 +1,50 @@
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.0.3";
+const vNr_str = "v0.1.0";
 
-var linkID = "";
-var userID = "";
+const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
+const reacts = ["","disgust","horny","came"];
+const emojis = ["[]","","😍","💦"];
+
+var settings = {
+	'linkID' : "",
+	'api_key' : "",
+	'textColor' : "255 255 255",
+	'interval' : "10000",
+	'objFit'  : "contain",
+	'textPos' : "top-left",
+	'reactPos': "top-center",
+	'responsePos': "top-center"
+};
 var lastUrl = "";
-var interval = 10000;
-var objFit = "contain";
+var Url = "";
+
+
+
+
 
 window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
+		if(properties.api_key)
+		settings["api_key"] = properties.api_key.value;
+	 
 		if(properties.linkID){
-			linkID = properties.linkID.value;
-			lastUrl = "";
-			getJSON();
-		}
+				settings["linkID"] = properties.linkID.value;
+				lastUrl = "";
+				getJSON();
+			}
 	 
 		if(properties.interval) 
-		interval = parseInt(properties.interval.value) *1000;
+		settings["interval"] = parseInt(properties.interval.value) *1000;
 	 
 		if(properties.text_color)
-		$(".text").css("color",GetRGBColor(properties.text_color.value));
+		settings["textColor"] = properties.text_color.value;
+		
 	
 		if(properties.backg_color)
 		$("body").css("background-color",GetRGBColor(properties.backg_color.value));
 	
 		if(properties.objfit){
-			objFit = properties.objfit.value;		
+			settings["objFit"] = properties.objfit.value;		
 			
 			lastUrl = "";
 			getJSON();
@@ -42,23 +61,38 @@ window.wallpaperPropertyListener = {
 		
 		if(properties.canv_y)
 		$("#canvas").css("margin-left",properties.canv_y.value + "px");
+		ChangeSettings();
 	 },
 };
 
 UpdateCanvas();
-var intervalID = null;
+
 
         
-$.cookie("userAgent", name, { expires : 1 });
-$.cookie("agent_version", vNr_str, { expires : 1 });
+
 
  function ChangeSettings() {
+		//$(".text").css("color",GetRGBColor(textColor));		
 		
-		$(".text").css("color",$("#tpc").css("color"));
+		var css = "";
 		
+		css+= ".text{\n";
+		css+= "	color:"+GetRGBColor(settings["textColor"])+";\n";
+		css+= "}\n\n";
 		
+		css+= "#bImg {\n";;
+		css+= '	background-repeat: no-repeat;\n';
+		css+= "object-fit:"+settings["objFit"]+"!important;\n";
+		css+= 'position: absolute;\n';
+		css+= "}\n\n";
+		var dynStyle = document.createElement("Style");
+		dynStyle.id = "dynCSS";
+		document.head.innerHTML = '<meta charset="utf-8"><link rel="stylesheet" href="style.css" type="text/css"><script type="text/javascript" src="jquery.js"></script><script type="text/javascript" src="script.js"></script><style id="dynStyle"></style><style id="dynCSS"></style>';
+		document.getElementById("dynCSS").innerHTML = css;
 	}
+	
 
+	
 function GetRGBColor(customColor){
 	var temp = customColor.split(' ');
 		
@@ -70,18 +104,122 @@ function GetRGBColor(customColor){
 	
 }
 
+function react(reactType){	
+
+		var type = reacts[reactType];
+		
+		
+	
+		
+		var txt = ""
+		
+		
+			
+		 $.ajax({
+			type: "POST",		
+			url: "https://walltaker.joi.how/api/links/"+ settings["linkID"] +"/response.json",
+			data: JSON.stringify({ "api_key": settings["api_key"], "type" : type, "text" : txt}),
+			dataType: "json",
+			contentType: "application/json",
+			success: function(data){setNewPost(data);},
+			failure: function(errMsg) {}
+		});
+	
+}
+
+function setNewPost(data){
+			
+			if((data && lastUrl != data.post_url) || overideUpdate == true ){
+				overideUpdate = false;
+				
+				var variables = {
+					'top-left': "",
+					'top-center': "",
+					'top-right': "",
+					'bottom-left': "",
+					'bottom-center': "",
+					'bottom-right': "",
+					'canvas': "",
+					'test': ""
+				}
+
+				
+
+				if(data.set_by){
+					var setBy = '<p class="text">set_by: '+ data.set_by +'</p><br>';
+				
+					variables[settings["textPos"]] += setBy;
+				}
+					
+					
+				var react = '<div id="buttons">';
+					react += '<button type="button" name="btn_hate" onclick="react(1)">hate it</button>';
+					react += '<button type="button" name="btn_love" onclick="react(2)">love it</button>'; 
+					react += '<button type="button" name="btn_cum" onclick="react(3)">I came</button>'; 
+					react += '</div>';
+								
+				variables[settings["reactPos"]] += react;
+
+				var response = '<p class="text" width="auto" height="auto" margin="0" text->';
+				
+				
+				if(data.response_type){
+					for(var i =0; i< reacts.length;i++){
+						if(data.response_type == reacts[i])
+						response += emojis[i];
+					}
+				}
+				
+				if(data.response_text)
+				response += ": "+ data.response_text;
+			
+				response+='</p>';
+				
+				variables[settings["responsePos"]] += response;
+				
+				//variables["canvas"] += '<div id="bImg"></div>';
+				if(data.post_url && data.post_url != ""){
+						$("body").css("background-color", "black");
+						//Url = data.post_url;
+						variables["canvas"] += '<Img id="bImg" src="'+data.post_url+'"/>';
+						//display += '<p class="text">'+interval+'</p>'
+						//display += '<p class="text">Last Change:'+ data.updated_at  +'</p>'
+						//display += '<p class="text">'+objFit+'</p>'
+						
+					
+				}else $("body").css("background-color", "transparent");	
+				
+		
+				//$("#bImg").css("object-fit",objFit);
+				
+				
+				areas.forEach( (ar,index) => {
+					var name = ar;
+						if(index >0){
+
+						$("#"+name).html(variables[name]);	
+						
+						
+					}
+				});
+				
+				//$("#canvas").html(variables["canvas"]);	
+		
+				lastUrl = data.post_url;	
+				
+				
+				
+				ChangeSettings();
+				
+			}
+}
+
 
 function getJSON(){
 		$.ajaxSetup({
 		   xhrFields: { withCredentials:true },
 		   crossDomain: true,
-		   data: { 
-		     user_agent: name, 
-		     agent_version : vNr_str,
-			} ,
 		   beforeSend:  function(request) {
-			   
-			    request.setRequestHeader("Authorization", userID);
 				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
 				//request.setRequestHeader("Cookie", "user_agent="+name+"/"+vNr_str);
 				//request.setRequestHeader("User-Agent" , name + '/' + vNr_str);
@@ -92,49 +230,17 @@ function getJSON(){
 			return name + '/' + vNr_str;
 		});
 		
-		$.getJSON("https://walltaker.joi.how/links/" + linkID + ".json", function(data){
-			//$("#tpc").html('Last Update:'+ data.updated_at);
-			
-			if((data && lastUrl != data.post_url) || overideUpdate == true ){
-				overideUpdate = false;
-				
-					
-				var display = ""; 
-				if(data.set_by)
-				display += '<a href="https://walltaker.joi.how/users/' + data.set_by + '" rel="external" target="_blank" class="text">set_by: '+ data.set_by +'</a><br>';
-
-				if(data.post_url && data.post_url != ""){
-
-						$("body").css("background-color", "black");
-						//display += '<p class="text">'+interval+'</p>'
-						//display += '<p class="text">Last Change:'+ data.updated_at  +'</p>'
-						//display += '<p class="text">'+objFit+'</p>'
-						display += '<img id="bImg" src ="'+data.post_url+'" style="object-fit: '+objFit+';"/>';
-					
-				}else $("body").css("background-color", "transparent");	
-				
-		
-				//$("#bImg").css("object-fit",objFit);
-				$("#canvas").html(display);
-				lastUrl = data.post_url;	
-				
-				
-				
-				ChangeSettings();
-				
-			}
-			
-		});
+		$.getJSON("https://walltaker.joi.how/api/links/" + settings["linkID"] + ".json", function(data){setNewPost(data);} );
 		
 		
 	}
 	
 
-
+var intervalID = null;
 function UpdateCanvas(){
 	getJSON();
 	
-	intervalID = setTimeout(UpdateCanvas, interval);
+	intervalID = setTimeout(UpdateCanvas, settings["interval"]);
 };
 
 
