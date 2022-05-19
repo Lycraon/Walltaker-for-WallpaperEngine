@@ -63,11 +63,17 @@ unit: px
 
 # Currently looking into:
 
+### Coming next Version:
+- api_key integration
+- quick reactions (textinput not possible)
+- content areas
+
+### Declined
+- parallax efect: not possible (no mous and keybord input for web wallpapers)
+- text reactions: reason same as by paralax
+
 ### To-Do:
-- implementing api (+key)
-- a way to set reactions for wallpapers
-- content areas for ovlerlay items (like text top right for example)
-- Mouse Paralax effect
+
 
 ### Testing:
 - transition animations (this one already works, but don't make sense, when image is not loaded whan animation is started)
