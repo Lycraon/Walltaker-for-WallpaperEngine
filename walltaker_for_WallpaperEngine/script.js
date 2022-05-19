@@ -1,5 +1,5 @@
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.1.0";
+const vNr_str = "v0.2.0";
 
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
 const reacts = ["","disgust","horny","came"];
@@ -16,11 +16,12 @@ var settings = {
 	'responsePos': "top-center"
 };
 var lastUrl = "";
+var lastSetBy = "";
+var lastResponseType = "";
+var lastResponseText = "";
+
 var Url = "";
-
-
-
-
+var overideUpdate = false;
 
 window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
@@ -33,8 +34,10 @@ window.wallpaperPropertyListener = {
 				getJSON();
 			}
 	 
-		if(properties.interval) 
+		if(properties.interval)
 		settings["interval"] = parseInt(properties.interval.value) *1000;
+		
+
 	 
 		if(properties.text_color)
 		settings["textColor"] = properties.text_color.value;
@@ -62,13 +65,10 @@ window.wallpaperPropertyListener = {
 		if(properties.canv_y)
 		$("#canvas").css("margin-left",properties.canv_y.value + "px");
 		ChangeSettings();
-	 },
+	 }
 };
 
 UpdateCanvas();
-
-
-        
 
 
  function ChangeSettings() {
@@ -107,14 +107,8 @@ function GetRGBColor(customColor){
 function react(reactType){	
 
 		var type = reacts[reactType];
-		
-		
-	
-		
 		var txt = ""
 		
-		
-			
 		 $.ajax({
 			type: "POST",		
 			url: "https://walltaker.joi.how/api/links/"+ settings["linkID"] +"/response.json",
@@ -127,9 +121,10 @@ function react(reactType){
 	
 }
 
+
 function setNewPost(data){
 			
-			if((data && lastUrl != data.post_url) || overideUpdate == true ){
+			if((data && lastUrl != data.post_url) || data.response_type != lastResponseType || data.response_text != lastResponseText ||overideUpdate == true ){
 				overideUpdate = false;
 				
 				var variables = {
@@ -139,17 +134,21 @@ function setNewPost(data){
 					'bottom-left': "",
 					'bottom-center': "",
 					'bottom-right': "",
-					'canvas': "",
-					'test': ""
+					'canvas': ""
+					
 				}
 
 				
-
+				
 				if(data.set_by){
-					var setBy = '<p class="text">set_by: '+ data.set_by +'</p><br>';
+					var setBy = '<p class="text">set_by: '+ data.set_by +'</p>';
+					variables[settings["textPos"]] += setBy;
+					lastSetBy = data.set_by;	
+				}else if(lastSetBy && lastUrl == data.post_url){
+					var setBy = '<p class="text">set_by: '+ lastSetBy +'</p>';
 				
 					variables[settings["textPos"]] += setBy;
-				}
+				}else lastSetBy = null;
 					
 					
 				var react = '<div id="buttons">';
@@ -160,7 +159,7 @@ function setNewPost(data){
 								
 				variables[settings["reactPos"]] += react;
 
-				var response = '<p class="text" width="auto" height="auto" margin="0" text->';
+				var response = '<p class="text" height="auto" margin="0" text->';
 				
 				
 				if(data.response_type){
@@ -189,10 +188,7 @@ function setNewPost(data){
 					
 				}else $("body").css("background-color", "transparent");	
 				
-		
-				//$("#bImg").css("object-fit",objFit);
-				
-				
+
 				areas.forEach( (ar,index) => {
 					var name = ar;
 						if(index >0){
@@ -201,16 +197,15 @@ function setNewPost(data){
 						
 						
 					}
-				});
-				
-				//$("#canvas").html(variables["canvas"]);	
+				});	
 		
-				lastUrl = data.post_url;	
-				
+				lastUrl = data.post_url;
+							
+				lastResponseType = data.response_type;
+				lastResponseText = data.response_text;
 				
 				
 				ChangeSettings();
-				
 			}
 }
 
@@ -221,7 +216,6 @@ function getJSON(){
 		   crossDomain: true,
 		   beforeSend:  function(request) {
 				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
-				//request.setRequestHeader("Cookie", "user_agent="+name+"/"+vNr_str);
 				//request.setRequestHeader("User-Agent" , name + '/' + vNr_str);
 			} 
 		});
