@@ -6,22 +6,10 @@ You need a link-id from https://walltaker.joi.how/ for this Wallpaper to work.
 
 # Installation
 
-- Download folder (Wallpaper Engine and Index.html get files from folder)
+- Download SourCode.zip
+- Put "Walltaker-for-WallpaperEngine" folder in [WallpaperEngine Path*]\projects\myprojects
 
-- *open* Wallpaper Engine
-
-- *click* Change Background
-
-- *click* Open Background
-
-- *click* Offline Background
-
-- *select* Index.html
-
-- *input* link-ID in properties
-
-- *enjoy*
-
+ _* this is the path where your wallpaper.exe i located.
 
 # Properties
 
