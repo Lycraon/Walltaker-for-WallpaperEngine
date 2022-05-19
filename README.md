@@ -3,6 +3,7 @@ A wallpaper for Wallpaper Engine that show a e621 post from your walltaker link 
 
 You need a link-id from https://walltaker.joi.how/ for this Wallpaper to work.
 
+### There is a preview Version of upcoming features under Releases!
 
 # Installation
 
