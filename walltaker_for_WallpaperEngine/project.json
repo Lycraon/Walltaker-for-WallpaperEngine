@@ -12,7 +12,7 @@
 				"order" : 103,
 				"text" : "Background Color",
 				"type" : "color",
-				"value" : "0 0 0"
+				"value" : "255 255 255"
 			},
 			"canv_x" : 
 			{
@@ -53,6 +53,14 @@
 				"index" : 0,
 				"order" : 100,
 				"text" : "walltaker.joi.how/links/ ",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"api_key" : 
+			{
+				"index" : 0,
+				"order" : 100,
+				"text" : "api_key ",
 				"type" : "textinput",
 				"value" : ""
 			},
