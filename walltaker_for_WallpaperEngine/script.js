@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.6.0";
+const vNr_str = "v0.1.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
@@ -49,6 +49,8 @@ var bOpacity = settings["background-opacity"];
 
 window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
+		var reloadCanvas = false;
+	 
 		if(properties.api_key)
 		settings["api_key"] = properties.api_key.value;
 	 
@@ -77,6 +79,22 @@ window.wallpaperPropertyListener = {
 			getJSON();
 		}
 		
+		if(properties.set_by){
+		settings["textPos"]	= properties.set_by.value;
+		reloadCanvas = true;
+		}
+		
+		if(properties.setterInfo){
+		settings["setterInfoPos"]	= properties.setterInfo.value;
+		reloadCanvas = true;
+		}
+			
+		if(properties.reaction){
+		settings["reactPos"]	= properties.reaction.value;
+		settings["responsePos"]	= properties.reaction.value;
+		reloadCanvas = true;
+		}
+		
 		if(properties.area_maxWidth)
 		settings["maxAreaWidth"] = properties.area_maxWidth.value + "vw";
 
@@ -94,7 +112,11 @@ window.wallpaperPropertyListener = {
 		if(properties.canv_y)
 		settings["canv_y"] = properties.canv_y.value;	
 		
-		ChangeSettings();
+		
+		if(reloadCanvas){
+			overrideUpdate = true;
+			getJSON();
+		}else ChangeSettings();
 	 }
 };
 
@@ -193,7 +215,7 @@ function postReaction(reactType){
 			data: JSON.stringify({ "api_key": settings["api_key"], "type" : ""+reactType+"", "text" : txt}),
 			dataType: "json",
 			contentType: "application/json",
-			success: function(data){overideUpdate=true;setNewPost(data);},
+			success: function(data){overrideUpdate=true;setNewPost(data);},
 			failure: function(errMsg) {}
 		});
 	
@@ -234,7 +256,7 @@ async function setNewPost(data){
 				
 				//setBy
 				if(data.set_by){
-					var setBy = '<p id="setBy" class="text">set_by: '+ data.set_by +'</p>';
+					var setBy = '<p id="setBy" class="text">👤set_by: '+ data.set_by +'</p>';
 					variables[settings["textPos"]] += setBy;
 					lastSetBy = data.set_by;	
 					
@@ -253,8 +275,8 @@ async function setNewPost(data){
 					react += '</div>';
 					
 					react += '<div id="btn_tooltips" class="tooltipBar">';
-					react += '<p id="tt_hate">hate it</p>';
-					react += '<p id="tt_love">love it</p>';
+					react += '<p id="tt_hate">Hate it</p>';
+					react += '<p id="tt_love">Love it</p>';
 					react += '<p id="tt_came">I came</p>';
 					react += '</div>';
 								
@@ -269,7 +291,7 @@ async function setNewPost(data){
 				if(data.response_text)
 				response += ": "+ data.response_text;
 			
-				response+='</p>';
+				response+=' </p>';
 				
 				variables[settings["responsePos"]] += response;
 				
@@ -297,17 +319,17 @@ async function setNewPost(data){
 				var elem = document.getElementById("btn_hate");
 				elem.addEventListener("click",function(){postReaction("disgust")});
 				elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible";});
-				elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "hidden";});
+				elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
 				
 				elem = document.getElementById("btn_love");
 				elem.addEventListener("click",function(){postReaction("horny")});
 				elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
-				elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "hidden";});
+				elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
 				
 				elem = document.getElementById("btn_cum");
 				elem.addEventListener("click",function(){postReaction("came")});
 				elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
-				elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "hidden";});
+				elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
 				
 				//sets current dat for next check
 				lastUrl = data.post_url;
@@ -319,15 +341,21 @@ async function setNewPost(data){
 				ChangeSettings();
 				
 				//Get infos of setter
-					if(settings["showSetterData"] == "true")	{
+				
+					if(settings["showSetterData"] == "true" )	{
 						var userData = await getUserInfo(data.set_by);
 						
 						//online and friend status
 						if(userData){
-							var setBy = 'set_by:';
+							var setBy = '👤set_by: ';
 							if(userData.friend)
 							setBy += '♥️ ';
 						
+							
+							
+							if(userData.self)
+							setBy += "you ";	
+							else
 							setBy += data.set_by;
 							
 							if(userData.online){
@@ -421,7 +449,7 @@ async function getUserInfo(username){
 			} 
 		});
 		
-		let url = "https://walltaker.joi.how/api/users/" + username + ".json";
+		let url = "https://walltaker.joi.how/api/users/" + username + ".json?api_key="+settings["api_key"];
 		
 		let tmp = await fetch(url);
 		json = await tmp.json();	
@@ -438,4 +466,3 @@ function UpdateCanvas(){
 	
 	intervalID = setTimeout(UpdateCanvas, settings["interval"]);
 };
-
