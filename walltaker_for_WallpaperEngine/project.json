@@ -14,32 +14,6 @@
 				"type" : "color",
 				"value" : "0 0 0"
 			},
-			"canv_x" : 
-			{
-				"fraction" : true,
-				"index" : 7,
-				"max" : 10000,
-				"min" : -10000,
-				"order" : 107,
-				"precision" : 2,
-				"step" : 0.1,
-				"text" : "Pos x",
-				"type" : "slider",
-				"value" : 0
-			},
-			"canv_y" : 
-			{
-				"fraction" : true,
-				"index" : 8,
-				"max" : 10000,
-				"min" : -10000,
-				"order" : 108,
-				"precision" : 2,
-				"step" : 0.1,
-				"text" : "Pos y",
-				"type" : "slider",
-				"value" : 0
-			},
 			"interval" : 
 			{
 				"index" : 1,
@@ -110,7 +84,28 @@
 				"type" : "color",
 				"value" : "1 1 1"
 			},
-			"zoom_h" : 
+			"font_size" : 
+			{
+				"index" : 4,
+				"order" : 104,
+				"text" : "Font Size",
+				"type" : "textinput",
+				"value" : "medium"
+			},
+			"area_maxWidth" : 
+			{
+				"fraction" : true,
+				"index" : 5,
+				"max" : 33,
+				"min" : 0,
+				"order" : 105,
+				"precision" : 1,
+				"step" : 0.1,
+				"text" : "Max area width",
+				"type" : "slider",
+				"value" : 30
+			},
+			"zoom_w" : 
 			{
 				"fraction" : true,
 				"index" : 6,
@@ -119,28 +114,55 @@
 				"order" : 106,
 				"precision" : 2,
 				"step" : 0.1,
+				"text" : "Zoom width",
+				"type" : "slider",
+				"value" : 100
+			},
+			"zoom_h" : 
+			{
+				"fraction" : true,
+				"index" : 7,
+				"max" : 250,
+				"min" : 0,
+				"order" : 107,
+				"precision" : 2,
+				"step" : 0.1,
 				"text" : "Zoom heigth",
 				"type" : "slider",
 				"value" : 100
 			},
-			"zoom_w" : 
+			
+			"canv_x" : 
 			{
 				"fraction" : true,
-				"index" : 5,
-				"max" : 250,
-				"min" : 0,
-				"order" : 105,
+				"index" : 7,
+				"max" : 10000,
+				"min" : -10000,
+				"order" : 107,
 				"precision" : 2,
 				"step" : 0.1,
-				"text" : "Zoom width",
+				"text" : "Pos x",
 				"type" : "slider",
-				"value" : 100
-			}
+				"value" : 0
+			},
+			"canv_y" : 
+			{
+				"fraction" : true,
+				"index" : 8,
+				"max" : 10000,
+				"min" : -10000,
+				"order" : 108,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Pos y",
+				"type" : "slider",
+				"value" : 0
+			},
 		}
 	},
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 5,
+	"version" : 6,
 	"visibility" : "private"
 }
