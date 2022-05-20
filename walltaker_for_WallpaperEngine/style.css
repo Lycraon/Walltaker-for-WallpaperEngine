@@ -83,10 +83,11 @@ body {
 	padding-left: 10px;
 	padding-right: 20px;
 	justify-content: left;
+	
 }
 
 #bottom-left{
-	bottom: 50px;
+	bottom: 3vh;
 	left: 10px;
 	padding-left: 10px;
 	padding-right: 20px;
@@ -94,7 +95,7 @@ body {
 }
 
 #bottom-center{
-	bottom: 50px;
+	bottom: 3vh;
 	left: 50vw;	
 	-ms-transform: translate(-50%, 0%);
     	transform: translate(-50%, 0%);
@@ -107,8 +108,7 @@ body {
 }
 
 #bottom-right{
-	position: absolute;
-	bottom: 50px;
+	bottom: 3vh;
 	right: 10px;
 	padding-left: 10px;
 	padding-right: 20px;
@@ -146,28 +146,25 @@ body {
 	top: 0;
 }
 
-
-
 .tooltipBar > p {
 	position: absolute;
 	background-color: rgba(30, 30, 30, 0.98);
 	color: rgb(255, 255, 255);
 	padding: 0.5rem;
 	border-radius: 10px;
-	display: inline-block;
 	width: auto;
 	height: auto;
 	margin: 0;	
 	z-index: 1001;
-	visibility: hidden;
+	visibility: collapse;
 	white-space: nowrap;
 	align-items: center center;
 	text-align: center center;
-	top: 3em;
 	left: 50%;
 	-ms-transform: translate(-50%, 0%);
     	transform: translate(-50%, 0%);
 }
+
 
 
 
