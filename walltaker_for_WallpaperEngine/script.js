@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.4.0";
+const vNr_str = "v0.6.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
@@ -8,7 +8,7 @@ const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-
 //all reactions
 const reacts = {
 	"":"[]",
-	"disgust":"",
+	"disgust":"😓",
 	"horny":"😍",
 	"came":"💦",
 }
@@ -28,7 +28,7 @@ var settings = {
 	'showSetterData': "true",
 	'listSetterLinks': "true",
 	'responsePos': "top-center",
-	'setterInfoPos': "top-left",
+	'setterInfoPos': "bottom-left",
 	'maxAreaWidth': "20vw", 
 	'zoom_w': "100", //%
 	'zoom_h': "100", //%
@@ -109,6 +109,13 @@ UpdateCanvas();
 		var color = settings["background-color"]+" "+ bOpacity;
 		var css = "";
 		
+		
+		//*
+		css+= "* {\n";
+		css+= "	font-size: " + settings["fontSize"] + ";\n";
+		css+= "}\n\n";
+	
+		
 		//body
 		css+= "body {\n";
 		css+= "	background-color: " + GetRGBColor(color) + ";\n";
@@ -122,15 +129,14 @@ UpdateCanvas();
 		//.texts
 		css+= ".text{\n";
 		css+= "	color:"+GetRGBColor(settings["textColor"])+";\n";
-		css+= "	font-size: " + settings["fontSize"] + ";\n";
 		css+= "}\n\n";
 		
 		//#canvas
 		css+= "#canvas {\n";
-		css+= "	width: "+settings["zoom_w"]+"%;\n"
-		css+= "	height: "+settings["zoom_w"]+"%;\n"
-		css+= "	margin-top: "+settings["canv_y"]+"%;\n"
-		css+= "	margin-left: "+settings["canv_x"]+"%;\n"
+		css+= "	width: "+settings["zoom_w"]+"% !important;\n"
+		css+= "	height: "+settings["zoom_h"]+"% !important;\n"
+		css+= "	margin-top: "+settings["canv_y"]+"% !important;\n"
+		css+= "	margin-left: "+settings["canv_x"]+"% !important;\n"
 		css+= "}\n\n";
 		
 		//#bImg
@@ -241,11 +247,15 @@ async function setNewPost(data){
 				
 				//reaction buttons				
 				var react = '<div id="buttons">';
+					react += '<button type="button" id="btn_hate" >😓</button>';
+					react += '<button type="button" id="btn_love" >😍</button>'; 
+					react += '<button type="button" id="btn_cum"  >💦</button>'; 
+					react += '</div>';
 					
-				
-					react += '<button type="button" id="btn_hate" >hate it</button>';
-					react += '<button type="button" id="btn_love" >love it</button>'; 
-					react += '<button type="button" id="btn_cum"  >I came</button>'; 
+					react += '<div id="btn_tooltips" class="tooltipBar">';
+					react += '<p id="tt_hate">hate it</p>';
+					react += '<p id="tt_love">love it</p>';
+					react += '<p id="tt_came">I came</p>';
 					react += '</div>';
 								
 				variables[settings["reactPos"]] += react;
@@ -283,15 +293,21 @@ async function setNewPost(data){
 					}
 				});
 				
-				//OnClick functions for reaction buttons
+				//Event functions for reaction buttons
 				var elem = document.getElementById("btn_hate");
 				elem.addEventListener("click",function(){postReaction("disgust")});
+				elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible";});
+				elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "hidden";});
 				
 				elem = document.getElementById("btn_love");
 				elem.addEventListener("click",function(){postReaction("horny")});
+				elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
+				elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "hidden";});
 				
 				elem = document.getElementById("btn_cum");
 				elem.addEventListener("click",function(){postReaction("came")});
+				elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
+				elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "hidden";});
 				
 				//sets current dat for next check
 				lastUrl = data.post_url;
@@ -335,6 +351,7 @@ async function setNewPost(data){
 									for(var i=0;i< userData.links.length;i++){
 										var elLink = document.createElement("p");
 										elLink.classList.add('text');
+										elLink.style.paddingTop = "0";
 										
 										var linkInfo = "";
 										if(userData.links[i]){
@@ -421,9 +438,4 @@ function UpdateCanvas(){
 	
 	intervalID = setTimeout(UpdateCanvas, settings["interval"]);
 };
-
-
-
-
-
 
