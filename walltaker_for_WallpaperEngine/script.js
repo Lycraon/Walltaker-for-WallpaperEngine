@@ -1,7 +1,11 @@
+//Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.3.0";
+const vNr_str = "v0.4.0";
 
+//all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
+
+//all reactions
 const reacts = {
 	"":"[]",
 	"disgust":"",
@@ -9,12 +13,14 @@ const reacts = {
 	"came":"💦",
 }
 
+//Settings
 var settings = {
 	'linkID' : "",
 	'api_key' : "",
 	'textColor' : "255 255 255",
 	'background-color': "0 0 0",
 	'background-opacity': "1",
+	'fontSize': "100%", //x-small,small, medium, large or px / em / %
 	'interval' : "10000",
 	'objFit'  : "contain",
 	'textPos' : "top-left",
@@ -23,18 +29,20 @@ var settings = {
 	'listSetterLinks': "true",
 	'responsePos': "top-center",
 	'setterInfoPos': "top-left",
-	'zoom_w': "100",
-	'zoom_h': "100",
-	'canv_x': "0",
-	'canv_y': "0"
+	'maxAreaWidth': "20vw", 
+	'zoom_w': "100", //%
+	'zoom_h': "100", //%
+	'canv_x': "0", //px
+	'canv_y': "0" //px
 };
-var lastUrl = "";
+
+//Global variables
 var lastSetBy = "";
 var lastResponseType = "";
 var lastResponseText = "";
 
 var Url = "";
-var overideUpdate = false;
+var overrideUpdate = false;
 var bOpacity = settings["background-opacity"];
 
 
@@ -53,16 +61,15 @@ window.wallpaperPropertyListener = {
 		if(properties.interval)
 		settings["interval"] = parseInt(properties.interval.value) *1000;
 		
-
-	 
 		if(properties.text_color)
 		settings["textColor"] = properties.text_color.value;
 		
+		if(properties.font_size)
+		settings["fontSize"] = properties.font_size.value;
 	
 		if(properties.backg_color)
 		settings["background-color"] = properties.backg_color.value;
 
-	
 		if(properties.objfit){
 			settings["objFit"] = properties.objfit.value;		
 			
@@ -70,6 +77,10 @@ window.wallpaperPropertyListener = {
 			getJSON();
 		}
 		
+		if(properties.area_maxWidth)
+		settings["maxAreaWidth"] = properties.area_maxWidth.value + "vw";
+
+
 		if(properties.zoom_w)
 		settings["zoom_w"] = properties.zoom_w.value;			
 		
@@ -87,74 +98,96 @@ window.wallpaperPropertyListener = {
 	 }
 };
 
+//start Checks for Updates
 UpdateCanvas();
 
 
         
 
-
+//changes Settings mostly CSS stuff
  function ChangeSettings() {
-		//$(".text").css("color",GetRGBColor(textColor));	
-        var color = settings["background-color"]+" "+ bOpacity;
-		$("body").css("background-color",GetRGBColor(color));
-		$("#canvas").css("width",settings["zoom_w"] + "%");
-		$("#canvas").css("height",settings["zoom_h"] + "%");
-		$("#canvas").css("margin-top",settings["canv_x"] + "px");
-		$("#canvas").css("margin-left",settings["canv_y"].value + "px");
-		
+		var color = settings["background-color"]+" "+ bOpacity;
 		var css = "";
 		
-		css+= ".text{\n";
-		css+= "	color:"+GetRGBColor(settings["textColor"])+";\n";
+		//body
+		css+= "body {\n";
+		css+= "	background-color: " + GetRGBColor(color) + ";\n";
 		css+= "}\n\n";
 		
-		css+= "#bImg {\n";;
-		css+= '	background-repeat: no-repeat;\n';
-		css+= "object-fit:"+settings["objFit"]+"!important;\n";
-		css+= 'position: absolute;\n';
+		//.areas
+		css+= ".area{\n";
+		css+= '	max-width: '+settings["maxAreaWidth"]+';\n'
 		css+= "}\n\n";
-		var dynStyle = document.createElement("Style");
-		dynStyle.id = "dynCSS";
+		
+		//.texts
+		css+= ".text{\n";
+		css+= "	color:"+GetRGBColor(settings["textColor"])+";\n";
+		css+= "	font-size: " + settings["fontSize"] + ";\n";
+		css+= "}\n\n";
+		
+		//#canvas
+		css+= "#canvas {\n";
+		css+= "	width: "+settings["zoom_w"]+"%;\n"
+		css+= "	height: "+settings["zoom_w"]+"%;\n"
+		css+= "	margin-top: "+settings["canv_y"]+"%;\n"
+		css+= "	margin-left: "+settings["canv_x"]+"%;\n"
+		css+= "}\n\n";
+		
+		//#bImg
+		css+= "#bImg {\n";
+		css+= '	background-repeat: no-repeat;\n';
+		css+= "	object-fit:"+settings["objFit"]+"!important;\n";
+		css+= '	position: absolute;\n';
+		css+= "}\n\n";
+		
+		
+		//wallpaperEngined liked to override header so this makes sure the header is correct
 		document.head.innerHTML = '<meta charset="utf-8"><link rel="stylesheet" href="style.css" type="text/css"><script type="text/javascript" src="jquery.js"></script><script type="text/javascript" src="script.js"></script><style id="dynStyle"></style><style id="dynCSS"></style>';
+		
+		//setting content of dynCSS (style element)
 		document.getElementById("dynCSS").innerHTML = css;
 	}
 	
 
-	
+//takes WallpaperEngine color string and converts it into (usable) rgb/rgba format
 function GetRGBColor(customColor){
+	//split string into values
 	var temp = customColor.split(' ');
 			var rgb = temp.slice(0, 3);
+			
+			//cap rgb values at 255
             rgb = rgb.map(function _cap(c) {
                 return Math.ceil(c * 255);
             });
 		
 			var customColorAsCSS = "";
 		
+			//length is 3 for rgb values
 			if(temp.length > 3)
 			customColorAsCSS = 'rgba(' + rgb+','+temp[3]+ ')';
 			else
 			customColorAsCSS = 'rgb(' + rgb+')';
-			//if(temp.length > 2) 
-				    //else return customColorAsCSS = 'rgb(' + temp + ')';
+
 				
 			return customColorAsCSS;
-        
-	
 }
 
-function react(reactType){	
+//sends POST to Website and passes data to setNewPost
+function postReaction(reactType){	
 
+		//Reaction Text
 		var txt = ""
 		
-		console.log("Posting reaction to Link " + settings["linkID"] );
+		console.log("Posting reaction ("+reactType+","+txt+") to Link " + settings["linkID"] );
 			
+		//POST	
 		 $.ajax({
 			type: "POST",		
 			url: "https://walltaker.joi.how/api/links/"+ settings["linkID"] +"/response.json",
-			data: JSON.stringify({ "api_key": settings["api_key"], "type" : reactType, "text" : txt}),
+			data: JSON.stringify({ "api_key": settings["api_key"], "type" : ""+reactType+"", "text" : txt}),
 			dataType: "json",
 			contentType: "application/json",
-			success: function(data){setNewPost(data);},
+			success: function(data){overideUpdate=true;setNewPost(data);},
 			failure: function(errMsg) {}
 		});
 	
@@ -163,10 +196,14 @@ function react(reactType){
 
 async function setNewPost(data){
 			
-			if((data && lastUrl != data.post_url) || data.response_type != lastResponseType || data.response_text != lastResponseText ||overideUpdate == true ){
-				overideUpdate = false;
+			//Check for changes if false skip code
+			//this is for perfomance (local & network)
+			if((data && lastUrl != data.post_url) || data.response_type != lastResponseType || data.response_text != lastResponseText ||overrideUpdate == true ){
+				//set in case override was ture
+				overrideUpdate = false;
 				console.log("Updating link data!" );
 				
+				//String variables for areas
 				var variables = {
 					'top-left': "",
 					'top-center': "",
@@ -189,6 +226,7 @@ async function setNewPost(data){
 					variables[settings["userPos"]] += UserInfo;
 				}*/
 				
+				//setBy
 				if(data.set_by){
 					var setBy = '<p id="setBy" class="text">set_by: '+ data.set_by +'</p>';
 					variables[settings["textPos"]] += setBy;
@@ -200,15 +238,19 @@ async function setNewPost(data){
 					variables[settings["textPos"]] += setBy;
 				}else lastSetBy = null;
 					
-					
+				
+				//reaction buttons				
 				var react = '<div id="buttons">';
-					react += '<button type="button" name="btn_hate" onclick="react("disgust")">hate it</button>';
-					react += '<button type="button" name="btn_love" onclick="react("horny")">love it</button>'; 
-					react += '<button type="button" name="btn_cum" onclick="react("came")">I came</button>'; 
+					
+				
+					react += '<button type="button" id="btn_hate" >hate it</button>';
+					react += '<button type="button" id="btn_love" >love it</button>'; 
+					react += '<button type="button" id="btn_cum"  >I came</button>'; 
 					react += '</div>';
 								
 				variables[settings["reactPos"]] += react;
 
+				//current response to link
 				var response = '<p class="text" height="auto" margin="0" text->';
 				
 				if(data.response_type)
@@ -221,22 +263,16 @@ async function setNewPost(data){
 				
 				variables[settings["responsePos"]] += response;
 				
-				//variables["canvas"] += '<div id="bImg"></div>';
+				//post Image
 				if(data.post_url && data.post_url != ""){
-						//Url = data.post_url;
 						bOpacity = settings["background-opacity"];
 						variables["canvas"] += '<Img id="bImg" src="'+data.post_url+'"/>';
-						//display += '<p class="text">'+interval+'</p>'
-						//display += '<p class="text">Last Change:'+ data.updated_at  +'</p>'
-						//display += '<p class="text">'+objFit+'</p>'
 						
 					
 				}else bOpacity = "0";
 				
 				
-				
-				
-				
+				//sets the html for each area with the coresponding variables
 				areas.forEach( (ar,index) => {
 					var name = ar;
 						if(index >0){
@@ -247,18 +283,30 @@ async function setNewPost(data){
 					}
 				});
 				
-				//$("#canvas").html(variables["canvas"]);	
-		
+				//OnClick functions for reaction buttons
+				var elem = document.getElementById("btn_hate");
+				elem.addEventListener("click",function(){postReaction("disgust")});
+				
+				elem = document.getElementById("btn_love");
+				elem.addEventListener("click",function(){postReaction("horny")});
+				
+				elem = document.getElementById("btn_cum");
+				elem.addEventListener("click",function(){postReaction("came")});
+				
+				//sets current dat for next check
 				lastUrl = data.post_url;
 							
 				lastResponseType = data.response_type;
 				lastResponseText = data.response_text;
 				
+				//calls ChangeSettings to update css / style 
 				ChangeSettings();
 				
+				//Get infos of setter
 					if(settings["showSetterData"] == "true")	{
 						var userData = await getUserInfo(data.set_by);
 						
+						//online and friend status
 						if(userData){
 							var setBy = 'set_by:';
 							if(userData.friend)
@@ -271,9 +319,8 @@ async function setNewPost(data){
 							}
 							
 							$("#setBy").html(setBy);
-
-							//var userInfo = '<p class="text">';
 							
+							//info of links
 							if(userData.links){
 
 							
@@ -282,6 +329,8 @@ async function setNewPost(data){
 								var strInfo = 'Links: ' + userData.links.length;
 								elInfo.innerHTML = strInfo;
 								document.getElementById(settings["setterInfoPos"]).appendChild(elInfo); 
+								
+								//list of links
 								if(settings["listSetterLinks"] == "true" ){
 									for(var i=0;i< userData.links.length;i++){
 										var elLink = document.createElement("p");
@@ -320,7 +369,8 @@ async function setNewPost(data){
 			}
 }
 
-
+//gets json from website
+//on sucess: calls function setNewPost() (updates background + infos)
 function getJSON(){
 		if(settings["linkID"]){
 		$.ajaxSetup({
@@ -334,16 +384,12 @@ function getJSON(){
 			} 
 		});
 		
-		/*
-		window.navigator.__defineGetter__('userAgent', function () {
-			return name + '/' + vNr_str;
-		});*/
-		
 		$.getJSON("https://walltaker.joi.how/api/links/" + settings["linkID"] + ".json", function(data){setNewPost(data);} );
 		
 		}else console.log("Did not request Link -> linkId was empty");
 	}
 	
+//gets Info from username and returns JSON object of response
 async function getUserInfo(username){
 	
 		var json;
@@ -358,9 +404,6 @@ async function getUserInfo(username){
 			} 
 		});
 		
-		
-		
-		//$.getJSON("https://walltaker.joi.how/api/users/" + username + ".json",function(data){ 	} );
 		let url = "https://walltaker.joi.how/api/users/" + username + ".json";
 		
 		let tmp = await fetch(url);
@@ -371,6 +414,8 @@ async function getUserInfo(username){
 	
 
 var intervalID = null;
+
+//Loops getJson (= get Data from Website)
 function UpdateCanvas(){
 	getJSON();
 	
