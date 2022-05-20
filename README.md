@@ -56,6 +56,7 @@ unit: px
 - api_key integration
 - quick reactions (textinput not possible)
 - content areas
+- online status of setter
 
 ### Discarded
 - parallax efect: not possible (no mous and keybord input for web wallpapers)
