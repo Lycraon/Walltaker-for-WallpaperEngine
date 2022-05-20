@@ -105,6 +105,124 @@
 				"type" : "slider",
 				"value" : 30
 			},
+			"set_by" : 
+			{
+				"index" : 5,
+				"options" : 
+				[
+					{
+						"label" : "top left",
+						"value" : "top-left"
+					},
+					{
+						"label" : "top center",
+						"value" : "top-center"
+					},
+					{
+						"label" : "top right",
+						"value" : "top-right"
+					},
+					{
+						"label" : "bottom left",
+						"value" : "bottom-left"
+					},
+					{
+						"label" : "bottom center",
+						"value" : "bottom-center"
+					},
+					{
+						"label" : "bottom right",
+						"value" : "bottom-right"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 105,
+				"text" : "Set by: ",
+				"type" : "combo",
+				"value" : "top-left"
+			},
+			"setterInfo" : 
+			{
+				"index" : 5,
+				"options" : 
+				[
+					{
+						"label" : "top left",
+						"value" : "top-left"
+					},
+					{
+						"label" : "top center",
+						"value" : "top-center"
+					},
+					{
+						"label" : "top right",
+						"value" : "top-right"
+					},
+					{
+						"label" : "bottom left",
+						"value" : "bottom-left"
+					},
+					{
+						"label" : "bottom center",
+						"value" : "bottom-center"
+					},
+					{
+						"label" : "bottom right",
+						"value" : "bottom-right"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 105,
+				"text" : "Setter Infos: ",
+				"type" : "combo",
+				"value" : "top-left"
+			},
+			"reaction" : 
+			{
+				"index" : 5,
+				"options" : 
+				[
+					{
+						"label" : "top left",
+						"value" : "top-left"
+					},
+					{
+						"label" : "top center",
+						"value" : "top-center"
+					},
+					{
+						"label" : "top right",
+						"value" : "top-right"
+					},
+					{
+						"label" : "bottom left",
+						"value" : "bottom-left"
+					},
+					{
+						"label" : "bottom center",
+						"value" : "bottom-center"
+					},
+					{
+						"label" : "bottom right",
+						"value" : "bottom-right"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 105,
+				"text" : "Quick reactions: ",
+				"type" : "combo",
+				"value" : "top-center"
+			},
+			
 			"zoom_w" : 
 			{
 				"fraction" : true,
@@ -163,6 +281,6 @@
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 7,
+	"version" : 8,
 	"visibility" : "private"
 }
