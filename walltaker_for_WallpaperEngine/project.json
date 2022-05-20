@@ -12,7 +12,7 @@
 				"order" : 103,
 				"text" : "Background Color",
 				"type" : "color",
-				"value" : "255 255 255"
+				"value" : "0 0 0"
 			},
 			"canv_x" : 
 			{
@@ -141,6 +141,6 @@
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 4,
+	"version" : 5,
 	"visibility" : "private"
 }
