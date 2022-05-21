@@ -15,16 +15,18 @@ const reacts = {
 
 //Settings
 var settings = {
+	'overrideURL' : "", // Put an Url here to only show this url (must be link to picture/video (static pages on e621))
 	'linkID' : "",
 	'api_key' : "",
 	'textColor' : "255 255 255",
 	'background-color': "0 0 0",
 	'background-opacity': "1",
 	'fontSize': "100%", //x-small,small, medium, large or px / em / %
-	'interval' : "10000",
+	'interval' : "10000", //ms do not run with small numbers(<1000) for long sessions
 	'objFit'  : "contain",
 	'textPos' : "top-left",
 	'reactPos': "top-center",
+	'showTooltips': "true",
 	'showSetterData': "true",
 	'listSetterLinks': "true",
 	'responsePos': "top-center",
@@ -45,43 +47,62 @@ var Url = "";
 var overrideUpdate = false;
 var bOpacity = settings["background-opacity"];
 
-
-
 window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
 		var reloadCanvas = false;
-	 
-		if(properties.api_key)
-		settings["api_key"] = properties.api_key.value;
+		var realoadSetter = false;
 	 
 		if(properties.linkID){
 				settings["linkID"] = properties.linkID.value;
 				lastUrl = "";
 				getJSON();
+		}
+			
+		if(properties.api_key){
+			settings["api_key"] = properties.api_key.value;
+			
+			if(!settings["api_key"].length == 8){
+			settings["reactPos"] = "none";
+			settings["responsePos"] = "none";
 			}
+			reloadCanvas = true;
+			
+		}
 	 
 		if(properties.interval)
 		settings["interval"] = parseInt(properties.interval.value) *1000;
+	
+		if(properties.objfit){
+				settings["objFit"] = properties.objfit.value;		
+				reloadCanvas = true;
+		}
+	
+		if(properties.backg_color)
+		settings["background-color"] = properties.backg_color.value;
 		
 		if(properties.text_color)
 		settings["textColor"] = properties.text_color.value;
+	
+		if(properties.area_maxWidth)
+		settings["maxAreaWidth"] = properties.area_maxWidth.value + "vw";
 		
 		if(properties.font_size)
 		settings["fontSize"] = properties.font_size.value;
 	
-		if(properties.backg_color)
-		settings["background-color"] = properties.backg_color.value;
-
-		if(properties.objfit){
-			settings["objFit"] = properties.objfit.value;		
-			
-			lastUrl = "";
-			getJSON();
-		}
-		
 		if(properties.set_by){
 		settings["textPos"]	= properties.set_by.value;
 		reloadCanvas = true;
+		}
+		
+		if(properties.setterData){
+			settings["showSetterData"]	= ""+properties.setterData.value+"";
+			reloadCanvas = true;
+		}
+		
+	
+		if(properties.setterLinks){
+		settings["listSetterLinks"]	= ""+properties.setterLinks.value+"";
+		realoadSetter = true;
 		}
 		
 		if(properties.setterInfo){
@@ -95,13 +116,8 @@ window.wallpaperPropertyListener = {
 		reloadCanvas = true;
 		}
 		
-		if(properties.area_maxWidth)
-		settings["maxAreaWidth"] = properties.area_maxWidth.value + "vw";
-
-
 		if(properties.zoom_w)
 		settings["zoom_w"] = properties.zoom_w.value;			
-		
 		
 		if(properties.zoom_h)
 		settings["zoom_h"] = properties.zoom_h.value;	
@@ -112,35 +128,56 @@ window.wallpaperPropertyListener = {
 		if(properties.canv_y)
 		settings["canv_y"] = properties.canv_y.value;	
 		
-		
 		if(reloadCanvas){
 			overrideUpdate = true;
 			getJSON();
 		}else ChangeSettings();
+		
+		if(realoadSetter)
+		UpdateSetterInfo(lastSetBy);			
 	 }
 };
 
 //start Checks for Updates
-UpdateCanvas();
+if(settings["overrideURL"]) setCustomUrl(settings["overrideURL"]);
+else UpdateCanvas();
 
 
-        
+function setCustomUrl(url){
+	console.log("custom url "+settings["overrideURL"]);
+	var str = "";
+	str += '<Img id="bImg" class="bImg" src="'+url+'"/>';
+	str += '<video id="bVid" class="bImg" src="'+url+'"/ autoplay loop></video>';
+	
+	console.log(str);
+	
+	var el = document.createElement("div");
+	el.id="canvas";
+	document.body.appendChild(el);
+	$("#canvas").html(str);	
+	
+	
+	var elem = document.getElementById("bImg");
+	elem.addEventListener("load",function(){document.getElementById("bImg").style.visibility = "visible";ChangeSettings();});
+	
+	elem = document.getElementById("bVid");
+	elem.addEventListener("loadeddata",function(){document.getElementById("bVid").style.visibility = "visible";ChangeSettings();});
+	ChangeSettings();
+}
 
 //changes Settings mostly CSS stuff
  function ChangeSettings() {
 		var color = settings["background-color"]+" "+ bOpacity;
 		var css = "";
 		
-		
 		//*
 		css+= "* {\n";
 		css+= "	font-size: " + settings["fontSize"] + ";\n";
 		css+= "}\n\n";
 	
-		
 		//body
 		css+= "body {\n";
-		css+= "	background-color: " + GetRGBColor(color) + ";\n";
+		css+= "	background-color: " + GetRGBColor(color) + "!important;\n";
 		css+= "}\n\n";
 		
 		//.areas
@@ -162,12 +199,11 @@ UpdateCanvas();
 		css+= "}\n\n";
 		
 		//#bImg
-		css+= "#bImg {\n";
+		css+= ".bImg {\n";
 		css+= '	background-repeat: no-repeat;\n';
 		css+= "	object-fit:"+settings["objFit"]+"!important;\n";
 		css+= '	position: absolute;\n';
 		css+= "}\n\n";
-		
 		
 		//wallpaperEngined liked to override header so this makes sure the header is correct
 		document.head.innerHTML = '<meta charset="utf-8"><link rel="stylesheet" href="style.css" type="text/css"><script type="text/javascript" src="jquery.js"></script><script type="text/javascript" src="script.js"></script><style id="dynStyle"></style><style id="dynCSS"></style>';
@@ -202,7 +238,7 @@ function GetRGBColor(customColor){
 
 //sends POST to Website and passes data to setNewPost
 function postReaction(reactType){	
-
+	if(settings["api_key"].length == 8){
 		//Reaction Text
 		var txt = ""
 		
@@ -218,12 +254,12 @@ function postReaction(reactType){
 			success: function(data){overrideUpdate=true;setNewPost(data);},
 			failure: function(errMsg) {}
 		});
-	
+	}
 }
 
 
-async function setNewPost(data){
-			
+function setNewPost(data){
+			if(settings["overrideURL"]) return;
 			//Check for changes if false skip code
 			//this is for perfomance (local & network)
 			if((data && lastUrl != data.post_url) || data.response_type != lastResponseType || data.response_text != lastResponseText ||overrideUpdate == true ){
@@ -239,8 +275,7 @@ async function setNewPost(data){
 					'bottom-left': "",
 					'bottom-center': "",
 					'bottom-right': "",
-					'canvas': ""
-					
+					'canvas': ""				
 				}
 
 				/*
@@ -255,50 +290,65 @@ async function setNewPost(data){
 				}*/
 				
 				//setBy
+				if(settings["textPos"] && settings["textPos"] != "none")
 				if(data.set_by){
 					var setBy = '<p id="setBy" class="text">👤set_by: '+ data.set_by +'</p>';
 					variables[settings["textPos"]] += setBy;
 					lastSetBy = data.set_by;	
 					
-				}else if(lastSetBy && lastUrl == data.post_url){
-					var setBy = '<p id="setBy" class="text">set_by: '+ lastSetBy +'</p>';
+				
+				}else 
+				if(settings["textPos"] && settings["textPos"] != "none")
+				if(lastSetBy && lastUrl == data.post_url){
+					var setBy = '<p id="setBy" class="text">👤set_by: '+ lastSetBy +'</p>';
 				
 					variables[settings["textPos"]] += setBy;
 				}else lastSetBy = null;
 					
+				if(settings["showSetterData"] == "true" && settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
+				variables[settings["setterInfoPos"]] += '<div id="SetterInfo"></div>';
 				
-				//reaction buttons				
-				var react = '<div id="buttons">';
+				//reaction buttons
+				if(settings["reactPos"] && settings["reactPos"] != "none")
+				if(settings["api_key"].length == 8){
+					var react = '<div id="buttons">';
 					react += '<button type="button" id="btn_hate" >😓</button>';
 					react += '<button type="button" id="btn_love" >😍</button>'; 
 					react += '<button type="button" id="btn_cum"  >💦</button>'; 
 					react += '</div>';
 					
+					if(settings["showTooltips"] == "true"){
 					react += '<div id="btn_tooltips" class="tooltipBar">';
 					react += '<p id="tt_hate">Hate it</p>';
 					react += '<p id="tt_love">Love it</p>';
-					react += '<p id="tt_came">I came</p>';
+					react += '<p id="tt_came">I came</p>';					
 					react += '</div>';
-								
-				variables[settings["reactPos"]] += react;
+					react += '<p class="spacer"></p>'
+					}
+							
+					variables[settings["reactPos"]] += react;
+				}
 
 				//current response to link
-				var response = '<p class="text" height="auto" margin="0" text->';
+				if(settings["responsePos"] && settings["responsePos"] != "none"){
+					var response = '<p class="text" height="auto" margin="0" text->';
+					
+					if(data.response_type)
+					response += reacts[data.response_type];
+					
+					if(data.response_text)
+					response += ": "+ data.response_text;
 				
-				if(data.response_type)
-				response += reacts[data.response_type];
-				
-				if(data.response_text)
-				response += ": "+ data.response_text;
-			
-				response+=' </p>';
-				
-				variables[settings["responsePos"]] += response;
+					response+=' </p>';
+					
+					variables[settings["responsePos"]] += response;
+				}
 				
 				//post Image
 				if(data.post_url && data.post_url != ""){
 						bOpacity = settings["background-opacity"];
-						variables["canvas"] += '<Img id="bImg" src="'+data.post_url+'"/>';
+						variables["canvas"] += '<Img id="bImg" class="bImg" src="'+data.post_url+'"/>';
+						variables["canvas"] += '<video id="bVid" class="bImg" src="'+data.post_url+'"/ autoplay loop></video>';
 						
 					
 				}else bOpacity = "0";
@@ -315,21 +365,37 @@ async function setNewPost(data){
 					}
 				});
 				
-				//Event functions for reaction buttons
-				var elem = document.getElementById("btn_hate");
-				elem.addEventListener("click",function(){postReaction("disgust")});
-				elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible";});
-				elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
+				//Event functions 
+				var elem = document.getElementById("bImg");
+				elem.addEventListener("load",function(){document.getElementById("bImg").style.visibility = "visible";});
 				
-				elem = document.getElementById("btn_love");
-				elem.addEventListener("click",function(){postReaction("horny")});
-				elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
-				elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
+				elem = document.getElementById("bVid");
+				elem.addEventListener("loadeddata",function(){document.getElementById("bVid").style.visibility = "visible";});
 				
-				elem = document.getElementById("btn_cum");
-				elem.addEventListener("click",function(){postReaction("came")});
-				elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
-				elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
+				if(settings["reactPos"] && settings["reactPos"] != "none")
+				if(settings["api_key"].length == 8){
+					elem = document.getElementById("btn_hate");
+					elem.addEventListener("click",function(){postReaction("disgust")});
+					if(settings["showTooltips"]){
+					elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible";});
+					elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
+					}
+					
+					elem = document.getElementById("btn_love");
+					elem.addEventListener("click",function(){postReaction("horny")});
+					if(settings["showTooltips"]){
+					elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
+					elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
+					}
+					
+					elem = document.getElementById("btn_cum");
+					elem.addEventListener("click",function(){postReaction("came")});
+					if(settings["showTooltips"]){
+					elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
+					elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
+					}
+					
+				}
 				
 				//sets current dat for next check
 				lastUrl = data.post_url;
@@ -341,9 +407,24 @@ async function setNewPost(data){
 				ChangeSettings();
 				
 				//Get infos of setter
-				
-					if(settings["showSetterData"] == "true" )	{
-						var userData = await getUserInfo(data.set_by);
+				UpdateSetterInfo(data.set_by);
+					
+			}
+}
+
+LoopSetterUpdate();
+
+function LoopSetterUpdate(){
+	if(!settings["overrideURL"])
+	UpdateSetterInfo(lastSetBy);
+	
+	setTimeout(LoopSetterUpdate, settings["interval"]);
+};
+
+async function UpdateSetterInfo(username){
+	console.log("Updating Setter Info of " + username)
+	if(username && settings["showSetterData"] == "true")	{
+						var userData = await getUserInfo(username);
 						
 						//online and friend status
 						if(userData){
@@ -356,8 +437,7 @@ async function setNewPost(data){
 							if(userData.self)
 							setBy += "you ";	
 							else
-							setBy += data.set_by;
-							
+							setBy += username;						
 							if(userData.online){
 								setBy += ' 🟢';
 							}
@@ -365,6 +445,7 @@ async function setNewPost(data){
 							$("#setBy").html(setBy);
 							
 							//info of links
+							if(settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
 							if(userData.links){
 
 							
@@ -372,8 +453,9 @@ async function setNewPost(data){
 								elInfo.classList.add('text');
 								var strInfo = 'Links: ' + userData.links.length;
 								elInfo.innerHTML = strInfo;
-								document.getElementById(settings["setterInfoPos"]).appendChild(elInfo); 
 								
+								document.getElementById("SetterInfo").innerHTML = "";
+								document.getElementById("SetterInfo").appendChild(elInfo);
 								//list of links
 								if(settings["listSetterLinks"] == "true" ){
 									for(var i=0;i< userData.links.length;i++){
@@ -384,7 +466,7 @@ async function setNewPost(data){
 										var linkInfo = "";
 										if(userData.links[i]){
 										
-										linkInfo += " -- [";
+										linkInfo += " ➔ [";
 										
 										if(userData.links[i].id)
 										linkInfo += userData.links[i].id;
@@ -402,16 +484,12 @@ async function setNewPost(data){
 										
 										}
 										elLink.innerHTML = linkInfo;
-										document.getElementById(settings["setterInfoPos"]).appendChild(elLink); 
-									}
+										document.getElementById("SetterInfo").appendChild(elLink);
+									}		 
 								}
-								
-								
 							}
-
 						}
 					}
-			}
 }
 
 //gets json from website
@@ -449,7 +527,11 @@ async function getUserInfo(username){
 			} 
 		});
 		
-		let url = "https://walltaker.joi.how/api/users/" + username + ".json?api_key="+settings["api_key"];
+		
+		let url = "https://walltaker.joi.how/api/users/" + username + ".json";
+		
+		if(settings["api_key"].length == 8)
+		url += "?api_key="+settings["api_key"];
 		
 		let tmp = await fetch(url);
 		json = await tmp.json();	
@@ -462,7 +544,14 @@ var intervalID = null;
 
 //Loops getJson (= get Data from Website)
 function UpdateCanvas(){
+	if(!settings["overrideURL"])
 	getJSON();
 	
 	intervalID = setTimeout(UpdateCanvas, settings["interval"]);
 };
+
+
+
+
+
+
