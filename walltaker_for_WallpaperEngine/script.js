@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.1.0";
+const vNr_str = "v0.9.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
