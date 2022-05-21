@@ -6,18 +6,73 @@
 	{
 		"properties" : 
 		{
+			"api_key" : 
+			{
+				"index" : 1,
+				"order" : 101,
+				"text" : "api_key ",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"area_maxWidth" : 
+			{
+				"fraction" : true,
+				"index" : 6,
+				"max" : 33,
+				"min" : 0,
+				"order" : 106,
+				"precision" : 1,
+				"step" : 0.1,
+				"text" : "Max area width",
+				"type" : "slider",
+				"value" : 30
+			},
 			"backg_color" : 
 			{
-				"index" : 3,
-				"order" : 103,
+				"index" : 4,
+				"order" : 104,
 				"text" : "Background Color",
 				"type" : "color",
 				"value" : "0 0 0"
 			},
+			"canv_x" : 
+			{
+				"fraction" : true,
+				"index" : 15,
+				"max" : 10000,
+				"min" : -10000,
+				"order" : 115,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Pos x",
+				"type" : "slider",
+				"value" : 0
+			},
+			"canv_y" : 
+			{
+				"fraction" : true,
+				"index" : 16,
+				"max" : 10000,
+				"min" : -10000,
+				"order" : 116,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Pos y",
+				"type" : "slider",
+				"value" : 0
+			},
+			"font_size" : 
+			{
+				"index" : 7,
+				"order" : 107,
+				"text" : "Font Size",
+				"type" : "textinput",
+				"value" : "medium"
+			},
 			"interval" : 
 			{
-				"index" : 1,
-				"order" : 101,
+				"index" : 2,
+				"order" : 102,
 				"text" : "interval (sec.)",
 				"type" : "textinput",
 				"value" : "15"
@@ -30,17 +85,18 @@
 				"type" : "textinput",
 				"value" : ""
 			},
-			"api_key" : 
+			"setterLinks" : 
 			{
-				"index" : 0,
-				"order" : 100,
-				"text" : "api_key ",
-				"type" : "textinput",
-				"value" : ""
+				"condition" : "setterData.value",
+				"index" : 11,
+				"order" : 111,
+				"text" : "List setter links",
+				"type" : "bool",
+				"value" : false
 			},
 			"objfit" : 
 			{
-				"index" : 2,
+				"index" : 3,
 				"options" : 
 				[
 					{
@@ -64,10 +120,50 @@
 						"value" : "none"
 					}
 				],
-				"order" : 102,
+				"order" : 103,
 				"text" : "Image Fit: ",
 				"type" : "combo",
 				"value" : "contain"
+			},
+			"reaction" : 
+			{
+				"condition" : "api_key.value.length == 8",
+				"index" : 12,
+				"options" : 
+				[
+					{
+						"label" : "top left",
+						"value" : "top-left"
+					},
+					{
+						"label" : "top center",
+						"value" : "top-center"
+					},
+					{
+						"label" : "top right",
+						"value" : "top-right"
+					},
+					{
+						"label" : "bottom left",
+						"value" : "bottom-left"
+					},
+					{
+						"label" : "bottom center",
+						"value" : "bottom-center"
+					},
+					{
+						"label" : "bottom right",
+						"value" : "bottom-right"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 112,
+				"text" : "Quick reactions: ",
+				"type" : "combo",
+				"value" : "top-center"
 			},
 			"schemecolor" : 
 			{
@@ -76,38 +172,9 @@
 				"type" : "color",
 				"value" : "0 0 0"
 			},
-			"text_color" : 
-			{
-				"index" : 4,
-				"order" : 104,
-				"text" : "Text Color",
-				"type" : "color",
-				"value" : "1 1 1"
-			},
-			"font_size" : 
-			{
-				"index" : 4,
-				"order" : 104,
-				"text" : "Font Size",
-				"type" : "textinput",
-				"value" : "medium"
-			},
-			"area_maxWidth" : 
-			{
-				"fraction" : true,
-				"index" : 5,
-				"max" : 33,
-				"min" : 0,
-				"order" : 105,
-				"precision" : 1,
-				"step" : 0.1,
-				"text" : "Max area width",
-				"type" : "slider",
-				"value" : 30
-			},
 			"set_by" : 
 			{
-				"index" : 5,
+				"index" : 8,
 				"options" : 
 				[
 					{
@@ -139,14 +206,15 @@
 						"value" : "none"
 					}
 				],
-				"order" : 105,
+				"order" : 108,
 				"text" : "Set by: ",
 				"type" : "combo",
 				"value" : "top-left"
 			},
 			"setterInfo" : 
 			{
-				"index" : 5,
+				"condition" : "setterData.value",
+				"index" : 10,
 				"options" : 
 				[
 					{
@@ -178,109 +246,58 @@
 						"value" : "none"
 					}
 				],
-				"order" : 105,
+				"order" : 110,
 				"text" : "Setter Infos: ",
 				"type" : "combo",
 				"value" : "top-left"
 			},
-			"reaction" : 
+			"setterData" : 
+			{
+				"index" : 9,
+				"order" : 109,
+				"text" : "Load setter data",
+				"type" : "bool",
+				"value" : true
+			},
+			"text_color" : 
 			{
 				"index" : 5,
-				"options" : 
-				[
-					{
-						"label" : "top left",
-						"value" : "top-left"
-					},
-					{
-						"label" : "top center",
-						"value" : "top-center"
-					},
-					{
-						"label" : "top right",
-						"value" : "top-right"
-					},
-					{
-						"label" : "bottom left",
-						"value" : "bottom-left"
-					},
-					{
-						"label" : "bottom center",
-						"value" : "bottom-center"
-					},
-					{
-						"label" : "bottom right",
-						"value" : "bottom-right"
-					},
-					{
-						"label" : "none",
-						"value" : "none"
-					}
-				],
 				"order" : 105,
-				"text" : "Quick reactions: ",
-				"type" : "combo",
-				"value" : "top-center"
-			},
-			
-			"zoom_w" : 
-			{
-				"fraction" : true,
-				"index" : 6,
-				"max" : 250,
-				"min" : 0,
-				"order" : 106,
-				"precision" : 2,
-				"step" : 0.1,
-				"text" : "Zoom width",
-				"type" : "slider",
-				"value" : 100
+				"text" : "Text Color",
+				"type" : "color",
+				"value" : "1 1 1"
 			},
 			"zoom_h" : 
 			{
 				"fraction" : true,
-				"index" : 7,
+				"index" : 14,
 				"max" : 250,
 				"min" : 0,
-				"order" : 107,
+				"order" : 114,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Zoom heigth",
 				"type" : "slider",
 				"value" : 100
 			},
-			
-			"canv_x" : 
+			"zoom_w" : 
 			{
 				"fraction" : true,
-				"index" : 7,
-				"max" : 10000,
-				"min" : -10000,
-				"order" : 107,
+				"index" : 13,
+				"max" : 250,
+				"min" : 0,
+				"order" : 113,
 				"precision" : 2,
 				"step" : 0.1,
-				"text" : "Pos x",
+				"text" : "Zoom width",
 				"type" : "slider",
-				"value" : 0
-			},
-			"canv_y" : 
-			{
-				"fraction" : true,
-				"index" : 8,
-				"max" : 10000,
-				"min" : -10000,
-				"order" : 108,
-				"precision" : 2,
-				"step" : 0.1,
-				"text" : "Pos y",
-				"type" : "slider",
-				"value" : 0
-			},
+				"value" : 100
+			}
 		}
 	},
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 8,
+	"version" : 3,
 	"visibility" : "private"
 }
