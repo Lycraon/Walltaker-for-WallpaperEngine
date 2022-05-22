@@ -3,6 +3,10 @@ A wallpaper for Wallpaper Engine that show a e621 post from your walltaker link 
 
 You need a link-id from https://walltaker.joi.how/ for this Wallpaper to work.
 
+You have too much money, or just want to tip me a coffee:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/lyrcaon)
+
 ### There is a preview Version of upcoming features under Releases!
 
 # Installation
@@ -11,6 +15,7 @@ You need a link-id from https://walltaker.joi.how/ for this Wallpaper to work.
 - Put "Walltaker-for-WallpaperEngine" folder in [WallpaperEngine Path*]\projects\myprojects
 
  _* this is the path where your wallpaper.exe i located.
+
 
 # Properties
 
