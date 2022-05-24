@@ -295,9 +295,10 @@
 			}
 		}
 	},
+	"preview" : "preview.jpg",
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 3,
+	"version" : 10,
 	"visibility" : "private"
 }
