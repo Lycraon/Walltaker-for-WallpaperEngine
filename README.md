@@ -7,7 +7,6 @@ You have too much money, or just want to tip me a coffee:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/lyrcaon)
 
-### There is a preview Version of upcoming features under Releases!
 
 # Installation
 
@@ -16,17 +15,42 @@ You have too much money, or just want to tip me a coffee:
 
  _* this is the path where your wallpaper.exe i located.
 
+# Features
 
-# Properties
+### Custom Areas
+You can choos between 6 postion for some elements like:
 
-- "walltaker.joi.how/links/":  
+#### Setter Informations
+Show Information about the Setter of your current wallpaper, like online status, friend status, links and last responses to links wallpapers <br>
+<img width="209" alt="image" src="https://user-images.githubusercontent.com/80824508/170127679-b6659bec-7c61-4270-ad80-c0941b4e82c3.png">
+
+
+#### Quick reactions (+ link response)
+Set quick reactions to your wallpaper and see the current reaction <br>
+<img width="116" alt="image" src="https://user-images.githubusercontent.com/80824508/170127488-0d7992e3-12b1-463c-89a3-fb64f072fd52.png">
+
+### Videos & Gifs
+Gifs have been supported from v0.0.1 <br>
+Videos are supported from v1.0.0
+
+# Settings
+
+### "walltaker.joi.how/links/":  
 This Option is required for the Wallpaper to work it defines the link from witch the Wallpaper gets the posts
 
-- "interval (sec.)":
-This option Changes the frequency of checks for changes to the link
+### "api_key"
+!needed for some of the features! <br>
+Get the api_key from your profile page on walltaker 
+
+needed for:
+- quick reactions
+- setter friend status
+
+### "interval (sec.)":
+This option Changes the frequency of checks for changes to the link (includes setter information and wallpaper)<br>
 unit: seconds
 
-- "Image Fit": 
+### "Image Fit": 
 Select the image fit/scaling you want to apply to your background
   - contain: scales image to fit inside bounds while maintaining proportions
   - fill: streches image to bounds
@@ -35,33 +59,45 @@ Select the image fit/scaling you want to apply to your background
   - none: applies no fit image uses default fit (normally show image 1:1)
 unti: fit-mode as string
 
-- "Background Color": 
-Changes the color of the background
+### "Background Color": 
+Changes the color of the background<br>
 unit: rgb
 
-- "Text Color": 
+### "Text Color": 
 Changes the color of the text on the Wallpaper
-(currently only set_by)
 unit: rgb
 
-- "Zoom width/height": 
-Zooms the image canvas in and out
-100% means 100% of width/height of Desktop
-note that if Image fit is not fill the image will apply scale of fit using zoom as upper bound
+### "Font Size":
+Change the size of the texts/UI
+
+### "Set by":
+change where Set by is shown
+
+### "Load setter data":
+Check this if you wan't to get more infos of the setter, like onlin status.<br>
+Uncheck this if the wallpaper uses too much RAM or you have performance issues.
+
+### "Setter Infos":
+Where to show adittional info about setter
+
+### "List setter links"
+Check if you want infos to all puplic links of your wallpapers setter
+
+### "Quick reactions":
+Where to show the quick reactions buttons and your current link reaction
+
+### "Zoom width/height": 
+Zooms the image/video in and out <br>
+100% means 100% of width/height of Desktop <br>
+note that if Image fit is not fill the image will apply scale of fit using zoom as upper bound <br>
 unit: % 
 
-- "Pos x/y": 
-Changes the absolute position of image canvas (uses top left corner)
-shifts image by selected pixels in x(vertical) and y(horizontal) position
+### "Pos x/y": 
+Changes the absolute position of image/video (uses top left corner) <br>
+shifts image by selected pixels in x(vertical) and y(horizontal) position <br>
 unit: px
 
 # Currently looking into:
-
-### Coming next Version:
-- api_key integration
-- quick reactions (textinput not possible)
-- content areas
-- online status of setter
 
 ### Discarded
 - parallax efect: not possible (no mous and keybord input for web wallpapers)
@@ -71,5 +107,5 @@ unit: px
 - preset reactions / dropdown reactions
 
 ### Testing:
-- transition animations (this one already works, but don't make sense, when image is not loaded whan animation is started)
-- preloading Images before showing (testing currently, but can't get it to work right)
+- transition animations 
+- preloading Images before showing 
