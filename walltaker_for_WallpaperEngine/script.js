@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v0.9.0";
+const vNr_str = "v1.0.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
@@ -16,6 +16,7 @@ const reacts = {
 //Settings
 var settings = {
 	'overrideURL' : "", // Put an Url here to only show this url (must be link to picture/video (static pages on e621))
+	'volume' : "1",
 	'linkID' : "",
 	'api_key' : "",
 	'textColor' : "255 255 255",
@@ -39,9 +40,11 @@ var settings = {
 };
 
 //Global variables
+var lastUrl = "";
 var lastSetBy = "";
 var lastResponseType = "";
 var lastResponseText = "";
+var lastCanvas = "";
 
 var Url = "";
 var overrideUpdate = false;
@@ -128,6 +131,9 @@ window.wallpaperPropertyListener = {
 		if(properties.canv_y)
 		settings["canv_y"] = properties.canv_y.value;	
 		
+		if(settings["overrideURL"]) 
+		ChangeSettings();
+		
 		if(reloadCanvas){
 			overrideUpdate = true;
 			getJSON();
@@ -138,30 +144,32 @@ window.wallpaperPropertyListener = {
 	 }
 };
 
-//start Checks for Updates
-if(settings["overrideURL"]) setCustomUrl(settings["overrideURL"]);
-else UpdateCanvas();
+//start Checks for Updates when page loaded
+window.onload = function () {
+	document.getElementById("bImg").style.visibility = "visible";
+    if(settings["overrideURL"]) setCustomUrl(settings["overrideURL"]);
+	else if(!UpdateCanvasRunning)UpdateCanvas();
+	
+	console.log("window loaded!");
+}
 
 
 function setCustomUrl(url){
+	lastUrl = url;
+	ChangeSettings();
 	console.log("custom url "+settings["overrideURL"]);
 	var str = "";
-	str += '<Img id="bImg" class="bImg" src="'+url+'"/>';
-	str += '<video id="bVid" class="bImg" src="'+url+'"/ autoplay loop></video>';
+	str += getBgHtml(url);
 	
 	console.log(str);
 	
-	var el = document.createElement("div");
-	el.id="canvas";
-	document.body.appendChild(el);
-	$("#canvas").html(str);	
+	document.getElementById("canvas").innerHTML = str;
 	
 	
-	var elem = document.getElementById("bImg");
-	elem.addEventListener("load",function(){document.getElementById("bImg").style.visibility = "visible";ChangeSettings();});
+	settings["showTooltips"]=false;
+	setEvents();
 	
-	elem = document.getElementById("bVid");
-	elem.addEventListener("loadeddata",function(){document.getElementById("bVid").style.visibility = "visible";ChangeSettings();});
+	
 	ChangeSettings();
 }
 
@@ -198,18 +206,22 @@ function setCustomUrl(url){
 		css+= "	margin-left: "+settings["canv_x"]+"% !important;\n"
 		css+= "}\n\n";
 		
-		//#bImg
+		//bImg
 		css+= ".bImg {\n";
 		css+= '	background-repeat: no-repeat;\n';
 		css+= "	object-fit:"+settings["objFit"]+"!important;\n";
 		css+= '	position: absolute;\n';
-		css+= "}\n\n";
 		
-		//wallpaperEngined liked to override header so this makes sure the header is correct
-		document.head.innerHTML = '<meta charset="utf-8"><link rel="stylesheet" href="style.css" type="text/css"><script type="text/javascript" src="jquery.js"></script><script type="text/javascript" src="script.js"></script><style id="dynStyle"></style><style id="dynCSS"></style>';
+		if(lastUrl){
+			css+= '	content:url('+lastUrl+');\n'
+		}else css+= '	content:url();\n'
+			
+		
+		css+= "}\n\n";		
 		
 		//setting content of dynCSS (style element)
 		document.getElementById("dynCSS").innerHTML = css;
+		
 	}
 	
 
@@ -267,6 +279,38 @@ function setNewPost(data){
 				overrideUpdate = false;
 				console.log("Updating link data!" );
 				
+				if(data.post_url && data.post_url != ""){
+						bOpacity = settings["background-opacity"];
+						//bg += getBgHtml(data.post_url);
+						document.getElementById("bVid").src = data.post_url;
+						
+						while(document.getElementById("temp"))
+						document.getElementById("temp").remove();
+						
+						
+						var img = document.createElement("Img");
+						img.style.visibility = "hidden";
+						img.src = data.post_url;
+						img.id="temp";
+						
+						document.body.appendChild(img);
+						/*
+						if(lastUrl != data.post_url){
+							bg += '<Img id="bImg" class="bImg" src="'+data.post_url+'" visibility="hidden"/>';
+							bg += '<video id="bVid" class="bImg" src="'+data.post_url+'" visibility="hidden" autoplay loop> Error on loading Video</video>';					
+						}else{
+							bg += '<Img id="bImg" class="bImg" src="'+data.post_url+'" visibility="visible"/>';
+							bg += '<video id="bVid" class="bImg" src="'+data.post_url+'" visibility="visible" autoplay loop> Error on loading Video</video>';
+							
+						}*/
+						
+					
+				}else{
+					bOpacity = "0";
+					//bg += getBgHtml(null);
+					document.getElementById("bVid").src = "";	
+				}
+				
 				//String variables for areas
 				var variables = {
 					'top-left': "",
@@ -274,8 +318,8 @@ function setNewPost(data){
 					'top-right': "",
 					'bottom-left': "",
 					'bottom-center': "",
-					'bottom-right': "",
-					'canvas': ""				
+					'bottom-right': ""
+					//'canvas': ""				
 				}
 
 				/*
@@ -345,14 +389,10 @@ function setNewPost(data){
 				}
 				
 				//post Image
-				if(data.post_url && data.post_url != ""){
-						bOpacity = settings["background-opacity"];
-						variables["canvas"] += '<Img id="bImg" class="bImg" src="'+data.post_url+'"/>';
-						variables["canvas"] += '<video id="bVid" class="bImg" src="'+data.post_url+'"/ autoplay loop></video>';
-						
-					
-				}else bOpacity = "0";
 				
+				var bg = "";
+				
+				//variables["canvas"] += bg;
 				
 				//sets the html for each area with the coresponding variables
 				areas.forEach( (ar,index) => {
@@ -366,36 +406,7 @@ function setNewPost(data){
 				});
 				
 				//Event functions 
-				var elem = document.getElementById("bImg");
-				elem.addEventListener("load",function(){document.getElementById("bImg").style.visibility = "visible";});
-				
-				elem = document.getElementById("bVid");
-				elem.addEventListener("loadeddata",function(){document.getElementById("bVid").style.visibility = "visible";});
-				
-				if(settings["reactPos"] && settings["reactPos"] != "none")
-				if(settings["api_key"].length == 8){
-					elem = document.getElementById("btn_hate");
-					elem.addEventListener("click",function(){postReaction("disgust")});
-					if(settings["showTooltips"]){
-					elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible";});
-					elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
-					}
-					
-					elem = document.getElementById("btn_love");
-					elem.addEventListener("click",function(){postReaction("horny")});
-					if(settings["showTooltips"]){
-					elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
-					elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
-					}
-					
-					elem = document.getElementById("btn_cum");
-					elem.addEventListener("click",function(){postReaction("came")});
-					if(settings["showTooltips"]){
-					elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
-					elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
-					}
-					
-				}
+				setEvents();
 				
 				//sets current dat for next check
 				lastUrl = data.post_url;
@@ -410,6 +421,78 @@ function setNewPost(data){
 				UpdateSetterInfo(data.set_by);
 					
 			}
+}
+
+function getBgHtml(url){
+	var bg = "";
+	bg += '<Img id="bImg" class="bImg" />';
+	bg += '<video id="bVid" src="'+url+'" class="bImg" style="visibility: hidden;" autoplay loop >Video error </video>';
+	
+	return bg;
+}
+
+function setEvents(){
+	
+	 
+	var elem;
+	//elem = document.getElementById("bImg"); 
+
+	/*
+	$("#bImg").on('load',function (){
+		console.log("test");
+		elem.style.visibility = "visible";
+	});*/
+	
+	
+	//elem.onload = function(){elem.style.visibility = "visible";}
+	
+	elem = document.getElementById("bVid");
+	if(elem)
+	elem.volume = 0;
+	//elem.pause();
+	if(elem)
+	elem.addEventListener("loadeddata",function(){
+		elem.style.visibility = "visible";	
+		document.getElementById("bImg").style.visibility = "hidden";
+		elem.setAttribute("controls","");
+		elem.volume = settings["volume"];
+		elem.play();
+		});
+	
+	if(settings["reactPos"] && settings["reactPos"] != "none")
+	if(settings["api_key"].length == 8){
+		
+		elem = document.getElementById("btn_hate");
+		elem.addEventListener("click",function(){postReaction("disgust")});
+		if(settings["showTooltips"]){
+		elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible"});
+		elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
+		}
+		
+		elem = document.getElementById("btn_love");
+		elem.addEventListener("click",function(){postReaction("horny")});
+		if(settings["showTooltips"]){
+		elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
+		elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
+		}
+		
+		elem = document.getElementById("btn_cum");
+		elem.addEventListener("click",function(){postReaction("came")});
+		if(settings["showTooltips"]){
+		elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
+		elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
+		}
+		
+	}
+}
+
+
+function toggleAttribute(elem,attName,value){
+	 if (elem.hasAttribute(attName)) {
+     elem.removeAttribute(attName)   
+  } else {
+     elem.setAttribute(attName,value)   
+  }
 }
 
 LoopSetterUpdate();
@@ -497,7 +580,7 @@ async function UpdateSetterInfo(username){
 function getJSON(){
 		if(settings["linkID"]){
 		$.ajaxSetup({
-		   xhrFields: { withCredentials:true },
+		   xhrFields: { /*withCredentials:true*/ },
 		   crossDomain: true,
 		   beforeSend:  function(request) {
 				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
@@ -517,7 +600,7 @@ async function getUserInfo(username){
 	
 		var json;
 		$.ajaxSetup({
-		   xhrFields: { withCredentials:true },
+		   xhrFields: { /*withCredentials:true*/ },
 		   crossDomain: true,
 		   beforeSend:  function(request) {
 				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
@@ -543,9 +626,12 @@ async function getUserInfo(username){
 var intervalID = null;
 
 //Loops getJson (= get Data from Website)
+var UpdateCanvasRunning = false;
 function UpdateCanvas(){
+	UpdateCanvasRunning = true;
 	if(!settings["overrideURL"])
 	getJSON();
+	else UpdateCanvasRunning = false;
 	
 	intervalID = setTimeout(UpdateCanvas, settings["interval"]);
 };
