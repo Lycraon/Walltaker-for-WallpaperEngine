@@ -35,10 +35,14 @@ body {
 }
 
 .bImg{
-	visibility: hidden;
 	z-index:0;
 	width: 100%;
 	height: 100%;
+}
+
+#bVid {
+	height: calc(100vh - 50px);
+	bottom: 50px;
 }
 
 .area {
