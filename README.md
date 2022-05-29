@@ -1,8 +1,11 @@
 # Walltaker-for-WallpaperEngine
 A wallpaper for Wallpaper Engine that show a e621 post from your walltaker link as your background
-
-You need a link-id from https://walltaker.joi.how/ for this Wallpaper to work.
-
+<br>
+You need a link-id from https://walltaker.joi.how/ for this Wallpaper to work.<br>
+<br>
+**Note!** When walltaker pauses the background you will be shown as offline on walltaker,<br>
+ to prevent that deactivate all pause options in WE settings. (the first settings when opening settings)<br>
+<br>
 You have too much money, or just want to tip me a coffee:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/lyrcaon)
