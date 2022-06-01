@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v1.0.0";
+const vNr_str = "v1.1.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
@@ -12,6 +12,55 @@ const reacts = {
 	"horny":"😍",
 	"came":"💦",
 }
+
+const reactions = {
+      standard:[
+         "I like this one",
+         "I don't like this one",
+         "That's a nice one!",
+         "Great!",
+         "Nice",
+         "Cute!",
+      ],
+	  emojis:[
+		"😣",
+		"😋",
+		"👍",
+		"😁",
+		"😶",
+		"😓",
+		"🤨",
+		"😖",
+		"🙁",
+		"🫤"
+	  ],
+      lycraons:[
+         ":3",
+         "X3",
+         ":)",
+         ":/",
+         ":(",
+         "=3"
+      ],
+	  emoticons:[
+	   "°ω°",
+	   "^ω^",
+	   "0ω0",
+	   "0ω*",
+	   "ฅ^•ﻌ•^ฅ",
+	   "U'ᴥ'U",
+	   "(ʋ◕ᴥ◕)",
+	   "∪･ω･∪"
+	  ],
+	  custom: [
+		" ",
+		" ",
+		" ",
+		" ",
+		" ",
+		" "
+	  ]
+   }
 
 //Settings
 var settings = {
@@ -27,6 +76,8 @@ var settings = {
 	'objFit'  : "contain",
 	'textPos' : "top-left",
 	'reactPos': "top-center",
+	'reactPacks': [], //! only use strings ! !overrides WE settings!
+	//'reactPacks': "",
 	'showTooltips': "true",
 	'showSetterData': "true",
 	'listSetterLinks': "true",
@@ -46,6 +97,8 @@ var lastResponseType = "";
 var lastResponseText = "";
 var lastCanvas = "";
 
+var reactPacks = [];
+
 var Url = "";
 var overrideUpdate = false;
 var bOpacity = settings["background-opacity"];
@@ -54,7 +107,7 @@ window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
 		var reloadCanvas = false;
 		var realoadSetter = false;
-	 
+			
 		if(properties.linkID){
 				settings["linkID"] = properties.linkID.value;
 				lastUrl = "";
@@ -71,7 +124,7 @@ window.wallpaperPropertyListener = {
 			reloadCanvas = true;
 			
 		}
-	 
+	
 		if(properties.interval)
 		settings["interval"] = parseInt(properties.interval.value) *1000;
 	
@@ -131,9 +184,97 @@ window.wallpaperPropertyListener = {
 		if(properties.canv_y)
 		settings["canv_y"] = properties.canv_y.value;	
 		
+		
+		if(properties.customreactions){
+			
+			
+			if(properties.customreactions.value == true)
+			reactPacks.push("custom");
+			else reactPacks = reactPacks.filter(x => x !== "custom");
+			reloadCanvas = true;
+		}
+		
+		
+		if(properties.standardreactions){
+
+			if(properties.standardreactions.value == true)
+			reactPacks.push("standard");
+			else reactPacks = reactPacks.filter(x => x !== "standard");
+			reloadCanvas = true;
+		}
+		
+		if(properties.lycraonsreactions){
+
+			if(properties.lycraonsreactions.value == true)
+			reactPacks.push("lycraons");
+			else reactPacks = reactPacks.filter(x => x !== "lycraons");
+			reloadCanvas = true;
+		}
+		
+		if(properties.emoticonreactions){
+
+			if(properties.emoticonreactions.value == true)
+			reactPacks.push("emoticons");
+			else reactPacks = reactPacks.filter(x => x !== "emoticons");
+			reloadCanvas = true;
+		}
+		
+		if(properties.emojireactions){
+
+			if(properties.emojireactions.value == true)
+			reactPacks.push("emojis");
+			else reactPacks = reactPacks.filter(x => x !== "emojis");
+			reloadCanvas = true;
+		}
+		
+		
+	
+
+		
+		if(properties.reaction1){
+			reactions["custom"][0] = properties.reaction1.value;
+
+			reloadCanvas = true;
+		}	
+		
+		if(properties.reaction2){
+			reactions["custom"][1] = properties.reaction2.value;
+
+			reloadCanvas = true;
+		}	
+			
+		if(properties.reaction3){
+			reactions["custom"][2] = properties.reaction3.value;
+
+			reloadCanvas = true;
+		}	
+			
+		if(properties.reaction4){
+			reactions["custom"][3] = properties.reaction4.value;
+
+			reloadCanvas = true;
+		}	
+		
+		if(properties.reaction5){
+			reactions["custom"][4] = properties.reaction5.value;
+
+			reloadCanvas = true;
+		}
+		
+		if(properties.reaction6){
+			reactions["custom"][5] = properties.reaction6.value;
+
+			reloadCanvas = true;
+		}
+		
+
+		
+		
+		
 		if(settings["overrideURL"]) 
 		ChangeSettings();
-		
+
+			
 		if(reloadCanvas){
 			overrideUpdate = true;
 			getJSON();
@@ -254,6 +395,9 @@ function postReaction(reactType){
 		//Reaction Text
 		var txt = ""
 		
+		if(reactPacks.length>0)
+		txt = document.getElementById("btn_reactDD_value").innerHTML;
+		
 		console.log("Posting reaction ("+reactType+","+txt+") to Link " + settings["linkID"] );
 			
 		//POST	
@@ -270,7 +414,7 @@ function postReaction(reactType){
 }
 
 
-function setNewPost(data){
+function setNewPost(data){	
 			if(settings["overrideURL"]) return;
 			//Check for changes if false skip code
 			//this is for perfomance (local & network)
@@ -350,32 +494,81 @@ function setNewPost(data){
 				}else lastSetBy = null;
 					
 				if(settings["showSetterData"] == "true" && settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
-				variables[settings["setterInfoPos"]] += '<div id="SetterInfo"></div>';
+				variables[settings["setterInfoPos"]] += '<div id="SetterInfo"></div>';			
 				
 				//reaction buttons
 				if(settings["reactPos"] && settings["reactPos"] != "none")
 				if(settings["api_key"].length == 8){
-					var react = '<div id="buttons">';
-					react += '<button type="button" id="btn_hate" >😓</button>';
-					react += '<button type="button" id="btn_love" >😍</button>'; 
-					react += '<button type="button" id="btn_cum"  >💦</button>'; 
+					var react = "";
+					
+					var packs = reactPacks;
+					
+					if(settings["reactPacks"].length>0)
+					packs=settings["reactPacks"];
+					
+					if(packs.length>0){
+					react += '<div id="reactDrop">'
+					react += '<button type="button" id="btn_reactDD" ><p id="btn_reactDD_value"> </p><p id="btn_reactDD_arrow">⏷</p></button>'; 
+					react += '<div id="reactDD">';
+					react += '<div id="reactDD_scroll">';
+
+					react += '<a href="#" class="reactDD_litxt"> </a>';
+					
+					
+				
+					for(var i=0;i<packs.length;i++){
+						
+						var packTexts = reactions[packs[i]];
+						
+						if (packTexts && packTexts.length > 0)
+						for(var j=0;j<packTexts.length;j++){
+							if(packTexts[j] && packTexts[j] != " ")
+							react += '<a href="#" class="reactDD_litxt">'+packTexts[j]+'</a>';
+							
+						}
+					}
+
+
+					react += '</div>';
+					react += '</div>';
+					react += '</div>';
+					}
+					react += '<p class="spacer"></p>';
+					
+					react += '<div id="buttons">';
+					react += '<button type="button" id="btn_hate" >😓'
+					react += '<p id="tt_hate" class="tooltipItem">Hate it</p>';
+					react +='</button>';
+					react += '<button type="button" id="btn_love" >😍'
+					react += '<p id="tt_love" class="tooltipItem">Love it</p>';
+					react += '</button>'; 
+					react += '<button type="button" id="btn_cum"  >💦'
+					react += '<p id="tt_came" class="tooltipItem">I came</p>';		
+					react += '</button>'; 
 					react += '</div>';
 					
+					
+					//tooltipItem
+					/*
 					if(settings["showTooltips"] == "true"){
 					react += '<div id="btn_tooltips" class="tooltipBar">';
-					react += '<p id="tt_hate">Hate it</p>';
-					react += '<p id="tt_love">Love it</p>';
-					react += '<p id="tt_came">I came</p>';					
+					react += '<p id="tt_hate" class="tooltipItem">Hate it</p>';
+					react += '<p id="tt_love" class="tooltipItem">Love it</p>';
+					react += '<p id="tt_came" class="tooltipItem">I came</p>';					
 					react += '</div>';
-					react += '<p class="spacer"></p>'
 					}
+					*/
+					
+					react += '</form>';
+					react += '<p class="spacer"></p>';
+					
 							
 					variables[settings["reactPos"]] += react;
 				}
 
 				//current response to link
 				if(settings["responsePos"] && settings["responsePos"] != "none"){
-					var response = '<p class="text" height="auto" margin="0" text->';
+					var response = '<p id="reactText" class="text" height="auto" margin="0" text->';
 					
 					if(data.response_type)
 					response += reacts[data.response_type];
@@ -431,6 +624,7 @@ function getBgHtml(url){
 	return bg;
 }
 
+
 function setEvents(){
 	
 	 
@@ -452,18 +646,48 @@ function setEvents(){
 	//elem.pause();
 	if(elem)
 	elem.addEventListener("loadeddata",function(){
-		elem.style.visibility = "visible";	
+		var elVid = document.getElementById("bVid");
+		elVid.style.visibility = "visible";	
 		document.getElementById("bImg").style.visibility = "hidden";
-		elem.setAttribute("controls","");
-		elem.volume = settings["volume"];
-		elem.play();
+		elVid.setAttribute("controls","");
+		elVid.volume = settings["volume"];
+		elVid.play();
 		});
+		
+	elem = document.getElementById("btn_reactDD");
+	if(elem)
+	elem.addEventListener("click",function(){
+		var el_lu = document.getElementById("reactDD");
+		
+		if(el_lu.style.visibility == "visible")
+		el_lu.style.visibility = "hidden";
+		else
+		el_lu.style.visibility = "visible";
+	});
+	
+		/*
+	document.getElementById("reactDD_scroll");
+	if(elem)
+	elem.addEventListener("mouseenter",function(){
+		document.getElementById("reactDD_scroll").focus();	
+		console.log("focus dd scroll");
+	});*/
+	
+	var reactLi = document.getElementsByClassName("reactDD_litxt");
+	for(var i=0;i < reactLi.length;i++){
+		reactLi[i].addEventListener("click",function(event){
+	
+			
+			document.getElementById("btn_reactDD_value").innerHTML = this.innerHTML;
+			document.getElementById("reactDD").style.visibility = "hidden";
+			});
+	}
 	
 	if(settings["reactPos"] && settings["reactPos"] != "none")
 	if(settings["api_key"].length == 8){
 		
 		elem = document.getElementById("btn_hate");
-		elem.addEventListener("click",function(){postReaction("disgust")});
+		elem.addEventListener("click",function(){postReaction("disgust")});		
 		if(settings["showTooltips"]){
 		elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible"});
 		elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
@@ -537,10 +761,14 @@ async function UpdateSetterInfo(username){
 								var strInfo = 'Links: ' + userData.links.length;
 								elInfo.innerHTML = strInfo;
 								
-								document.getElementById("SetterInfo").innerHTML = "";
-								document.getElementById("SetterInfo").appendChild(elInfo);
+								var setElem = document.getElementById("SetterInfo");
+								
+								if(setElem)
+								setElem.innerHTML = "";
+								if(setElem)
+								setElem.appendChild(elInfo);
 								//list of links
-								if(settings["listSetterLinks"] == "true" ){
+								if(setElem && settings["listSetterLinks"] == "true" ){
 									for(var i=0;i< userData.links.length;i++){
 										var elLink = document.createElement("p");
 										elLink.classList.add('text');
@@ -567,7 +795,7 @@ async function UpdateSetterInfo(username){
 										
 										}
 										elLink.innerHTML = linkInfo;
-										document.getElementById("SetterInfo").appendChild(elLink);
+										setElem.appendChild(elLink);
 									}		 
 								}
 							}
