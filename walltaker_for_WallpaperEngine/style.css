@@ -16,6 +16,107 @@ body {
 	font-family: Verdana , sans-serif;
 }
 
+
+
+#reactDrop{
+	position: relative;
+	
+	z-index: 2000;
+	overflow: visible;
+	width: 180px;
+	
+	max-width: 250px;
+	
+}
+
+#btn_reactDD{
+	width: 100%;
+	margin: 0;
+	grid-template-columns: auto auto;
+	display: flex;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	align-items: center;
+    justify-content: center;
+
+}
+
+#btn_reactDD > *{
+	margin: 0;
+	padding: 5px;
+	min-height: 1em;
+	float: left;
+	display: table-cell;
+} 
+	
+
+#btn_reactDD_value{
+	flex-grow: 1;
+	text-align: center;
+    width: auto;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+#btn_reactDD_arrow{
+	text-align: right;
+	align-self: right;
+	display: inline-block;
+	display: block;
+}
+
+#reactDD {
+	position: relative;
+	height: 1px;
+	
+	visibility: hidden;
+	width: 100%;
+	max-width: 250px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 2001;
+	
+}
+
+#reactDD > div {
+	max-height: 45vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+#reactDD > div  > a {
+
+	width: calc(100% - 20px);
+	background-color: black;
+	display: block;
+	color: white;
+	border: 1px solid gray;
+	padding: 10px;
+	overflow: hidden;
+	text-decoration:none;  
+
+}
+
+.reactDD_litxt{
+	position:relative;
+	padding: 0;
+	width: 100%;
+	text-overflow: ellipsis;
+	white-space:normal;
+}
+
+#reactDD > a:hover {
+	background-color: gray;
+}
+
+.reactDD_litxt {
+	padding: 5px;
+	margin: 0;
+	color: white;
+	min-height: 1em;
+	text-align: center;
+}
+
 #canvas {
     position: absolute;
 	top: 0;
@@ -41,30 +142,44 @@ body {
 }
 
 #bVid {
-	height: calc(100vh - 50px);
-	bottom: 50px;
+	height: calc(100vh - 3vh);
+	bottom: 3vh;
+}
+
+#reactText{
+	width: 100%;
+	position: relative;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space:normal;
 }
 
 .area {
 	position: absolute;
 	color: black;
 	background-color: rgba(100, 100, 100, 0.4);
-	width: auto;
+	z-index: 100;
+	overflow: visible;
+	max-width: 33vw;
+	
+}
+
+.content {
+	position: relative;
+	white-space: nowrap; 
+	overflow: visible;
 	display: flex;
 	flex-direction: column;
-	z-index: 100;
-	overflow: auto;
-	overflow-y: visible;
+	width: auto;
 }
 
-.area > * {
-	padding: 10px;
+.content > * {
+	padding: 0.5em;
 	margin: 0;
-	max-width: 33vw;
-	overflow: visible;
+	
 }
 
-#top-left{
+#rtop-left{
 	top: 10px;
 	left: 10px;
 	padding-left: 10px;
@@ -72,19 +187,23 @@ body {
 	justify-content: left;
 }
 
-#top-center{
+#rtop-center{
 	top: 10px;
 	left: 50vw;	
 	-ms-transform: translate(-50%, 0%);
     transform: translate(-50%, 0%);
+	
+}
+
+#top-center{
 	padding-left: 10px;
 	padding-right: 10px;
 	justify-content: center;
 	align-items: center ;
-	text-align: center;	
+	text-align: center;
 }
 
-#top-right{
+#rtop-right{
 	top: 10px;
 	right: 10px;
 	padding-left: 10px;
@@ -93,7 +212,7 @@ body {
 	
 }
 
-#bottom-left{
+#rbottom-left{
 	bottom: 3vh;
 	left: 10px;
 	padding-left: 10px;
@@ -101,20 +220,23 @@ body {
 	justify-content: left;
 }
 
-#bottom-center{
+#rbottom-center{
 	bottom: 3vh;
 	left: 50vw;	
 	-ms-transform: translate(-50%, 0%);
     transform: translate(-50%, 0%);
-	z-index: 100;
-	padding-left: 10px;
-	padding-right: 10px;
-	justify-content: space-around;
-	align-items: center center;
-	text-align: center center;	
+	
 }
 
-#bottom-right{
+#bottom-center{
+	padding-left: 10px;
+	padding-right: 10px;
+	justify-content: center;
+	align-items: center ;
+	text-align: center;
+}
+
+#rbottom-right{
 	bottom: 3vh;
 	right: 10px;
 	padding-left: 10px;
@@ -134,36 +256,38 @@ body {
 
 #buttons > * {
 	margin-left: 0.5em;
-	padding-top: 5px;
-	padding-bottom: 5px;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
 }
 
 .text{
 	margin: 0; 
 	z-index: 110;
+	white-space:normal;
 }
 
 .tooltipBar{
 	position: absolute;
 	width: auto;
-	display: inline-block;
+	display: flex;
+	flex-direction: row;
+	margin-top: 30px;
 	z-index: 1000;
-	margin: 0;
-	padding: 0;
-	left: 50%;
-	top: 45px;
-	visibility: collapse;
-	height: 0;
+	visibility: hidden;
 	overflow: visible;
+	flex-wrap: nowrap;
 }
 
 .spacer{
-	height: 1px;
-	margin-top: -2px;
+	height: 0.1em;
 	clear: both;
+	margin: 0;
+	padding:0;	
 	overflow: hidden; 
 }
 
+
+.tooltipItem, 
 .tooltipBar > p {
 	position: absolute;
 	background-color: rgba(30, 30, 30, 0.98);
@@ -172,15 +296,13 @@ body {
 	border-radius: 10px;
 	width: auto;
 	height: auto;
-	margin: 0;	
 	z-index: 1001;
 	visibility: collapse;
 	white-space: nowrap;
-	align-items: center center;
 	text-align: center center;
-	left: 50%;
-	-ms-transform: translate(-50%, 0%);
-    transform: translate(-50%, 0%);
+	margin: 0;
+	-ms-transform: translate(-25%, 0%);
+    transform: translate(-25%, 0%);
 }
 
 
