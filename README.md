@@ -25,12 +25,12 @@ You can choos between 6 postion for some elements like:
 
 #### Setter Informations
 Show Information about the Setter of your current wallpaper, like online status, friend status, links and last responses to links wallpapers <br>
-<img width="209" alt="image" src="https://user-images.githubusercontent.com/80824508/170127679-b6659bec-7c61-4270-ad80-c0941b4e82c3.png">
+<img width="250" alt="image" src="https://user-images.githubusercontent.com/80824508/170127679-b6659bec-7c61-4270-ad80-c0941b4e82c3.png">
 
 
 #### Quick reactions (+ link response)
 Set quick reactions to your wallpaper and see the current reaction <br>
-<img width="116" alt="image" src="https://user-images.githubusercontent.com/80824508/170127488-0d7992e3-12b1-463c-89a3-fb64f072fd52.png">
+<img width="250" alt="image" src="https://user-images.githubusercontent.com/80824508/170127488-0d7992e3-12b1-463c-89a3-fb64f072fd52.png">
 
 ### Videos & Gifs
 Gifs have been supported from v0.0.1 <br>
@@ -42,7 +42,7 @@ Videos are supported from v1.0.0
 ### Custom and preset Reaction Texts
 You can now choose what text is used for the reaction you set.
 There are some preset Text, but you can set 6 custom ones.
-![Animation](https://user-images.githubusercontent.com/80824508/171394562-64a5f6c0-487d-4fb0-ab3b-95c9d46609a9.gif)
+<img width=250 src="https://user-images.githubusercontent.com/80824508/171394562-64a5f6c0-487d-4fb0-ab3b-95c9d46609a9.gif">
 
 
 # Settings
