@@ -1,30 +1,44 @@
 <!DOCTYPE html>
 <html>
-	<header lang="de">
-		<meta charset="utf-8">
-		<link rel="stylesheet" href="style.css" type="text/css">
-		<script type="text/javascript" src="jquery.js"></script>
-		<script type="text/javascript" src="script.js"></script>
-		<style id="dynCSS"></style>
-	</header>
-	<body>
-		<div id="top-left" class="area">
-		</div>
-		<div id="top-center" class="area">
-		</div>
-		<div id="top-right" class="area">
-		</div>
-		<div id="bottom-left" class="area">
-		</div>
-		<div id="bottom-center" class="area">
-		</div>
-		<div id="bottom-right" class="area">
-		</div>
-		<div>
-		<div id="canvas">
-			<Img id="bImg" class="bImg" style="visibility: hidden;" />
-			<video id="bVid" class="bImg" style="visibility: hidden;" autoplay loop >Video error </video>
-		</div>
+<header lang="de">
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" type="text/css">
+	<script type="text/javascript" src="jquery.js"></script>	
+	<script type="text/javascript" src="reactions.json"></script>
+	<script type="text/javascript" src="script.js"></script>
+	<style id="dynCSS"></style>
+</header>
+<body>
+<div id="rtop-left" class="area">
+	<div id="top-left" class="content">
+	</div>
+</div>
+<div id="rtop-center" class="area">
+	<div id="top-center" class="content">
+	</div>
+</div>
+<div id="rtop-right" class="area">
+	<div id="top-right" class="content">
+	</div>
+</div>
+<div id="rbottom-left" class="area">
+	<div id="bottom-left" class="content">
+	</div>
+</div>
+<div id="rbottom-center" class="area">
+	<div id="bottom-center" class="content">
+	</div>
+</div>
+<div id="rbottom-right" class="area">
+	<div id="bottom-right" class="content">
+	</div>
+</div>
 
-	</body>
+
+<div id="canvas">
+	<Img id="bImg" class="bImg" style="visibility: hidden;" />
+	<video id="bVid" class="bImg" style="visibility: hidden;" autoplay loop >Video error </video>
+</div>
+
+</body>
 </html>
