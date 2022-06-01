@@ -61,6 +61,30 @@
 				"type" : "slider",
 				"value" : 0
 			},
+			"customreactions" : 
+			{
+				"index" : 21,
+				"order" : 121,
+				"text" : "Custom Reactions",
+				"type" : "bool",
+				"value" : true
+			},
+			"emojireactions" : 
+			{
+				"index" : 20,
+				"order" : 120,
+				"text" : "Emoji Reactions",
+				"type" : "bool",
+				"value" : true
+			},
+			"emoticonreactions" : 
+			{
+				"index" : 19,
+				"order" : 119,
+				"text" : "Emoticon Reactions",
+				"type" : "bool",
+				"value" : true
+			},
 			"font_size" : 
 			{
 				"index" : 7,
@@ -85,14 +109,13 @@
 				"type" : "textinput",
 				"value" : ""
 			},
-			"setterLinks" : 
+			"lycraonsreactions" : 
 			{
-				"condition" : "setterData.value",
-				"index" : 11,
-				"order" : 111,
-				"text" : "List setter links",
+				"index" : 18,
+				"order" : 118,
+				"text" : "Lycraons Reactions",
 				"type" : "bool",
-				"value" : false
+				"value" : true
 			},
 			"objfit" : 
 			{
@@ -165,6 +188,60 @@
 				"type" : "combo",
 				"value" : "top-center"
 			},
+			"reaction1" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 22,
+				"order" : 122,
+				"text" : "Reaction1:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction2" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 23,
+				"order" : 123,
+				"text" : "Reaction2:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction3" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 24,
+				"order" : 124,
+				"text" : "Reaction3:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction4" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 25,
+				"order" : 125,
+				"text" : "Reaction4:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction5" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 26,
+				"order" : 126,
+				"text" : "Reaction5:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction6" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 27,
+				"order" : 127,
+				"text" : "Reaction6:",
+				"type" : "textinput",
+				"value" : ""
+			},
 			"schemecolor" : 
 			{
 				"order" : 0,
@@ -211,6 +288,14 @@
 				"type" : "combo",
 				"value" : "top-left"
 			},
+			"setterData" : 
+			{
+				"index" : 9,
+				"order" : 109,
+				"text" : "Load setter data",
+				"type" : "bool",
+				"value" : true
+			},
 			"setterInfo" : 
 			{
 				"condition" : "setterData.value",
@@ -251,11 +336,20 @@
 				"type" : "combo",
 				"value" : "top-left"
 			},
-			"setterData" : 
+			"setterLinks" : 
 			{
-				"index" : 9,
-				"order" : 109,
-				"text" : "Load setter data",
+				"condition" : "setterData.value",
+				"index" : 11,
+				"order" : 111,
+				"text" : "List setter links",
+				"type" : "bool",
+				"value" : false
+			},
+			"standardreactions" : 
+			{
+				"index" : 17,
+				"order" : 117,
+				"text" : "Standard Reactions",
 				"type" : "bool",
 				"value" : true
 			},
@@ -299,6 +393,6 @@
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 10,
+	"version" : 11,
 	"visibility" : "private"
 }
