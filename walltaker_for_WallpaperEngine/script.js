@@ -18,11 +18,19 @@ const reactions = {
          "I like this one",
          "I don't like this one",
          "That's a nice one!",
+		 "I love it!",
          "Great!",
          "Nice",
          "Cute!",
+		 "More!",
+		 "Thank you!",
+		 "Next one please",
+		 "YES!",
+		 "Please?",
+		 "Already had that one"
       ],
 	  emojis:[
+		"👀",
 		"😣",
 		"😋",
 		"👍",
@@ -32,7 +40,15 @@ const reactions = {
 		"🤨",
 		"😖",
 		"🙁",
-		"🫤"
+		"🫤",
+		"😟",
+		"😵‍💫",
+		"🥺",
+		"😯",
+		"🤤",
+		"😭",
+		"🤯",
+		"🙂"
 	  ],
       lycraons:[
          ":3",
@@ -426,14 +442,32 @@ function setNewPost(data){
 				if(data.post_url && data.post_url != ""){
 						bOpacity = settings["background-opacity"];
 						//bg += getBgHtml(data.post_url);
+						
+						
+						var filetype = data.post_url.split('.').pop();
+						
+					
+						
+						
 						document.getElementById("bVid").src = data.post_url;
+						
+						
+						
 						
 						while(document.getElementById("temp"))
 						document.getElementById("temp").remove();
 						
 						
 						var img = document.createElement("Img");
-						img.style.visibility = "hidden";
+						
+						
+						if(filetype != "gif"){
+							document.getElementById("bVid").style.visibility = "visible";
+							img.style.visibility = "hidden";
+						}else{
+							img.style.visibility = "visible";
+							document.getElementById("bVid").style.visibility = "hidden";
+						}
 						img.src = data.post_url;
 						img.id="temp";
 						
