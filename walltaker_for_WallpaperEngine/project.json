@@ -17,10 +17,10 @@
 			"area_maxWidth" : 
 			{
 				"fraction" : true,
-				"index" : 6,
+				"index" : 7,
 				"max" : 33,
 				"min" : 0,
-				"order" : 106,
+				"order" : 107,
 				"precision" : 1,
 				"step" : 0.1,
 				"text" : "Max area width",
@@ -29,8 +29,8 @@
 			},
 			"backg_color" : 
 			{
-				"index" : 4,
-				"order" : 104,
+				"index" : 5,
+				"order" : 105,
 				"text" : "Background Color",
 				"type" : "color",
 				"value" : "0 0 0"
@@ -38,10 +38,10 @@
 			"canv_x" : 
 			{
 				"fraction" : true,
-				"index" : 15,
+				"index" : 16,
 				"max" : 10000,
 				"min" : -10000,
-				"order" : 115,
+				"order" : 116,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Pos x",
@@ -51,10 +51,10 @@
 			"canv_y" : 
 			{
 				"fraction" : true,
-				"index" : 16,
+				"index" : 17,
 				"max" : 10000,
 				"min" : -10000,
-				"order" : 116,
+				"order" : 117,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Pos y",
@@ -63,32 +63,32 @@
 			},
 			"customreactions" : 
 			{
-				"index" : 21,
-				"order" : 121,
+				"index" : 22,
+				"order" : 122,
 				"text" : "Custom Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"emojireactions" : 
 			{
-				"index" : 20,
-				"order" : 120,
+				"index" : 21,
+				"order" : 121,
 				"text" : "Emoji Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"emoticonreactions" : 
 			{
-				"index" : 19,
-				"order" : 119,
+				"index" : 20,
+				"order" : 120,
 				"text" : "Emoticon Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"font_size" : 
 			{
-				"index" : 7,
-				"order" : 107,
+				"index" : 8,
+				"order" : 108,
 				"text" : "Font Size",
 				"type" : "textinput",
 				"value" : "medium"
@@ -111,15 +111,15 @@
 			},
 			"lycraonsreactions" : 
 			{
-				"index" : 18,
-				"order" : 118,
+				"index" : 19,
+				"order" : 119,
 				"text" : "Lycraons Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"objfit" : 
 			{
-				"index" : 3,
+				"index" : 4,
 				"options" : 
 				[
 					{
@@ -143,7 +143,7 @@
 						"value" : "none"
 					}
 				],
-				"order" : 103,
+				"order" : 104,
 				"text" : "Image Fit: ",
 				"type" : "combo",
 				"value" : "contain"
@@ -151,7 +151,7 @@
 			"reaction" : 
 			{
 				"condition" : "api_key.value.length == 8",
-				"index" : 12,
+				"index" : 13,
 				"options" : 
 				[
 					{
@@ -183,7 +183,7 @@
 						"value" : "none"
 					}
 				],
-				"order" : 112,
+				"order" : 113,
 				"text" : "Quick reactions: ",
 				"type" : "combo",
 				"value" : "top-center"
@@ -191,8 +191,8 @@
 			"reaction1" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 22,
-				"order" : 122,
+				"index" : 23,
+				"order" : 123,
 				"text" : "Reaction1:",
 				"type" : "textinput",
 				"value" : ""
@@ -200,8 +200,8 @@
 			"reaction2" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 23,
-				"order" : 123,
+				"index" : 24,
+				"order" : 124,
 				"text" : "Reaction2:",
 				"type" : "textinput",
 				"value" : ""
@@ -209,8 +209,8 @@
 			"reaction3" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 24,
-				"order" : 124,
+				"index" : 25,
+				"order" : 125,
 				"text" : "Reaction3:",
 				"type" : "textinput",
 				"value" : ""
@@ -218,8 +218,8 @@
 			"reaction4" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 25,
-				"order" : 125,
+				"index" : 26,
+				"order" : 126,
 				"text" : "Reaction4:",
 				"type" : "textinput",
 				"value" : ""
@@ -227,8 +227,8 @@
 			"reaction5" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 26,
-				"order" : 126,
+				"index" : 27,
+				"order" : 127,
 				"text" : "Reaction5:",
 				"type" : "textinput",
 				"value" : ""
@@ -236,8 +236,8 @@
 			"reaction6" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 27,
-				"order" : 127,
+				"index" : 28,
+				"order" : 128,
 				"text" : "Reaction6:",
 				"type" : "textinput",
 				"value" : ""
@@ -251,7 +251,7 @@
 			},
 			"set_by" : 
 			{
-				"index" : 8,
+				"index" : 9,
 				"options" : 
 				[
 					{
@@ -283,15 +283,15 @@
 						"value" : "none"
 					}
 				],
-				"order" : 108,
+				"order" : 109,
 				"text" : "Set by: ",
 				"type" : "combo",
 				"value" : "top-left"
 			},
 			"setterData" : 
 			{
-				"index" : 9,
-				"order" : 109,
+				"index" : 10,
+				"order" : 110,
 				"text" : "Load setter data",
 				"type" : "bool",
 				"value" : true
@@ -299,7 +299,7 @@
 			"setterInfo" : 
 			{
 				"condition" : "setterData.value",
-				"index" : 10,
+				"index" : 11,
 				"options" : 
 				[
 					{
@@ -331,7 +331,7 @@
 						"value" : "none"
 					}
 				],
-				"order" : 110,
+				"order" : 111,
 				"text" : "Setter Infos: ",
 				"type" : "combo",
 				"value" : "top-left"
@@ -339,35 +339,48 @@
 			"setterLinks" : 
 			{
 				"condition" : "setterData.value",
-				"index" : 11,
-				"order" : 111,
+				"index" : 12,
+				"order" : 112,
 				"text" : "List setter links",
 				"type" : "bool",
 				"value" : false
 			},
 			"standardreactions" : 
 			{
-				"index" : 17,
-				"order" : 117,
+				"index" : 18,
+				"order" : 118,
 				"text" : "Standard Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"text_color" : 
 			{
-				"index" : 5,
-				"order" : 105,
+				"index" : 6,
+				"order" : 106,
 				"text" : "Text Color",
 				"type" : "color",
 				"value" : "1 1 1"
 			},
+			"vid_volume" : 
+			{
+				"fraction" : true,
+				"index" : 3,
+				"max" : 1,
+				"min" : 0,
+				"order" : 103,
+				"precision" : 3,
+				"step" : 0.01,
+				"text" : "default video volume",
+				"type" : "slider",
+				"value" : 1
+			},
 			"zoom_h" : 
 			{
 				"fraction" : true,
-				"index" : 14,
+				"index" : 15,
 				"max" : 250,
 				"min" : 0,
-				"order" : 114,
+				"order" : 115,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Zoom heigth",
@@ -377,10 +390,10 @@
 			"zoom_w" : 
 			{
 				"fraction" : true,
-				"index" : 13,
+				"index" : 14,
 				"max" : 250,
 				"min" : 0,
-				"order" : 113,
+				"order" : 114,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Zoom width",
@@ -393,6 +406,6 @@
 	"tags" : [ "Unspecified" ],
 	"title" : "Walltaker for Wallpaper Engine",
 	"type" : "web",
-	"version" : 11,
+	"version" : 10,
 	"visibility" : "private"
 }
