@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v1.1.0";
+const vNr_str = "v1.2.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
@@ -123,6 +123,11 @@ window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
 		var reloadCanvas = false;
 		var realoadSetter = false;
+		
+		if(properties.vid_volume){
+				settings["volume"] = properties.vid_volume.value;
+		}
+		
 			
 		if(properties.linkID){
 				settings["linkID"] = properties.linkID.value;
@@ -448,9 +453,13 @@ function setNewPost(data){
 						
 					
 						
-						
+						document.getElementById("bImg").style.visibility = "visible";
+						document.getElementById("bVid").style.visibility = "hidden";
 						document.getElementById("bVid").src = data.post_url;
 						
+					
+							
+							
 						
 						
 						
@@ -459,15 +468,9 @@ function setNewPost(data){
 						
 						
 						var img = document.createElement("Img");
+						img.style.visibility = "hidden";
 						
 						
-						if(filetype != "gif"){
-							document.getElementById("bVid").style.visibility = "visible";
-							img.style.visibility = "hidden";
-						}else{
-							img.style.visibility = "visible";
-							document.getElementById("bVid").style.visibility = "hidden";
-						}
 						img.src = data.post_url;
 						img.id="temp";
 						
