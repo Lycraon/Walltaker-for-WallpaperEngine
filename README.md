@@ -62,6 +62,16 @@ needed for:
 This option Changes the frequency of checks for changes to the link (includes setter information and wallpaper)<br>
 unit: seconds
 
+### "default video volume":
+Setting for the default volume of videos.
+This settings only changes the initial volume of the videos when loaded in.
+If you wan't to change the current videos volume
+use the UI that should apear when hovering over the video.
+The volume option should be a speaker in the bottom right corner of the video
+
+1 = 100%, 0 = 0% = mute
+
+
 ### "Image Fit": 
 Select the image fit/scaling you want to apply to your background
   - contain: scales image to fit inside bounds while maintaining proportions
