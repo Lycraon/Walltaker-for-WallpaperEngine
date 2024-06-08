@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v1.2.0";
+const vNr_str = "v2.0.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
@@ -89,12 +89,14 @@ var settings = {
 	'background-color': "0 0 0",
 	'background-opacity': "1",
 	'fontSize': "100%", //x-small,small, medium, large or px / em / %
-	'interval' : "10000", //ms do not run with small numbers(<1000) for long sessions
+	'interval' : "10000", //ms do not run with small numbers(<10000) for long sessions
 	'objFit'  : "contain",
+	'videocontrols' : "full",
+	'loop' : "true",
+	'autoplay' : "true",
 	'textPos' : "top-left",
 	'reactPos': "top-center",
-	'reactPacks': [], //! only use strings ! !overrides WE settings!
-	//'reactPacks': "",
+	'reactPacks': ["standard","emojis","custom"], //! only use strings ! !overrides WE settings!
 	'showTooltips': "true",
 	'showSetterData': "true",
 	'listSetterLinks': "true",
@@ -104,7 +106,8 @@ var settings = {
 	'zoom_w': "100", //%
 	'zoom_h': "100", //%
 	'canv_x': "0", //px
-	'canv_y': "0" //px
+	'canv_y': "0", //px
+	'scrollSpeed' : "4"
 };
 
 //Global variables
@@ -113,8 +116,9 @@ var lastSetBy = "";
 var lastResponseType = "";
 var lastResponseText = "";
 var lastCanvas = "";
-
 var reactPacks = [];
+
+reactPacks.push(settings["ractPacks"]);
 
 var Url = "";
 var overrideUpdate = false;
@@ -148,28 +152,43 @@ window.wallpaperPropertyListener = {
 		}
 	
 		if(properties.interval)
-		settings["interval"] = parseInt(properties.interval.value) *1000;
+			settings["interval"] = parseInt(properties.interval.value) *1000;
+		
+		//Setting min possible interval to avoid DOS spamming
+		settings["interval"] = Math.min(settings["interval"],8500);
 	
 		if(properties.objfit){
 				settings["objFit"] = properties.objfit.value;		
 				reloadCanvas = true;
 		}
+		
+		if(properties.videocontrols){
+				settings["videocontrols"] = properties.videocontrols.value;		
+		}
+		
+		if(properties.autoplay) {
+			settings["autoplay"] = ""+properties.autoplay.value+"";
+		}
+		
+		if(properties.loop) {
+			settings["loop"] = ""+properties.loop.value+"";
+		}
 	
 		if(properties.backg_color)
-		settings["background-color"] = properties.backg_color.value;
+			settings["background-color"] = properties.backg_color.value;
 		
 		if(properties.text_color)
-		settings["textColor"] = properties.text_color.value;
+			settings["textColor"] = properties.text_color.value;
 	
 		if(properties.area_maxWidth)
-		settings["maxAreaWidth"] = properties.area_maxWidth.value + "vw";
+			settings["maxAreaWidth"] = properties.area_maxWidth.value + "vw";
 		
 		if(properties.font_size)
-		settings["fontSize"] = properties.font_size.value;
+			settings["fontSize"] = properties.font_size.value;
 	
 		if(properties.set_by){
-		settings["textPos"]	= properties.set_by.value;
-		reloadCanvas = true;
+			settings["textPos"]	= properties.set_by.value;
+			reloadCanvas = true;
 		}
 		
 		if(properties.setterData){
@@ -179,80 +198,71 @@ window.wallpaperPropertyListener = {
 		
 	
 		if(properties.setterLinks){
-		settings["listSetterLinks"]	= ""+properties.setterLinks.value+"";
-		realoadSetter = true;
+			settings["listSetterLinks"]	= ""+properties.setterLinks.value+"";
+			realoadSetter = true;
 		}
 		
 		if(properties.setterInfo){
-		settings["setterInfoPos"]	= properties.setterInfo.value;
-		reloadCanvas = true;
+			settings["setterInfoPos"]	= properties.setterInfo.value;
+			reloadCanvas = true;
 		}
 			
 		if(properties.reaction){
-		settings["reactPos"]	= properties.reaction.value;
-		settings["responsePos"]	= properties.reaction.value;
-		reloadCanvas = true;
+			settings["reactPos"]	= properties.reaction.value;
+			settings["responsePos"]	= properties.reaction.value;
+			reloadCanvas = true;
 		}
 		
 		if(properties.zoom_w)
-		settings["zoom_w"] = properties.zoom_w.value;			
+			settings["zoom_w"] = properties.zoom_w.value;			
 		
 		if(properties.zoom_h)
-		settings["zoom_h"] = properties.zoom_h.value;	
+			settings["zoom_h"] = properties.zoom_h.value;	
 		
 		if(properties.canv_x)
-		settings["canv_x"] = properties.canv_x.value;		
+			settings["canv_x"] = properties.canv_x.value;		
 			
 		if(properties.canv_y)
-		settings["canv_y"] = properties.canv_y.value;	
+			settings["canv_y"] = properties.canv_y.value;	
 		
 		
-		if(properties.customreactions){
-			
-			
+		if(properties.customreactions){		
 			if(properties.customreactions.value == true)
-			reactPacks.push("custom");
+				reactPacks.push("custom");
 			else reactPacks = reactPacks.filter(x => x !== "custom");
 			reloadCanvas = true;
 		}
 		
 		
 		if(properties.standardreactions){
-
 			if(properties.standardreactions.value == true)
-			reactPacks.push("standard");
+				reactPacks.push("standard");
 			else reactPacks = reactPacks.filter(x => x !== "standard");
 			reloadCanvas = true;
 		}
 		
 		if(properties.lycraonsreactions){
-
 			if(properties.lycraonsreactions.value == true)
-			reactPacks.push("lycraons");
+				reactPacks.push("lycraons");
 			else reactPacks = reactPacks.filter(x => x !== "lycraons");
 			reloadCanvas = true;
 		}
 		
 		if(properties.emoticonreactions){
-
 			if(properties.emoticonreactions.value == true)
-			reactPacks.push("emoticons");
+				reactPacks.push("emoticons");
 			else reactPacks = reactPacks.filter(x => x !== "emoticons");
 			reloadCanvas = true;
 		}
 		
 		if(properties.emojireactions){
-
 			if(properties.emojireactions.value == true)
-			reactPacks.push("emojis");
+				reactPacks.push("emojis");
 			else reactPacks = reactPacks.filter(x => x !== "emojis");
 			reloadCanvas = true;
 		}
 		
-		
 	
-
-		
 		if(properties.reaction1){
 			reactions["custom"][0] = properties.reaction1.value;
 
@@ -289,12 +299,15 @@ window.wallpaperPropertyListener = {
 			reloadCanvas = true;
 		}
 		
-
+		if(properties.scrollspeed) {
+			settings["scrollSpeed"] = properties.scrollspeed.value;
+			console.log("speed:"+settings["scrollSpeed"]);
+			reloadCanvas = true;
+		}
 		
-		
-		
+		//-----------------------------------------------------------------------------------------------
 		if(settings["overrideURL"]) 
-		ChangeSettings();
+			ChangeSettings();
 
 			
 		if(reloadCanvas){
@@ -303,7 +316,7 @@ window.wallpaperPropertyListener = {
 		}else ChangeSettings();
 		
 		if(realoadSetter)
-		UpdateSetterInfo(lastSetBy);			
+			UpdateSetterInfo(lastSetBy);	
 	 }
 };
 
@@ -379,12 +392,21 @@ function setCustomUrl(url){
 			css+= '	content:url('+lastUrl+');\n'
 		}else css+= '	content:url();\n'
 			
-		
-		css+= "}\n\n";		
+		css+= "}\n\n";	
 		
 		//setting content of dynCSS (style element)
 		document.getElementById("dynCSS").innerHTML = css;
 		
+		console.log("autoplay:" + (settings["autoplay"] == "true"));
+		console.log("loop:" + (settings["loop"] == "true"));
+		
+		var bVid = document.getElementById("bVid");
+		
+		bVid.controls = settings["videocontrols"] === "full";
+		bVid.defaultMuted  = (settings["volume"] == 0);
+		bVid.autoplay = (settings["autoplay"] == "true");
+		bVid.loop = (settings["loop"] == "true");
+		bVid.load();
 	}
 	
 
@@ -403,9 +425,9 @@ function GetRGBColor(customColor){
 		
 			//length is 3 for rgb values
 			if(temp.length > 3)
-			customColorAsCSS = 'rgba(' + rgb+','+temp[3]+ ')';
+				customColorAsCSS = 'rgba(' + rgb+','+temp[3]+ ')';
 			else
-			customColorAsCSS = 'rgb(' + rgb+')';
+				customColorAsCSS = 'rgb(' + rgb+')';
 
 				
 			return customColorAsCSS;
@@ -417,8 +439,10 @@ function postReaction(reactType){
 		//Reaction Text
 		var txt = ""
 		
+		console.log("ractPacks:" + reactPacks.length);
+		
 		if(reactPacks.length>0)
-		txt = document.getElementById("btn_reactDD_value").innerHTML;
+			txt = document.getElementById("btn_reactDD_value").innerHTML;
 		
 		console.log("Posting reaction ("+reactType+","+txt+") to Link " + settings["linkID"] );
 			
@@ -476,15 +500,6 @@ function setNewPost(data){
 						img.id="temp";
 						
 						document.body.appendChild(img);
-						/*
-						if(lastUrl != data.post_url){
-							bg += '<Img id="bImg" class="bImg" src="'+data.post_url+'" visibility="hidden"/>';
-							bg += '<video id="bVid" class="bImg" src="'+data.post_url+'" visibility="hidden" autoplay loop> Error on loading Video</video>';					
-						}else{
-							bg += '<Img id="bImg" class="bImg" src="'+data.post_url+'" visibility="visible"/>';
-							bg += '<video id="bVid" class="bImg" src="'+data.post_url+'" visibility="visible" autoplay loop> Error on loading Video</video>';
-							
-						}*/
 						
 					
 				}else{
@@ -532,44 +547,50 @@ function setNewPost(data){
 				}else lastSetBy = null;
 					
 				if(settings["showSetterData"] == "true" && settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
-				variables[settings["setterInfoPos"]] += '<div id="SetterInfo"></div>';			
+					variables[settings["setterInfoPos"]] += '<div id="SetterInfo"></div>';			
 				
 				//reaction buttons
 				if(settings["reactPos"] && settings["reactPos"] != "none")
 				if(settings["api_key"].length == 8){
 					var react = "";
-					
 					var packs = reactPacks;
 					
 					if(settings["reactPacks"].length>0)
-					packs=settings["reactPacks"];
+						packs=settings["reactPacks"];
 					
 					if(packs.length>0){
-					react += '<div id="reactDrop">'
-					react += '<button type="button" id="btn_reactDD" ><p id="btn_reactDD_value"> </p><p id="btn_reactDD_arrow">⏷</p></button>'; 
-					react += '<div id="reactDD">';
-					react += '<div id="reactDD_scroll">';
+						react += '<div id="reactDrop">'
+						react += '<button type="button" id="btn_reactDD" ><p id="btn_reactDD_value"> </p><p id="btn_reactDD_arrow">⏷</p></button>'; 
+						react += '<div id="reactDD">';
+						
+						react += '<button id="reactDD_scrollBtn_up" class="reactDD_scrollBtn" '
+						react +='style="visibility: hidden;"'
+						react +='> ▲ </button>';
+						
+						react += '<div id="reactDD_scroll">';
 
-					react += '<a href="#" class="reactDD_litxt"> </a>';
-					
-					
+						react += '<a href="#" class="reactDD_litxt"> </a>';
+						
 				
-					for(var i=0;i<packs.length;i++){
-						
-						var packTexts = reactions[packs[i]];
-						
-						if (packTexts && packTexts.length > 0)
-						for(var j=0;j<packTexts.length;j++){
-							if(packTexts[j] && packTexts[j] != " ")
-							react += '<a href="#" class="reactDD_litxt">'+packTexts[j]+'</a>';
+						for(var i=0;i<packs.length;i++){	
+							var packTexts = reactions[packs[i]];
 							
+							if (packTexts && packTexts.length > 0)
+							for(var j=0;j<packTexts.length;j++){
+								if(packTexts[j] && packTexts[j] != " ")
+									react += '<a href="#" class="reactDD_litxt">'+packTexts[j]+'</a>';
+								
+							}
 						}
-					}
 
-
-					react += '</div>';
-					react += '</div>';
-					react += '</div>';
+						react += '</div>'; //reactDD_scroll
+						
+						react += '<button id="reactDD_scrollBtn_down" class="reactDD_scrollBtn" '
+						react +='style="visibility: hidden;"'
+						react +='> ▼ </button>';
+						
+						react += '</div>';
+						react += '</div>';
 					}
 					react += '<p class="spacer"></p>';
 					
@@ -642,12 +663,8 @@ function setNewPost(data){
 				//sets the html for each area with the coresponding variables
 				areas.forEach( (ar,index) => {
 					var name = ar;
-						if(index >0){
-
+					if(index >0)
 						$("#"+name).html(variables[name]);	
-						
-						
-					}
 				});
 				
 				//Event functions 
@@ -678,8 +695,7 @@ function getBgHtml(url){
 
 
 function setEvents(){
-	
-	 
+		 
 	var elem;
 	//elem = document.getElementById("bImg"); 
 
@@ -694,27 +710,32 @@ function setEvents(){
 	
 	elem = document.getElementById("bVid");
 	if(elem)
-	elem.volume = 0;
-	//elem.pause();
+		elem.volume = 0;
+	
 	if(elem)
 	elem.addEventListener("loadeddata",function(){
 		var elVid = document.getElementById("bVid");
 		elVid.style.visibility = "visible";	
 		document.getElementById("bImg").style.visibility = "hidden";
-		elVid.setAttribute("controls","");
 		elVid.volume = settings["volume"];
-		elVid.play();
-		});
+		
+		//if(settings["autoplay"] == "true")
+			//elVid.play();
+	});
 		
 	elem = document.getElementById("btn_reactDD");
 	if(elem)
 	elem.addEventListener("click",function(){
 		var el_lu = document.getElementById("reactDD");
 		
-		if(el_lu.style.visibility == "visible")
-		el_lu.style.visibility = "hidden";
-		else
-		el_lu.style.visibility = "visible";
+		if(el_lu.style.visibility == "visible"){
+			el_lu.style.visibility = "hidden";
+			HideDDScrollbtns();
+
+		}else {
+			el_lu.style.visibility = "visible";
+			HandleDDScrollBtns();
+		}
 	});
 	
 		/*
@@ -728,13 +749,45 @@ function setEvents(){
 	var reactLi = document.getElementsByClassName("reactDD_litxt");
 	for(var i=0;i < reactLi.length;i++){
 		reactLi[i].addEventListener("click",function(event){
-	
-			
 			document.getElementById("btn_reactDD_value").innerHTML = this.innerHTML;
 			document.getElementById("reactDD").style.visibility = "hidden";
-			});
+			HideDDScrollbtns();
+		});
 	}
 	
+	var dd_scroll = document.getElementById("reactDD_scroll");
+	if(dd_scroll)
+	dd_scroll.addEventListener("scroll", function(){	
+		HandleDDScrollBtns();
+	});
+	
+	var loopUp = null;
+	var dd_up = document.getElementById("reactDD_scrollBtn_up");
+	if(dd_up)
+	dd_up.addEventListener("mouseover", function(){
+		
+		loopUp = setInterval(function() {
+			dd_scroll.scrollBy(0,-settings["scrollSpeed"]);
+		},10);	
+	});
+	
+	dd_up.addEventListener("mouseleave", function(){
+		clearInterval(loopUp);
+	});
+	
+	var loopDown = null;
+	var dd_down = document.getElementById("reactDD_scrollBtn_down");
+	if(dd_down)
+	dd_down.addEventListener("mouseover", function(){
+		loopDown = setInterval(function() {
+			dd_scroll.scrollBy(0,settings["scrollSpeed"]);
+		},10);	
+	});
+	
+	dd_down.addEventListener("mouseleave", function(){
+		clearInterval(loopDown);
+	});
+
 	if(settings["reactPos"] && settings["reactPos"] != "none")
 	if(settings["api_key"].length == 8){
 		
@@ -742,51 +795,81 @@ function setEvents(){
 		elem = document.getElementById("btn_hate");
 		elem.addEventListener("click",function(){postReaction("disgust")});		
 		if(settings["showTooltips"]){
-		elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible"});
-		elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
+			elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible"});
+			elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
 		}
 		
 		//ok
 		elem = document.getElementById("btn_ok");
 		elem.addEventListener("click",function(){postReaction("ok")});		
 		if(settings["showTooltips"]){
-		elem.addEventListener("mouseenter",function(){document.getElementById("tt_ok").style.visibility = "visible"});
-		elem.addEventListener("mouseleave",function(){document.getElementById("tt_ok").style.visibility = "collapse";});
+			elem.addEventListener("mouseenter",function(){document.getElementById("tt_ok").style.visibility = "visible"});
+			elem.addEventListener("mouseleave",function(){document.getElementById("tt_ok").style.visibility = "collapse";});
 		}
 		
 		//love
 		elem = document.getElementById("btn_love");
 		elem.addEventListener("click",function(){postReaction("horny")});
 		if(settings["showTooltips"]){
-		elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
-		elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
+			elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
+			elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
 		}
 		
 		//cum
 		elem = document.getElementById("btn_cum");
 		elem.addEventListener("click",function(){postReaction("came")});
 		if(settings["showTooltips"]){
-		elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
-		elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
+			elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
+			elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
 		}
 		
 	}
 }
 
+function HideDDScrollbtns(){
+	var btn_up = document.getElementById("reactDD_scrollBtn_up");
+			if(btn_up)
+			btn_up.style.visibility = "hidden";
+
+			var btn_down = document.getElementById("reactDD_scrollBtn_down");
+			if(btn_down)
+			btn_down.style.visibility = "hidden";
+}
+
+function HandleDDScrollBtns(){
+	var dd_scroll = document.getElementById("reactDD_scroll");
+	var btn_up = document.getElementById("reactDD_scrollBtn_up");
+	if(btn_up)
+	if(dd_scroll.scrollTop == 0)
+		btn_up.style.visibility = "hidden";
+	else
+		btn_up.style.visibility = "visible";
+	
+	var btn_down = document.getElementById("reactDD_scrollBtn_down");
+	if(btn_down){
+		var scrollBottom = dd_scroll.scrollHeight - dd_scroll.scrollTop - dd_scroll.clientHeight;
+		if(scrollBottom < 1)
+			btn_down.style.visibility = "hidden";
+		else
+			btn_down.style.visibility = "visible";
+	}
+	
+}
+
 
 function toggleAttribute(elem,attName,value){
-	 if (elem.hasAttribute(attName)) {
-     elem.removeAttribute(attName)   
-  } else {
-     elem.setAttribute(attName,value)   
-  }
+	if (elem.hasAttribute(attName)) {
+		elem.removeAttribute(attName)   
+	} else {
+		elem.setAttribute(attName,value)   
+	}
 }
 
 LoopSetterUpdate();
 
 function LoopSetterUpdate(){
 	if(!settings["overrideURL"])
-	UpdateSetterInfo(lastSetBy);
+		UpdateSetterInfo(lastSetBy);
 	
 	setTimeout(LoopSetterUpdate, settings["interval"]);
 };
@@ -794,76 +877,75 @@ function LoopSetterUpdate(){
 async function UpdateSetterInfo(username){
 	console.log("Updating Setter Info of " + username)
 	if(username && settings["showSetterData"] == "true")	{
-						var userData = await getUserInfo(username);
-						
-						//online and friend status
-						if(userData){
-							var setBy = '👤set_by: ';
-							if(userData.friend)
-							setBy += '♥️ ';
-						
-							
-							
-							if(userData.self)
-							setBy += "you ";	
-							else
-							setBy += username;						
-							if(userData.online){
-								setBy += ' 🟢';
-							}
-							
-							$("#setBy").html(setBy);
-							
-							//info of links
-							if(settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
-							if(userData.links){
+		var userData = await getUserInfo(username);
+		
+		//online and friend status
+		if(userData){
+			var setBy = '👤set_by: ';
+			if(userData.friend)
+			setBy += '♥️ ';
+		
+			
+			
+			if(userData.self)
+			setBy += "you ";	
+			else
+			setBy += username;						
+			if(userData.online){
+				setBy += ' 🟢';
+			}
+			
+			$("#setBy").html(setBy);
+			
+			//info of links
+			if(settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
+			if(userData.links){
 
+			
+				var elInfo = document.createElement("p");
+				elInfo.classList.add('text');
+				var strInfo = 'Links: ' + userData.links.length;
+				elInfo.innerHTML = strInfo;
+				
+				var setElem = document.getElementById("SetterInfo");
+				
+				if(setElem)
+				setElem.innerHTML = "";
+				if(setElem)
+				setElem.appendChild(elInfo);
+				//list of links
+				if(setElem && settings["listSetterLinks"] == "true" ){
+					for(var i=0;i< userData.links.length;i++){
+						var elLink = document.createElement("p");
+						elLink.classList.add('text');
+						elLink.style.paddingTop = "0";
+						
+						var linkInfo = "";
+						if(userData.links[i]){
 							
-								var elInfo = document.createElement("p");
-								elInfo.classList.add('text');
-								var strInfo = 'Links: ' + userData.links.length;
-								elInfo.innerHTML = strInfo;
-								
-								var setElem = document.getElementById("SetterInfo");
-								
-								if(setElem)
-								setElem.innerHTML = "";
-								if(setElem)
-								setElem.appendChild(elInfo);
-								//list of links
-								if(setElem && settings["listSetterLinks"] == "true" ){
-									for(var i=0;i< userData.links.length;i++){
-										var elLink = document.createElement("p");
-										elLink.classList.add('text');
-										elLink.style.paddingTop = "0";
-										
-										var linkInfo = "";
-										if(userData.links[i]){
-										
-										linkInfo += " ➔ [";
-										
-										if(userData.links[i].id)
-										linkInfo += userData.links[i].id;
-									
-										linkInfo += "] ";
-										linkInfo += "last Response:";
-										
-										if(userData.links[i].response_type && reacts[userData.links[i].response_type])
-										linkInfo += reacts[userData.links[i].response_type];
-									
-										if(userData.links[i].response_text)
-										linkInfo += " " + userData.links[i].response_text
-									
-										linkInfo += " \n";
-										
-										}
-										elLink.innerHTML = linkInfo;
-										setElem.appendChild(elLink);
-									}		 
-								}
-							}
+							linkInfo += " ➔ [";
+						
+							if(userData.links[i].id)
+								linkInfo += userData.links[i].id;
+					
+							linkInfo += "] ";
+							linkInfo += "last Response:";
+						
+							if(userData.links[i].response_type && reacts[userData.links[i].response_type])
+								linkInfo += reacts[userData.links[i].response_type];
+					
+							if(userData.links[i].response_text)
+								linkInfo += " " + userData.links[i].response_text
+					
+							linkInfo += " \n";
 						}
-					}
+						elLink.innerHTML = linkInfo;
+						setElem.appendChild(elLink);
+					}		 
+				}
+			}
+		}
+	}
 }
 
 //gets json from website
@@ -876,8 +958,6 @@ function getJSON(){
 		   beforeSend:  function(request) {
 				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
 				console.log("fetching link " + settings["linkID"] );
-				//request.setRequestHeader("Cookie", "user_agent="+name+"/"+vNr_str);
-				//request.setRequestHeader("User-Agent" , name + '/' + vNr_str);
 			} 
 		});
 		
@@ -896,21 +976,17 @@ async function getUserInfo(username){
 		   beforeSend:  function(request) {
 				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
 				console.log("fetching UserInfo of " + username);
-				//request.setRequestHeader("Cookie", "user_agent="+name+"/"+vNr_str);
-				//request.setRequestHeader("User-Agent" , name + '/' + vNr_str);
 			} 
 		});
-		
-		
+			
 		let url = "https://walltaker.joi.how/api/users/" + username + ".json";
 		
 		if(settings["api_key"].length == 8)
-		url += "?api_key="+settings["api_key"];
+			url += "?api_key="+settings["api_key"];
 		
 		let tmp = await fetch(url);
 		json = await tmp.json();	
-		return json;
-		
+		return json;	
 	}
 	
 
@@ -921,7 +997,7 @@ var UpdateCanvasRunning = false;
 function UpdateCanvas(){
 	UpdateCanvasRunning = true;
 	if(!settings["overrideURL"])
-	getJSON();
+		getJSON();
 	else UpdateCanvasRunning = false;
 	
 	intervalID = setTimeout(UpdateCanvas, settings["interval"]);
