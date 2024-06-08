@@ -9,6 +9,7 @@ const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-
 const reacts = {
 	"":"[]",
 	"disgust":"😓",
+	"ok":"👍",
 	"horny":"😍",
 	"came":"💦",
 }
@@ -572,17 +573,28 @@ function setNewPost(data){
 					}
 					react += '<p class="spacer"></p>';
 					
-					react += '<div id="buttons">';
+					react += '<div id="buttons">'; //-----------------------------
+					
+					//hate
 					react += '<button type="button" id="btn_hate" >😓'
 					react += '<p id="tt_hate" class="tooltipItem">Hate it</p>';
 					react +='</button>';
+					
+					//ok
+					react += '<button type="button" id="btn_ok" >👍'
+					react += '<p id="tt_ok" class="tooltipItem">Thanks</p>';
+					react += '</button>';
+					
+					//love
 					react += '<button type="button" id="btn_love" >😍'
 					react += '<p id="tt_love" class="tooltipItem">Love it</p>';
 					react += '</button>'; 
+					
+					//cum
 					react += '<button type="button" id="btn_cum"  >💦'
 					react += '<p id="tt_came" class="tooltipItem">I came</p>';		
 					react += '</button>'; 
-					react += '</div>';
+					react += '</div>';//------------------------------------------
 					
 					
 					//tooltipItem
@@ -607,11 +619,14 @@ function setNewPost(data){
 				if(settings["responsePos"] && settings["responsePos"] != "none"){
 					var response = '<p id="reactText" class="text" height="auto" margin="0" text->';
 					
-					if(data.response_type)
-					response += reacts[data.response_type];
+					if(data.response_type && reacts[data.response_type])
+						response += reacts[data.response_type];
+					
+					if(data.response_type && reacts[data.response_type] && data.response_text)
+						response += ": ";
 					
 					if(data.response_text)
-					response += ": "+ data.response_text;
+						response += data.response_text;
 				
 					response+=' </p>';
 					
@@ -723,6 +738,7 @@ function setEvents(){
 	if(settings["reactPos"] && settings["reactPos"] != "none")
 	if(settings["api_key"].length == 8){
 		
+		//hate
 		elem = document.getElementById("btn_hate");
 		elem.addEventListener("click",function(){postReaction("disgust")});		
 		if(settings["showTooltips"]){
@@ -730,6 +746,15 @@ function setEvents(){
 		elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
 		}
 		
+		//ok
+		elem = document.getElementById("btn_ok");
+		elem.addEventListener("click",function(){postReaction("ok")});		
+		if(settings["showTooltips"]){
+		elem.addEventListener("mouseenter",function(){document.getElementById("tt_ok").style.visibility = "visible"});
+		elem.addEventListener("mouseleave",function(){document.getElementById("tt_ok").style.visibility = "collapse";});
+		}
+		
+		//love
 		elem = document.getElementById("btn_love");
 		elem.addEventListener("click",function(){postReaction("horny")});
 		if(settings["showTooltips"]){
@@ -737,6 +762,7 @@ function setEvents(){
 		elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
 		}
 		
+		//cum
 		elem = document.getElementById("btn_cum");
 		elem.addEventListener("click",function(){postReaction("came")});
 		if(settings["showTooltips"]){
@@ -822,11 +848,11 @@ async function UpdateSetterInfo(username){
 										linkInfo += "] ";
 										linkInfo += "last Response:";
 										
-										if(userData.links[i].response_type)
-										linkInfo += reacts[userData.links[i].response_type] + " ";
+										if(userData.links[i].response_type && reacts[userData.links[i].response_type])
+										linkInfo += reacts[userData.links[i].response_type];
 									
 										if(userData.links[i].response_text)
-										linkInfo += userData.links[i].response_text
+										linkInfo += " " + userData.links[i].response_text
 									
 										linkInfo += " \n";
 										
@@ -900,9 +926,3 @@ function UpdateCanvas(){
 	
 	intervalID = setTimeout(UpdateCanvas, settings["interval"]);
 };
-
-
-
-
-
-
