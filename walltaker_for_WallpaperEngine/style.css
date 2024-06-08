@@ -1,3 +1,8 @@
+:root{
+	--dd_item_height: 1em;
+	--dd_item_padding: 10px;
+}
+
 #i_joi{
 	height: 100%;
 	width: 100%;
@@ -19,14 +24,10 @@ body {
 
 
 #reactDrop{
-	position: relative;
-	
+	position: relative;	
 	z-index: 2000;
 	overflow: visible;
-	width: 180px;
-	
-	max-width: 250px;
-	
+	width: 210px;
 }
 
 #btn_reactDD{
@@ -74,47 +75,66 @@ body {
 	max-width: 250px;
 	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 	z-index: 2001;
-	
+	margin-top: -0.25em;
 }
 
-#reactDD > div {
+#reactDD_scroll {
 	max-height: 45vh;
     overflow-y: auto;
     overflow-x: hidden;
+	scrollbar-width: none;
+	margin-top: calc((1em + 20px)* -1);
 }
 
+.reactDD_scrollBtn {
+	width: 100%;
+	background-color: #222;
+	color: white;
+	min-height: var(--dd_item_height);
+	padding: var(--dd_item_padding);
+	border-radius: 0;
+	z-index: 2002;
+	position:relative;
+}
 
-#reactDD > div  > a {
+.reactDD_scrollBtn:hover {
+	color: white;
+	background-color: #555;
+}
 
-	width: calc(100% - 20px);
-	background-color: black;
+#reactDD_scrollBtn_up{
+}
+
+#reactDD_scrollBtn_down{
+	border-radius: 0 0 0.5em 0.5em;
+}
+
+/* #reactDD > div  > a */
+.reactDD_litxt {
+	background-color: #000000cf;
 	display: block;
 	color: white;
-	border: 1px solid gray;
-	padding: 10px;
+	padding: var(--dd_item_padding);
 	overflow: hidden;
 	text-decoration:none;  
-
-}
-
-.reactDD_litxt{
-	position:relative;
-	padding: 0;
-	width: 100%;
-	text-overflow: ellipsis;
+	text-overflow:ellipsis;
 	white-space:normal;
-}
-
-#reactDD > a:hover {
-	background-color: gray;
-}
-
-.reactDD_litxt {
-	padding: 5px;
-	margin: 0;
-	color: white;
-	min-height: 1em;
+	position:relative;
 	text-align: center;
+	min-height: var(--dd_item_height);
+	border-width: 1px;
+	border-style: solid:
+	border-image:
+		 linear-gradient(
+		  to bottom, 
+		  red, 
+		  rgba(0, 0, 0, 0)
+		) 1 100%;
+}
+
+
+.reactDD_litxt:hover {
+	background-color: gray;
 }
 
 #canvas {
@@ -152,6 +172,7 @@ body {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space:normal;
+	padding-top: 0.5em;
 }
 
 .area {
@@ -161,7 +182,7 @@ body {
 	z-index: 100;
 	overflow: visible;
 	max-width: 33vw;
-	
+	border-radius: 0.25em;
 }
 
 .content {
@@ -173,11 +194,38 @@ body {
 	width: auto;
 }
 
-.content > * {
-	padding: 0.5em;
-	margin: 0;
-	
+.content > *:first-child{
+	margin-top: 0.5em;
 }
+
+.content > *:last-child{
+	margin-bottom: 1em;
+}
+
+.content > * {
+	padding: 0.25em;
+	margin: 0;
+}
+
+.content p {
+	text-shadow: 0.05em 0.05em 0.25em rgba(0,0,0,0.2);
+}
+
+.content button p {
+	text-shadow: none;
+}
+
+button {
+	border: none;
+	box-shadow: 0.05em 0.05em 0.25em 0px rgba(0,0,0,0.2);
+	border-radius: 0.25em;
+}
+
+button:hover {
+	color: grey;
+}
+
+
 
 #rtop-left{
 	top: 10px;
@@ -192,7 +240,7 @@ body {
 	left: 50vw;	
 	-ms-transform: translate(-50%, 0%);
     transform: translate(-50%, 0%);
-	
+	border-radius: 0.45em;
 }
 
 #top-center{
@@ -225,7 +273,7 @@ body {
 	left: 50vw;	
 	-ms-transform: translate(-50%, 0%);
     transform: translate(-50%, 0%);
-	
+	border-radius: 0.45em;
 }
 
 #bottom-center{
@@ -251,13 +299,14 @@ body {
 	display: flex;
 	justify-content: center;
 	flex-wrap: nowrap;
-	padding-bottom: 0;
+	padding: 0;
 }
 
 #buttons > * {
-	margin-left: 0.5em;
 	padding-top: 0.5em;
 	padding-bottom: 0.5em;
+	margin: 0.25em;
+	border-radius: 0.3em;
 }
 
 .text{
@@ -301,10 +350,7 @@ body {
 	white-space: nowrap;
 	text-align: center center;
 	margin: 0;
+	margin-top: 0.25em;
 	-ms-transform: translate(-25%, 0%);
     transform: translate(-25%, 0%);
 }
-
-
-
-
