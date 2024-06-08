@@ -41,14 +41,6 @@ You can now choose what text is used for the reaction you set.
 There are some preset Text, but you can set 6 custom ones.
 <img width=250 src="https://user-images.githubusercontent.com/80824508/171394562-64a5f6c0-487d-4fb0-ab3b-95c9d46609a9.gif">
 
-
-## NEW!
-
-### Default volume setting
-Added a setting for the default volume of videos
-
-
-
 # Settings
 
 ### "walltaker.joi.how/links/":  
