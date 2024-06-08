@@ -96,7 +96,7 @@ var settings = {
 	'autoplay' : "true",
 	'textPos' : "top-left",
 	'reactPos': "top-center",
-	'reactPacks': ["standard","emojis","custom"], //! only use strings ! !overrides WE settings!
+	'reactPacks': [ ], //! only use strings ! !overrides WE settings!
 	'showTooltips': "true",
 	'showSetterData': "true",
 	'listSetterLinks': "true",
@@ -322,7 +322,7 @@ window.wallpaperPropertyListener = {
 
 //start Checks for Updates when page loaded
 window.onload = function () {
-	document.getElementById("bImg").style.visibility = "visible";
+	SetVisible('#bImg');
     if(settings["overrideURL"]) setCustomUrl(settings["overrideURL"]);
 	else if(!UpdateCanvasRunning)UpdateCanvas();
 	
@@ -339,12 +339,10 @@ function setCustomUrl(url){
 	
 	console.log(str);
 	
-	document.getElementById("canvas").innerHTML = str;
-	
-	
+	$('#canvas').html(str);
+
 	settings["showTooltips"]=false;
 	setEvents();
-	
 	
 	ChangeSettings();
 }
@@ -395,7 +393,7 @@ function setCustomUrl(url){
 		css+= "}\n\n";	
 		
 		//setting content of dynCSS (style element)
-		document.getElementById("dynCSS").innerHTML = css;
+		$('#dynCSS').html(css);
 		
 		console.log("autoplay:" + (settings["autoplay"] == "true"));
 		console.log("loop:" + (settings["loop"] == "true"));
@@ -428,35 +426,33 @@ function GetRGBColor(customColor){
 				customColorAsCSS = 'rgba(' + rgb+','+temp[3]+ ')';
 			else
 				customColorAsCSS = 'rgb(' + rgb+')';
-
-				
+	
 			return customColorAsCSS;
 }
 
 //sends POST to Website and passes data to setNewPost
 function postReaction(reactType){	
-	if(settings["api_key"].length == 8){
-		//Reaction Text
-		var txt = ""
+	if(settings["api_key"].length != 8) return; 
 		
-		console.log("ractPacks:" + reactPacks.length);
+	console.log("ractPacks:" + reactPacks.length);
+	
+	//Reaction Text
+	var txt = ""
+	if(reactPacks.length>0)
+		txt = $('#btn_reactDD_value').html();
+	
+	console.log('Posting reaction ('+reactType+',"'+txt+'") to Link ' + settings["linkID"] );
 		
-		if(reactPacks.length>0)
-			txt = document.getElementById("btn_reactDD_value").innerHTML;
-		
-		console.log("Posting reaction ("+reactType+","+txt+") to Link " + settings["linkID"] );
-			
-		//POST	
-		 $.ajax({
-			type: "POST",		
-			url: "https://walltaker.joi.how/api/links/"+ settings["linkID"] +"/response.json",
-			data: JSON.stringify({ "api_key": settings["api_key"], "type" : ""+reactType+"", "text" : txt}),
-			dataType: "json",
-			contentType: "application/json",
-			success: function(data){overrideUpdate=true;setNewPost(data);},
-			failure: function(errMsg) {}
-		});
-	}
+	//POST	
+	 $.ajax({
+		type: "POST",		
+		url: "https://walltaker.joi.how/api/links/"+ settings["linkID"] +"/response.json",
+		data: JSON.stringify({ "api_key": settings["api_key"], "type" : ""+reactType+"", "text" : txt}),
+		dataType: "json",
+		contentType: "application/json",
+		success: function(data){overrideUpdate=true;setNewPost(data);},
+		failure: function(errMsg) {}
+	});
 }
 
 
@@ -473,39 +469,27 @@ function setNewPost(data){
 						bOpacity = settings["background-opacity"];
 						//bg += getBgHtml(data.post_url);
 						
-						
 						var filetype = data.post_url.split('.').pop();
 						
-					
-						
-						document.getElementById("bImg").style.visibility = "visible";
-						document.getElementById("bVid").style.visibility = "hidden";
+						SetVisible('#bImg');
+						SetHidden('#bVid');
 						document.getElementById("bVid").src = data.post_url;
 						
-					
-							
-							
-						
-						
-						
 						while(document.getElementById("temp"))
-						document.getElementById("temp").remove();
+							$('#temp').remove();
 						
 						
 						var img = document.createElement("Img");
 						img.style.visibility = "hidden";
-						
-						
 						img.src = data.post_url;
 						img.id="temp";
 						
 						document.body.appendChild(img);
-						
-					
+	
 				}else{
 					bOpacity = "0";
 					//bg += getBgHtml(null);
-					document.getElementById("bVid").src = "";	
+					$('#bVid').attr("src", "");
 				}
 				
 				//String variables for areas
@@ -522,9 +506,7 @@ function setNewPost(data){
 				/*
 				if(data.username && settings["userPos"] && settings["userPos"] != " " && settings["userPos"] != "none"){
 					console.log("fetching user info for " + data.username);
-					
-					
-					
+						
 					var UserInfo = "";
 				
 					variables[settings["userPos"]] += UserInfo;
@@ -571,15 +553,14 @@ function setNewPost(data){
 
 						react += '<a href="#" class="reactDD_litxt"> </a>';
 						
-				
-						for(var i=0;i<packs.length;i++){	
-							var packTexts = reactions[packs[i]];
+						
+						for( const pack of packs){
+							var packTexts = reactions[pack];
 							
-							if (packTexts && packTexts.length > 0)
-							for(var j=0;j<packTexts.length;j++){
-								if(packTexts[j] && packTexts[j] != " ")
-									react += '<a href="#" class="reactDD_litxt">'+packTexts[j]+'</a>';
-								
+							if(packTexts)
+							for(const packText of packTexts){
+								if(packText != " ")
+									react += '<a href="#" class="reactDD_litxt">'+packText+'</a>';
 							}
 						}
 
@@ -596,38 +577,12 @@ function setNewPost(data){
 					
 					react += '<div id="buttons">'; //-----------------------------
 					
-					//hate
-					react += '<button type="button" id="btn_hate" >😓'
-					react += '<p id="tt_hate" class="tooltipItem">Hate it</p>';
-					react +='</button>';
+					react += GetReactionButton('btn_hate','😓','tt_hate','Hate it' );
+					react += GetReactionButton('btn_ok'  ,'👍','tt_ok'  ,'Thanks'  );
+					react += GetReactionButton('btn_love','😍','tt_love','Love it!');
+					react += GetReactionButton('btn_cum' ,'💦','tt_came','I came'  );
 					
-					//ok
-					react += '<button type="button" id="btn_ok" >👍'
-					react += '<p id="tt_ok" class="tooltipItem">Thanks</p>';
-					react += '</button>';
-					
-					//love
-					react += '<button type="button" id="btn_love" >😍'
-					react += '<p id="tt_love" class="tooltipItem">Love it</p>';
-					react += '</button>'; 
-					
-					//cum
-					react += '<button type="button" id="btn_cum"  >💦'
-					react += '<p id="tt_came" class="tooltipItem">I came</p>';		
-					react += '</button>'; 
 					react += '</div>';//------------------------------------------
-					
-					
-					//tooltipItem
-					/*
-					if(settings["showTooltips"] == "true"){
-					react += '<div id="btn_tooltips" class="tooltipBar">';
-					react += '<p id="tt_hate" class="tooltipItem">Hate it</p>';
-					react += '<p id="tt_love" class="tooltipItem">Love it</p>';
-					react += '<p id="tt_came" class="tooltipItem">I came</p>';					
-					react += '</div>';
-					}
-					*/
 					
 					react += '</form>';
 					react += '<p class="spacer"></p>';
@@ -685,6 +640,16 @@ function setNewPost(data){
 			}
 }
 
+function GetReactionButton(id,emoji,ttId,tooltip){
+	var html = "";
+	
+	html += '<button type="button" id="'+id+'" >' + emoji
+	html += '<p id="'+ttId+'" class="tooltipItem">'+tooltip+'</p>';
+	html +='</button>';
+	
+	return html;
+}
+
 function getBgHtml(url){
 	var bg = "";
 	bg += '<Img id="bImg" class="bImg" />';
@@ -693,177 +658,140 @@ function getBgHtml(url){
 	return bg;
 }
 
-
 function setEvents(){
-		 
-	var elem;
-	//elem = document.getElementById("bImg"); 
-
-	/*
-	$("#bImg").on('load',function (){
-		console.log("test");
-		elem.style.visibility = "visible";
-	});*/
-	
-	
-	//elem.onload = function(){elem.style.visibility = "visible";}
-	
-	elem = document.getElementById("bVid");
-	if(elem)
-		elem.volume = 0;
-	
-	if(elem)
-	elem.addEventListener("loadeddata",function(){
-		var elVid = document.getElementById("bVid");
-		elVid.style.visibility = "visible";	
-		document.getElementById("bImg").style.visibility = "hidden";
-		elVid.volume = settings["volume"];
-		
-		//if(settings["autoplay"] == "true")
-			//elVid.play();
-	});
-	
-	
 	jQuery( document ).ready(function($) {
+	
+		/*
+		$("#bImg").on('load',function (){
+			console.log("test");
+			elem.style.visibility = "visible";
+		});*/
+		
+		
+		document.getElementById("bVid").volume = 0;
+		$('#bVid').on("loadeddata",function(){
+			SetVisible('#bVid');
+			SetHidden('#bImg')
+			
+			document.getElementById("bVid").volume = settings["volume"];
+			//if(settings["autoplay"] == "true")
+				//elVid.play();
+		});
+		
 		$('#bVid').click(function() {
 			
 			if(settings["videocontrols"] === "noUI")
 			this.paused ? this.play() : this.pause();
 		});
-	});
 	
-	jQuery( document ).ready(function($) {
 		$('#btn_reactDD').click(function() {
-			
-			var el_lu = document.getElementById("reactDD");
-			
-			if(el_lu.style.visibility == "visible"){
-				el_lu.style.visibility = "hidden";
-				HideDDScrollbtns();
-
-			}else {
-				el_lu.style.visibility = "visible";
+							
+			if( $('#reactDD').css("visibility") == "hidden"){
+				SetVisible('#reactDD');
 				HandleDDScrollBtns();
+			}else {
+				SetHidden('#reactDD');
+				HideDDScrollbtns();
 			}
 		});
-	});
-	
-		/*
-	document.getElementById("reactDD_scroll");
-	if(elem)
-	elem.addEventListener("mouseenter",function(){
-		document.getElementById("reactDD_scroll").focus();	
-		console.log("focus dd scroll");
-	});*/
-	
-	var reactLi = document.getElementsByClassName("reactDD_litxt");
-	for(var i=0;i < reactLi.length;i++){
-		reactLi[i].addEventListener("click",function(event){
-			document.getElementById("btn_reactDD_value").innerHTML = this.innerHTML;
-			document.getElementById("reactDD").style.visibility = "hidden";
-			HideDDScrollbtns();
+		
+		
+			/*
+		document.getElementById("reactDD_scroll");
+		if(elem)
+		elem.addEventListener("mouseenter",function(){
+			document.getElementById("reactDD_scroll").focus();	
+			console.log("focus dd scroll");
+		});*/
+		
+		$('.reactDD_litxt').each(function(){
+			this.addEventListener("click",function(event){
+				$("#btn_reactDD_value").html(this.innerHTML);
+				SetHidden('#reactDD');
+				HideDDScrollbtns();
+			});
 		});
-	}
-	
-	var dd_scroll = document.getElementById("reactDD_scroll");
-	if(dd_scroll)
-	dd_scroll.addEventListener("scroll", function(){	
-		HandleDDScrollBtns();
-	});
-	
-	var loopUp = null;
-	var dd_up = document.getElementById("reactDD_scrollBtn_up");
-	if(dd_up)
-	dd_up.addEventListener("mouseover", function(){
 		
-		loopUp = setInterval(function() {
-			dd_scroll.scrollBy(0,-settings["scrollSpeed"]);
-		},10);	
-	});
-	
-	dd_up.addEventListener("mouseleave", function(){
-		clearInterval(loopUp);
-	});
-	
-	var loopDown = null;
-	var dd_down = document.getElementById("reactDD_scrollBtn_down");
-	if(dd_down)
-	dd_down.addEventListener("mouseover", function(){
-		loopDown = setInterval(function() {
-			dd_scroll.scrollBy(0,settings["scrollSpeed"]);
-		},10);	
-	});
-	
-	dd_down.addEventListener("mouseleave", function(){
-		clearInterval(loopDown);
-	});
+		$('#reactDD_scroll').scroll(function() {
+			HandleDDScrollBtns();
+		});
+		
+		var dd_scroll = document.getElementById("reactDD_scroll");
+		
+		var loopUp = null;
+		$('#reactDD_scrollBtn_up').hover(function(){
+			
+			loopUp = setInterval(function() {
+				dd_scroll.scrollBy(0,-settings["scrollSpeed"]);
+			},10);	
+		}, function(){
+			clearInterval(loopUp);
+		});
+		
+		var loopDown = null;
+		$('#reactDD_scrollBtn_down').hover(function(){
+			loopDown = setInterval(function() {
+				dd_scroll.scrollBy(0,settings["scrollSpeed"]);
+			},10);	
+		}, function(){
+			clearInterval(loopDown);
+		});
 
-	if(settings["reactPos"] && settings["reactPos"] != "none")
-	if(settings["api_key"].length == 8){
-		
-		//hate
-		elem = document.getElementById("btn_hate");
-		elem.addEventListener("click",function(){postReaction("disgust")});		
-		if(settings["showTooltips"]){
-			elem.addEventListener("mouseenter",function(){document.getElementById("tt_hate").style.visibility = "visible"});
-			elem.addEventListener("mouseleave",function(){document.getElementById("tt_hate").style.visibility = "collapse";});
+		if(settings["reactPos"] && settings["reactPos"] != "none")
+		if(settings["api_key"].length == 8){
+			
+			//hate
+			$('#btn_hate').click(function() { postReaction("disgust");});
+			HandleTooltip('#btn_hate','#tt_hate');
+			
+			//ok
+			$('#btn_ok').click(function() {postReaction("ok")});
+			HandleTooltip('#btn_hate','#tt_ok');
+			
+			//love
+			$('#btn_love').click(function() {postReaction("horny")});
+			HandleTooltip('#btn_love','#tt_love');
+			
+			//cum
+			$('#btn_cum').click(function() {postReaction("came")});
+			HandleTooltip('#btn_cum','#tt_came');
 		}
-		
-		//ok
-		elem = document.getElementById("btn_ok");
-		elem.addEventListener("click",function(){postReaction("ok")});		
-		if(settings["showTooltips"]){
-			elem.addEventListener("mouseenter",function(){document.getElementById("tt_ok").style.visibility = "visible"});
-			elem.addEventListener("mouseleave",function(){document.getElementById("tt_ok").style.visibility = "collapse";});
-		}
-		
-		//love
-		elem = document.getElementById("btn_love");
-		elem.addEventListener("click",function(){postReaction("horny")});
-		if(settings["showTooltips"]){
-			elem.addEventListener("mouseenter",function(){document.getElementById("tt_love").style.visibility = "visible";});
-			elem.addEventListener("mouseleave",function(){document.getElementById("tt_love").style.visibility = "collapse";});
-		}
-		
-		//cum
-		elem = document.getElementById("btn_cum");
-		elem.addEventListener("click",function(){postReaction("came")});
-		if(settings["showTooltips"]){
-			elem.addEventListener("mouseenter",function(){document.getElementById("tt_came").style.visibility = "visible";});
-			elem.addEventListener("mouseleave",function(){document.getElementById("tt_came").style.visibility = "collapse";});
-		}
-		
+	});
+}
+
+function SetVisibility(jqItemName, state){
+	$(jqItemName).css("visibility",state);
+}
+
+function SetVisible(jqItemName){ SetVisibility(jqItemName,'visible'); }
+function SetHidden(jqItemName){ SetVisibility(jqItemName,'hidden'); }
+function SetCollapsed(jqItemName){ SetVisibility(jqItemName,'collapse'); }
+
+function HandleTooltip(jqItemName, jqToolTipName){
+	if(settings["showTooltips"]){
+				$(jqItemName).mouseenter(function(){SetVisible(jqToolTipName);});
+				$(jqItemName).mouseleave(function(){SetCollapsed(jqToolTipName);});
 	}
 }
 
-function HideDDScrollbtns(){
-	var btn_up = document.getElementById("reactDD_scrollBtn_up");
-			if(btn_up)
-			btn_up.style.visibility = "hidden";
 
-			var btn_down = document.getElementById("reactDD_scrollBtn_down");
-			if(btn_down)
-			btn_down.style.visibility = "hidden";
+function HideDDScrollbtns(){
+	SetHidden('#reactDD_scrollBtn_up');
+	SetHidden('#reactDD_scrollBtn_down');
 }
 
 function HandleDDScrollBtns(){
 	var dd_scroll = document.getElementById("reactDD_scroll");
-	var btn_up = document.getElementById("reactDD_scrollBtn_up");
-	if(btn_up)
 	if(dd_scroll.scrollTop == 0)
-		btn_up.style.visibility = "hidden";
+		SetHidden('#reactDD_scrollBtn_up');
 	else
-		btn_up.style.visibility = "visible";
+		SetVisible('#reactDD_scrollBtn_up');
 	
-	var btn_down = document.getElementById("reactDD_scrollBtn_down");
-	if(btn_down){
-		var scrollBottom = dd_scroll.scrollHeight - dd_scroll.scrollTop - dd_scroll.clientHeight;
-		if(scrollBottom < 1)
-			btn_down.style.visibility = "hidden";
-		else
-			btn_down.style.visibility = "visible";
-	}
-	
+	var scrollBottom = dd_scroll.scrollHeight - dd_scroll.scrollTop - dd_scroll.clientHeight;
+	if(scrollBottom < 1)
+		SetHidden('#reactDD_scrollBtn_down');
+	else
+		SetVisible('#reactDD_scrollBtn_down');
 }
 
 
@@ -886,74 +814,43 @@ function LoopSetterUpdate(){
 
 async function UpdateSetterInfo(username){
 	console.log("Updating Setter Info of " + username)
-	if(username && settings["showSetterData"] == "true")	{
-		var userData = await getUserInfo(username);
-		
-		//online and friend status
-		if(userData){
-			var setBy = '👤set_by: ';
-			if(userData.friend)
-			setBy += '♥️ ';
-		
-			
-			
-			if(userData.self)
-			setBy += "you ";	
-			else
-			setBy += username;						
-			if(userData.online){
-				setBy += ' 🟢';
-			}
-			
-			$("#setBy").html(setBy);
-			
-			//info of links
-			if(settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
-			if(userData.links){
+	if(!username || settings["showSetterData"] != "true")	{ return; }
+	var userData = await getUserInfo(username);
+	
+	//online and friend status
+	if(!userData){ return;}
 
+	var friend = userData.friend ? '♥️ ' : '';
+	var name = userData.self ? 'you' : username;	
+	var online = userData.online ? ' 🟢' : '';
 			
-				var elInfo = document.createElement("p");
-				elInfo.classList.add('text');
-				var strInfo = 'Links: ' + userData.links.length;
-				elInfo.innerHTML = strInfo;
+	$("#setBy").html(`👤set_by: ${friend}${name}${online}`);
+	
+	//info of links
+	if(settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
+	if(userData.links){	
+		var elInfo = $("<p class='text'></p>");
+		$(elInfo).html(`Links: ${userData.links.length}`);
+
+		$('#SetterInfo').html("").append(elInfo);
+		
+		//list of links
+		if(settings["listSetterLinks"] == "true" ){
+			for(const ulink of userData.links){
+						
+				var symbol = '';
+				if(ulink.response_type && reacts[ulink.response_type])
+					symbol = reacts[ulink.response_type];
 				
-				var setElem = document.getElementById("SetterInfo");
+				var response = '';
+				if(ulink.response_text)
+					response =  ulink.response_text
 				
-				if(setElem)
-				setElem.innerHTML = "";
-				if(setElem)
-				setElem.appendChild(elInfo);
-				//list of links
-				if(setElem && settings["listSetterLinks"] == "true" ){
-					for(var i=0;i< userData.links.length;i++){
-						var elLink = document.createElement("p");
-						elLink.classList.add('text');
-						elLink.style.paddingTop = "0";
-						
-						var linkInfo = "";
-						if(userData.links[i]){
-							
-							linkInfo += " ➔ [";
-						
-							if(userData.links[i].id)
-								linkInfo += userData.links[i].id;
-					
-							linkInfo += "] ";
-							linkInfo += "last Response:";
-						
-							if(userData.links[i].response_type && reacts[userData.links[i].response_type])
-								linkInfo += reacts[userData.links[i].response_type];
-					
-							if(userData.links[i].response_text)
-								linkInfo += " " + userData.links[i].response_text
-					
-							linkInfo += " \n";
-						}
-						elLink.innerHTML = linkInfo;
-						setElem.appendChild(elLink);
-					}		 
-				}
-			}
+				var elLink = $("<p class='text'></p>");
+				$(elLink).html(` ➔ [${ulink.id}] last Response:${symbol} ${response}\n`);
+				$('#SetterInfo').append(elLink);
+			}		
+				 
 		}
 	}
 }
@@ -979,7 +876,6 @@ function getJSON(){
 //gets Info from username and returns JSON object of response
 async function getUserInfo(username){
 	
-		var json;
 		$.ajaxSetup({
 		   xhrFields: { /*withCredentials:true*/ },
 		   crossDomain: true,
@@ -988,14 +884,17 @@ async function getUserInfo(username){
 				console.log("fetching UserInfo of " + username);
 			} 
 		});
-			
-		let url = "https://walltaker.joi.how/api/users/" + username + ".json";
 		
+		var query = '';
 		if(settings["api_key"].length == 8)
-			url += "?api_key="+settings["api_key"];
+			query = "?api_key="+settings["api_key"];
+			
+		let url = `https://walltaker.joi.how/api/users/${username}.json${query}`;
 		
-		let tmp = await fetch(url);
-		json = await tmp.json();	
+		
+		
+		let tmp  = await fetch(url);
+		var json = await tmp.json();	
 		return json;	
 	}
 	
