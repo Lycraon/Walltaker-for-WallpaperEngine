@@ -722,20 +722,30 @@ function setEvents(){
 		//if(settings["autoplay"] == "true")
 			//elVid.play();
 	});
-		
-	elem = document.getElementById("btn_reactDD");
-	if(elem)
-	elem.addEventListener("click",function(){
-		var el_lu = document.getElementById("reactDD");
-		
-		if(el_lu.style.visibility == "visible"){
-			el_lu.style.visibility = "hidden";
-			HideDDScrollbtns();
+	
+	
+	jQuery( document ).ready(function($) {
+		$('#bVid').click(function() {
+			
+			if(settings["videocontrols"] === "noUI")
+			this.paused ? this.play() : this.pause();
+		});
+	});
+	
+	jQuery( document ).ready(function($) {
+		$('#btn_reactDD').click(function() {
+			
+			var el_lu = document.getElementById("reactDD");
+			
+			if(el_lu.style.visibility == "visible"){
+				el_lu.style.visibility = "hidden";
+				HideDDScrollbtns();
 
-		}else {
-			el_lu.style.visibility = "visible";
-			HandleDDScrollBtns();
-		}
+			}else {
+				el_lu.style.visibility = "visible";
+				HandleDDScrollBtns();
+			}
+		});
 	});
 	
 		/*
