@@ -559,7 +559,9 @@ function setNewPost(data){
 							
 							if(packTexts)
 							for(const packText of packTexts){
-								if(packText != " ")
+								console.log("packText:'"+packText+"'");
+								
+								if(packText.trim() != "")
 									react += '<a href="#" class="reactDD_litxt">'+packText+'</a>';
 							}
 						}
@@ -746,7 +748,7 @@ function setEvents(){
 			
 			//ok
 			$('#btn_ok').click(function() {postReaction("ok")});
-			HandleTooltip('#btn_hate','#tt_ok');
+			HandleTooltip('#btn_ok','#tt_ok');
 			
 			//love
 			$('#btn_love').click(function() {postReaction("horny")});
