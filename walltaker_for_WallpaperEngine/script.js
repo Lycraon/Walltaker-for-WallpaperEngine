@@ -457,189 +457,186 @@ function postReaction(reactType){
 
 
 function setNewPost(data){	
-			if(settings["overrideURL"]) return;
-			//Check for changes if false skip code
-			//this is for perfomance (local & network)
-			if((data && lastUrl != data.post_url) || data.response_type != lastResponseType || data.response_text != lastResponseText ||overrideUpdate == true ){
-				//set in case override was ture
-				overrideUpdate = false;
-				console.log("Updating link data!" );
-				
-				if(data.post_url && data.post_url != ""){
-						bOpacity = settings["background-opacity"];
-						//bg += getBgHtml(data.post_url);
-						
-						var filetype = data.post_url.split('.').pop();
-						
-						SetVisible('#bImg');
-						SetHidden('#bVid');
-						document.getElementById("bVid").src = data.post_url;
-						
-						while(document.getElementById("temp"))
-							$('#temp').remove();
-						
-						
-						var img = document.createElement("Img");
-						img.style.visibility = "hidden";
-						img.src = data.post_url;
-						img.id="temp";
-						
-						document.body.appendChild(img);
+	if(settings["overrideURL"]) return;
+	//Check for changes if false skip code
+	//this is for perfomance (local & network)
+	if(!data) return;
+	if(lastUrl == data.post_url && data.response_type == lastResponseType && data.response_text == lastResponseText && overrideUpdate != true )
+		return;
 	
-				}else{
-					bOpacity = "0";
-					//bg += getBgHtml(null);
-					$('#bVid').attr("src", "");
-				}
-				
-				//String variables for areas
-				var variables = {
-					'top-left': "",
-					'top-center': "",
-					'top-right': "",
-					'bottom-left': "",
-					'bottom-center': "",
-					'bottom-right': ""
-					//'canvas': ""				
-				}
+	//set in case override was ture
+	overrideUpdate = false;
+	console.log("Updating link data!" );
+	
+	if(data.post_url && data.post_url != ""){
+			bOpacity = settings["background-opacity"];
+			//bg += getBgHtml(data.post_url);
+			
+			var filetype = data.post_url.split('.').pop();
+			
+			SetVisible('#bImg');
+			SetHidden('#bVid');
+			document.getElementById("bVid").src = data.post_url;
+			
+			while(document.getElementById("temp"))
+				$('#temp').remove();
+			
+			
+			var img = document.createElement("Img");
+			img.style.visibility = "hidden";
+			img.src = data.post_url;
+			img.id="temp";
+			
+			document.body.appendChild(img);
 
-				/*
-				if(data.username && settings["userPos"] && settings["userPos"] != " " && settings["userPos"] != "none"){
-					console.log("fetching user info for " + data.username);
-						
-					var UserInfo = "";
-				
-					variables[settings["userPos"]] += UserInfo;
-				}*/
-				
-				//setBy
-				if(settings["textPos"] && settings["textPos"] != "none")
-				if(data.set_by){
-					var setBy = '<p id="setBy" class="text">👤set_by: '+ data.set_by +'</p>';
-					variables[settings["textPos"]] += setBy;
-					lastSetBy = data.set_by;	
-					
-				
-				}else 
-				if(settings["textPos"] && settings["textPos"] != "none")
-				if(lastSetBy && lastUrl == data.post_url){
-					var setBy = '<p id="setBy" class="text">👤set_by: '+ lastSetBy +'</p>';
-				
-					variables[settings["textPos"]] += setBy;
-				}else lastSetBy = null;
-					
-				if(settings["showSetterData"] == "true" && settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
-					variables[settings["setterInfoPos"]] += '<div id="SetterInfo"></div>';			
-				
-				//reaction buttons
-				if(settings["reactPos"] && settings["reactPos"] != "none")
-				if(settings["api_key"].length == 8){
-					var react = "";
-					var packs = reactPacks;
-					
-					if(settings["reactPacks"].length>0)
-						packs=settings["reactPacks"];
-					
-					if(packs.length>0){
-						react += '<div id="reactDrop">'
-						react += '<button type="button" id="btn_reactDD" ><p id="btn_reactDD_value"> </p><p id="btn_reactDD_arrow">⏷</p></button>'; 
-						react += '<div id="reactDD">';
-						
-						react += '<button id="reactDD_scrollBtn_up" class="reactDD_scrollBtn" '
-						react +='style="visibility: hidden;"'
-						react +='> ▲ </button>';
-						
-						react += '<div id="reactDD_scroll">';
+	}else{
+		bOpacity = "0";
+		//bg += getBgHtml(null);
+		$('#bVid').attr("src", "");
+	}
+	
+	//String variables for areas
+	var variables = {
+		'top-left': "",
+		'top-center': "",
+		'top-right': "",
+		'bottom-left': "",
+		'bottom-center': "",
+		'bottom-right': ""
+		//'canvas': ""				
+	}
 
-						react += '<a href="#" class="reactDD_litxt"> </a>';
-						
-						
-						for( const pack of packs){
-							var packTexts = reactions[pack];
-							
-							if(packTexts)
-							for(const packText of packTexts){
-								console.log("packText:'"+packText+"'");
-								
-								if(packText.trim() != "")
-									react += '<a href="#" class="reactDD_litxt">'+packText+'</a>';
-							}
-						}
+	/*
+	if(data.username && settings["userPos"] && settings["userPos"] != " " && settings["userPos"] != "none"){
+		console.log("fetching user info for " + data.username);
+			
+		var UserInfo = "";
+	
+		variables[settings["userPos"]] += UserInfo;
+	}*/
+	
+	//setBy
+	if(settings["textPos"] && settings["textPos"] != "none")
+		variables[settings["textPos"]] += '<p id="setBy" class="text"></p>';
+	
+	if(data.set_by){
+		console.log("lastSetBy => " + data.set_by);
+		lastSetBy = data.set_by;
+	} else if(!lastSetBy || lastUrl != data.post_url){
+		console.log("new wallpaer without setBy => anon");
+		lastSetBy = null;
+	}
+		
+			
+	if(settings["showSetterData"] == "true" && settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
+		variables[settings["setterInfoPos"]] += '<div id="SetterInfo"></div>';			
+	
+	//reaction buttons
+	if(settings["reactPos"] && settings["reactPos"] != "none")
+	if(settings["api_key"].length == 8){
+		var react = "";
+		var packs = reactPacks;
+		
+		if(settings["reactPacks"].length>0)
+			packs=settings["reactPacks"];
+		
+		if(packs.length>0){
+			react += '<div id="reactDrop">'
+			react += '<button type="button" id="btn_reactDD" ><p id="btn_reactDD_value"> </p><p id="btn_reactDD_arrow">⏷</p></button>'; 
+			react += '<div id="reactDD">';
+			
+			react += '<button id="reactDD_scrollBtn_up" class="reactDD_scrollBtn" '
+			react +='style="visibility: hidden;"'
+			react +='> ▲ </button>';
+			
+			react += '<div id="reactDD_scroll">';
 
-						react += '</div>'; //reactDD_scroll
-						
-						react += '<button id="reactDD_scrollBtn_down" class="reactDD_scrollBtn" '
-						react +='style="visibility: hidden;"'
-						react +='> ▼ </button>';
-						
-						react += '</div>';
-						react += '</div>';
-					}
-					react += '<p class="spacer"></p>';
+			react += '<a href="#" class="reactDD_litxt"> </a>';
+			
+			
+			for( const pack of packs){
+				var packTexts = reactions[pack];
+				
+				if(packTexts)
+				for(const packText of packTexts){
 					
-					react += '<div id="buttons">'; //-----------------------------
-					
-					react += GetReactionButton('btn_hate','😓','tt_hate','Hate it' );
-					react += GetReactionButton('btn_ok'  ,'👍','tt_ok'  ,'Thanks'  );
-					react += GetReactionButton('btn_love','😍','tt_love','Love it!');
-					react += GetReactionButton('btn_cum' ,'💦','tt_came','I came'  );
-					
-					react += '</div>';//------------------------------------------
-					
-					react += '</form>';
-					react += '<p class="spacer"></p>';
-					
-							
-					variables[settings["reactPos"]] += react;
+					if(packText.trim() != "")
+						react += '<a href="#" class="reactDD_litxt">'+packText+'</a>';
 				}
-
-				//current response to link
-				if(settings["responsePos"] && settings["responsePos"] != "none"){
-					var response = '<p id="reactText" class="text" height="auto" margin="0" text->';
-					
-					if(data.response_type && reacts[data.response_type])
-						response += reacts[data.response_type];
-					
-					if(data.response_type && reacts[data.response_type] && data.response_text)
-						response += ": ";
-					
-					if(data.response_text)
-						response += data.response_text;
-				
-					response+=' </p>';
-					
-					variables[settings["responsePos"]] += response;
-				}
-				
-				//post Image
-				
-				var bg = "";
-				
-				//variables["canvas"] += bg;
-				
-				//sets the html for each area with the coresponding variables
-				areas.forEach( (ar,index) => {
-					var name = ar;
-					if(index >0)
-						$("#"+name).html(variables[name]);	
-				});
-				
-				//Event functions 
-				setEvents();
-				
-				//sets current dat for next check
-				lastUrl = data.post_url;
-							
-				lastResponseType = data.response_type;
-				lastResponseText = data.response_text;
-				
-				//calls ChangeSettings to update css / style 
-				ChangeSettings();
-				
-				//Get infos of setter
-				UpdateSetterInfo(data.set_by);
-					
 			}
+
+			react += '</div>'; //reactDD_scroll
+			
+			react += '<button id="reactDD_scrollBtn_down" class="reactDD_scrollBtn" '
+			react +='style="visibility: hidden;"'
+			react +='> ▼ </button>';
+			
+			react += '</div>';
+			react += '</div>';
+		}
+		react += '<p class="spacer"></p>';
+		
+		react += '<div id="buttons">'; //-----------------------------
+		
+		react += GetReactionButton('btn_hate','😓','tt_hate','Hate it' );
+		react += GetReactionButton('btn_ok'  ,'👍','tt_ok'  ,'Thanks'  );
+		react += GetReactionButton('btn_love','😍','tt_love','Love it!');
+		react += GetReactionButton('btn_cum' ,'💦','tt_came','I came'  );
+		
+		react += '</div>';//------------------------------------------
+		
+		react += '</form>';
+		react += '<p class="spacer"></p>';
+		
+				
+		variables[settings["reactPos"]] += react;
+	}
+
+	//current response to link
+	if(settings["responsePos"] && settings["responsePos"] != "none"){
+		var response = '<p id="reactText" class="text" height="auto" margin="0" text->';
+		
+		if(data.response_type && reacts[data.response_type])
+			response += reacts[data.response_type];
+		
+		if(data.response_type && reacts[data.response_type] && data.response_text)
+			response += ": ";
+		
+		if(data.response_text)
+			response += data.response_text;
+	
+		response+=' </p>';
+		
+		variables[settings["responsePos"]] += response;
+	}
+	
+	//post Image
+	var bg = "";
+	
+	//variables["canvas"] += bg;
+	
+	//sets the html for each area with the coresponding variables
+	areas.forEach( (ar,index) => {
+		var name = ar;
+		if(index >0)
+			$("#"+name).html(variables[name]);	
+	});
+	
+	//Event functions 
+	setEvents();
+	
+	//sets current dat for next check
+	lastUrl = data.post_url;
+				
+	lastResponseType = data.response_type;
+	lastResponseText = data.response_text;
+	
+	//calls ChangeSettings to update css / style 
+	ChangeSettings();
+	
+	//Get infos of setter
+	UpdateSetterInfo(data.set_by);
+
 }
 
 function GetReactionButton(id,emoji,ttId,tooltip){
@@ -808,29 +805,42 @@ function toggleAttribute(elem,attName,value){
 LoopSetterUpdate();
 
 function LoopSetterUpdate(){
-	if(!settings["overrideURL"])
+	if(!settings["overrideURL"]){
+		console.log("refreshing last Setter ");
 		UpdateSetterInfo(lastSetBy);
+	}
 	
 	setTimeout(LoopSetterUpdate, settings["interval"]);
 };
 
 async function UpdateSetterInfo(username){
 	console.log("Updating Setter Info of " + username)
-	if(!username || settings["showSetterData"] != "true")	{ return; }
-	var userData = await getUserInfo(username);
+	if(settings["showSetterData"] !== "true")	{ return; }
 	
-	//online and friend status
-	if(!userData){ return;}
-
-	var friend = userData.friend ? '♥️ ' : '';
-	var name = userData.self ? 'you' : username;	
-	var online = userData.online ? ' 🟢' : '';
+	var friend = '';
+	var name   = '';
+	var online = '';
+	
+	if(username){
+		var userData = await getUserInfo(username);
+	
+		//online and friend status
+		if(userData){
+			if(userData.friend)
+				friend = '♥️ ';
 			
+			name = userData.self ? 'you' : username;
+			
+			if(userData.online)
+				online = ' 🟢'
+		}
+	} else { name = 'anon'; }
+		
 	$("#setBy").html(`👤set_by: ${friend}${name}${online}`);
 	
 	//info of links
 	if(settings["setterInfoPos"] && settings["setterInfoPos"] != "none")
-	if(userData.links){	
+	if(userData && userData.links){	
 		var elInfo = $("<p class='text'></p>");
 		$(elInfo).html(`Links: ${userData.links.length}`);
 
@@ -851,8 +861,7 @@ async function UpdateSetterInfo(username){
 				var elLink = $("<p class='text'></p>");
 				$(elLink).html(` ➔ [${ulink.id}] last Response:${symbol} ${response}\n`);
 				$('#SetterInfo').append(elLink);
-			}		
-				 
+			}			 
 		}
 	}
 }
@@ -860,45 +869,45 @@ async function UpdateSetterInfo(username){
 //gets json from website
 //on sucess: calls function setNewPost() (updates background + infos)
 function getJSON(){
-		if(settings["linkID"]){
-		$.ajaxSetup({
-		   xhrFields: { /*withCredentials:true*/ },
-		   crossDomain: true,
-		   beforeSend:  function(request) {
-				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
-				console.log("fetching link " + settings["linkID"] );
-			} 
-		});
-		
-		$.getJSON("https://walltaker.joi.how/api/links/" + settings["linkID"] + ".json", function(data){setNewPost(data);} );
-		
-		}else console.log("Did not request Link -> linkId was empty");
-	}
+	if(settings["linkID"]){
+	$.ajaxSetup({
+	   xhrFields: { /*withCredentials:true*/ },
+	   crossDomain: true,
+	   beforeSend:  function(request) {
+			request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
+			console.log("fetching link " + settings["linkID"] );
+		} 
+	});
+	
+	$.getJSON("https://walltaker.joi.how/api/links/" + settings["linkID"] + ".json", function(data){setNewPost(data);} );
+	
+	}else console.log("Did not request Link -> linkId was empty");
+}
 	
 //gets Info from username and returns JSON object of response
 async function getUserInfo(username){
 	
-		$.ajaxSetup({
-		   xhrFields: { /*withCredentials:true*/ },
-		   crossDomain: true,
-		   beforeSend:  function(request) {
-				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
-				console.log("fetching UserInfo of " + username);
-			} 
-		});
+	$.ajaxSetup({
+	   xhrFields: { /*withCredentials:true*/ },
+	   crossDomain: true,
+	   beforeSend:  function(request) {
+			request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
+			console.log("fetching UserInfo of " + username);
+		} 
+	});
+	
+	var query = '';
+	if(settings["api_key"].length == 8)
+		query = "?api_key="+settings["api_key"];
 		
-		var query = '';
-		if(settings["api_key"].length == 8)
-			query = "?api_key="+settings["api_key"];
-			
-		let url = `https://walltaker.joi.how/api/users/${username}.json${query}`;
-		
-		
-		
-		let tmp  = await fetch(url);
-		var json = await tmp.json();	
-		return json;	
-	}
+	let url = `https://walltaker.joi.how/api/users/${username}.json${query}`;
+	
+	
+	
+	let tmp  = await fetch(url);
+	var json = await tmp.json();	
+	return json;	
+}
 	
 
 var intervalID = null;
