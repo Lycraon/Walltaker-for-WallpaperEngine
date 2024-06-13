@@ -88,6 +88,22 @@ unit: rgb
 ### "Font Size":
 Change the size of the texts/UI
 
+### "Scroll Speed":
+How fast the raction drop-down will scroll when you hover over the arrow fields
+
+### "Video Controls":
+Change the UI/Controls of videos
+ - Full UI: Full UI functions
+ - No UI: No UI, but still pauses/plays when clicked on (This means you can't change volume on the go anymore or skip)
+ - None: No controls at all. (This means you can't pause the videos anymore.)
+
+### "Loop Video":
+Loop videos
+If deactivated videos will pause when it reached the end
+
+### "Autoplay Video":
+Automatically play video on load of wallpaper
+
 ### "Set by":
 change where Set by is shown
 
@@ -122,17 +138,3 @@ Tick the boxes whose presets you want to use.<br>
 ### Custom Reactions
 If Custom Reactions is ticked you get 6 Textboxes in wich you can put whatever text you want.<br>
 Custom Reactions will show up as first entries of the dropdown .
-
-
-# Currently looking into:
-
-### Discarded
-- parallax efect: not possible (no mous and keybord input for web wallpapers)
-- text reactions: reason same as by paralax
-
-### To-Do:
-- preset reactions / dropdown reactions
-
-### Testing:
-- transition animations 
-- preloading Images before showing 
