@@ -29,9 +29,9 @@
 			},
 			"autoplay" : 
 			{
-				"index" : 11,
-				"order" : 111,
-				"text" : "Autoplay video",
+				"index" : 12,
+				"order" : 112,
+				"text" : "Autoplay Video",
 				"type" : "bool",
 				"value" : true
 			},
@@ -46,10 +46,10 @@
 			"canv_x" : 
 			{
 				"fraction" : true,
-				"index" : 19,
+				"index" : 20,
 				"max" : 10000,
 				"min" : -10000,
-				"order" : 119,
+				"order" : 120,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Pos x",
@@ -59,10 +59,10 @@
 			"canv_y" : 
 			{
 				"fraction" : true,
-				"index" : 20,
+				"index" : 21,
 				"max" : 10000,
 				"min" : -10000,
-				"order" : 120,
+				"order" : 121,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Pos y",
@@ -71,24 +71,24 @@
 			},
 			"customreactions" : 
 			{
-				"index" : 25,
-				"order" : 125,
+				"index" : 26,
+				"order" : 126,
 				"text" : "Custom Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"emojireactions" : 
 			{
-				"index" : 24,
-				"order" : 124,
+				"index" : 25,
+				"order" : 125,
 				"text" : "Emoji Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"emoticonreactions" : 
 			{
-				"index" : 23,
-				"order" : 123,
+				"index" : 24,
+				"order" : 124,
 				"text" : "Emoticon Reactions",
 				"type" : "bool",
 				"value" : true
@@ -119,16 +119,16 @@
 			},
 			"loop" : 
 			{
-				"index" : 10,
-				"order" : 110,
-				"text" : "Loop video",
+				"index" : 11,
+				"order" : 111,
+				"text" : "Loop Video",
 				"type" : "bool",
 				"value" : true
 			},
 			"lycraonsreactions" : 
 			{
-				"index" : 22,
-				"order" : 122,
+				"index" : 23,
+				"order" : 123,
 				"text" : "Lycraons Reactions",
 				"type" : "bool",
 				"value" : true
@@ -167,7 +167,7 @@
 			"reaction" : 
 			{
 				"condition" : "api_key.value.length == 8",
-				"index" : 16,
+				"index" : 17,
 				"options" : 
 				[
 					{
@@ -199,7 +199,7 @@
 						"value" : "none"
 					}
 				],
-				"order" : 116,
+				"order" : 117,
 				"text" : "Quick reactions: ",
 				"type" : "combo",
 				"value" : "top-center"
@@ -207,8 +207,8 @@
 			"reaction1" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 26,
-				"order" : 126,
+				"index" : 27,
+				"order" : 127,
 				"text" : "Reaction1:",
 				"type" : "textinput",
 				"value" : ""
@@ -216,8 +216,8 @@
 			"reaction2" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 27,
-				"order" : 127,
+				"index" : 28,
+				"order" : 128,
 				"text" : "Reaction2:",
 				"type" : "textinput",
 				"value" : ""
@@ -225,8 +225,8 @@
 			"reaction3" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 28,
-				"order" : 128,
+				"index" : 29,
+				"order" : 129,
 				"text" : "Reaction3:",
 				"type" : "textinput",
 				"value" : ""
@@ -234,8 +234,8 @@
 			"reaction4" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 29,
-				"order" : 129,
+				"index" : 30,
+				"order" : 130,
 				"text" : "Reaction4:",
 				"type" : "textinput",
 				"value" : ""
@@ -243,8 +243,8 @@
 			"reaction5" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 30,
-				"order" : 130,
+				"index" : 31,
+				"order" : 131,
 				"text" : "Reaction5:",
 				"type" : "textinput",
 				"value" : ""
@@ -252,8 +252,8 @@
 			"reaction6" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 31,
-				"order" : 131,
+				"index" : 32,
+				"order" : 132,
 				"text" : "Reaction6:",
 				"type" : "textinput",
 				"value" : ""
@@ -268,19 +268,19 @@
 			"scrollspeed" : 
 			{
 				"fraction" : true,
-				"index" : 32,
+				"index" : 9,
 				"max" : 10,
 				"min" : 1,
-				"order" : 132,
+				"order" : 109,
 				"precision" : 2,
 				"step" : 0.1,
-				"text" : "ScrollSpeed",
+				"text" : "Scroll Speed",
 				"type" : "slider",
 				"value" : 4
 			},
 			"set_by" : 
 			{
-				"index" : 12,
+				"index" : 13,
 				"options" : 
 				[
 					{
@@ -312,15 +312,15 @@
 						"value" : "none"
 					}
 				],
-				"order" : 112,
+				"order" : 113,
 				"text" : "Set by: ",
 				"type" : "combo",
 				"value" : "top-left"
 			},
 			"setterData" : 
 			{
-				"index" : 13,
-				"order" : 113,
+				"index" : 14,
+				"order" : 114,
 				"text" : "Load setter data",
 				"type" : "bool",
 				"value" : true
@@ -328,7 +328,7 @@
 			"setterInfo" : 
 			{
 				"condition" : "setterData.value",
-				"index" : 14,
+				"index" : 15,
 				"options" : 
 				[
 					{
@@ -360,7 +360,7 @@
 						"value" : "none"
 					}
 				],
-				"order" : 114,
+				"order" : 115,
 				"text" : "Setter Infos: ",
 				"type" : "combo",
 				"value" : "top-left"
@@ -368,16 +368,16 @@
 			"setterLinks" : 
 			{
 				"condition" : "setterData.value",
-				"index" : 15,
-				"order" : 115,
+				"index" : 16,
+				"order" : 116,
 				"text" : "List setter links",
 				"type" : "bool",
 				"value" : false
 			},
 			"standardreactions" : 
 			{
-				"index" : 21,
-				"order" : 121,
+				"index" : 22,
+				"order" : 122,
 				"text" : "Standard Reactions",
 				"type" : "bool",
 				"value" : true
@@ -405,7 +405,7 @@
 			},
 			"videocontrols" : 
 			{
-				"index" : 9,
+				"index" : 10,
 				"options" : 
 				[
 					{
@@ -421,18 +421,18 @@
 						"value" : "none"
 					}
 				],
-				"order" : 109,
-				"text" : "VideoControls",
+				"order" : 110,
+				"text" : "Video Controls",
 				"type" : "combo",
 				"value" : "full"
 			},
 			"zoom_h" : 
 			{
 				"fraction" : true,
-				"index" : 18,
+				"index" : 19,
 				"max" : 250,
 				"min" : 0,
-				"order" : 118,
+				"order" : 119,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Zoom heigth",
@@ -442,10 +442,10 @@
 			"zoom_w" : 
 			{
 				"fraction" : true,
-				"index" : 17,
+				"index" : 18,
 				"max" : 250,
 				"min" : 0,
-				"order" : 117,
+				"order" : 118,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Zoom width",
