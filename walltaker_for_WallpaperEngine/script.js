@@ -1,6 +1,6 @@
 //Constant variables
 const name = "walltaker-wallpaper-engine";
-const vNr_str = "v2.0.0";
+const vNr_str = "v2.5.0";
 
 //all area names
 const areas = ["none","top-left","top-center","top-right","bottom-left","bottom-center","bottom-right","canvas"];
@@ -123,10 +123,11 @@ reactPacks.push(settings["ractPacks"]);
 var Url = "";
 var overrideUpdate = false;
 var bOpacity = settings["background-opacity"];
+var reloadColors = true;
 
 window.wallpaperPropertyListener = {
      applyUserProperties: function(properties) { 
-		var reloadCanvas = false;
+		var reloadCanvas  = false;
 		var realoadSetter = false;
 		
 		if(properties.vid_volume){
@@ -174,11 +175,15 @@ window.wallpaperPropertyListener = {
 			settings["loop"] = ""+properties.loop.value+"";
 		}
 	
-		if(properties.backg_color)
+		if(properties.backg_color) {
 			settings["background-color"] = properties.backg_color.value;
+			reloadColors = true;
+		}
 		
-		if(properties.text_color)
+		if(properties.text_color) {
 			settings["textColor"] = properties.text_color.value;
+			reloadColors = true;
+		}
 	
 		if(properties.area_maxWidth)
 			settings["maxAreaWidth"] = properties.area_maxWidth.value + "vw";
@@ -315,6 +320,10 @@ window.wallpaperPropertyListener = {
 			getJSON();
 		}else ChangeSettings();
 		
+		if(reloadColors){
+			ChangeSettings();
+		}
+		
 		if(realoadSetter)
 			UpdateSetterInfo(lastSetBy);	
 	 }
@@ -322,7 +331,6 @@ window.wallpaperPropertyListener = {
 
 //start Checks for Updates when page loaded
 window.onload = function () {
-	SetVisible('#bImg');
     if(settings["overrideURL"]) setCustomUrl(settings["overrideURL"]);
 	else if(!UpdateCanvasRunning)UpdateCanvas();
 	
@@ -461,6 +469,7 @@ function setNewPost(data){
 	//Check for changes if false skip code
 	//this is for perfomance (local & network)
 	if(!data) return;
+
 	if(lastUrl == data.post_url && data.response_type == lastResponseType && data.response_text == lastResponseText && overrideUpdate != true )
 		return;
 	
@@ -670,7 +679,7 @@ function setEvents(){
 		document.getElementById("bVid").volume = 0;
 		$('#bVid').on("loadeddata",function(){
 			SetVisible('#bVid');
-			SetHidden('#bImg')
+			SetHidden('#bImg');
 			
 			document.getElementById("bVid").volume = settings["volume"];
 			//if(settings["autoplay"] == "true")
@@ -870,18 +879,28 @@ async function UpdateSetterInfo(username){
 //on sucess: calls function setNewPost() (updates background + infos)
 function getJSON(){
 	if(settings["linkID"]){
-	$.ajaxSetup({
-	   xhrFields: { /*withCredentials:true*/ },
-	   crossDomain: true,
-	   beforeSend:  function(request) {
-			request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
-			console.log("fetching link " + settings["linkID"] );
-		} 
+		SetHidden("#rcenter-center");
+		
+		$.ajaxSetup({
+		   xhrFields: { /*withCredentials:true*/ },
+		   crossDomain: true,
+		   beforeSend:  function(request) {
+				request.setRequestHeader("Wallpaper-Engine-Client", vNr_str);
+				console.log("fetching link " + settings["linkID"] );
+			} 
 	});
 	
-	$.getJSON("https://walltaker.joi.how/api/links/" + settings["linkID"] + ".json", function(data){setNewPost(data);} );
+	$.getJSON("https://walltaker.joi.how/api/links/" + settings["linkID"] + ".json", function(data){setNewPost(data);} )
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			console.log('getJSON returned error');
+			$('#centerMessage').html('Server returned ' + textStatus +  ': ' + errorThrown + '! <br> Check your internet connection and link number!');
+			SetVisible('#rcenter-center');
+		});
 	
-	}else console.log("Did not request Link -> linkId was empty");
+	}else{ 
+		console.log("Did not request Link -> linkId was empty");
+		SetVisible("#rcenter-center");
+	};
 }
 	
 //gets Info from username and returns JSON object of response
