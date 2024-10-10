@@ -251,6 +251,26 @@ button:hover {
 	text-align: center;
 }
 
+#rcenter-center{
+	top: 50vh;
+	left: 50vw;	
+	-ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+	border-radius: 0.45em;
+}
+
+#center-center{
+	padding-left: 10px;
+	padding-right: 10px;
+	justify-content: center;
+	align-items: center ;
+	text-align: center;
+}
+
+#centerMessage{
+
+}
+
 #rtop-right{
 	top: 10px;
 	right: 10px;
@@ -302,7 +322,7 @@ button:hover {
 	padding: 0;
 }
 
-#buttons > * {
+#buttons > button {
 	padding-top: 0.5em;
 	padding-bottom: 0.5em;
 	margin: 0.25em;
