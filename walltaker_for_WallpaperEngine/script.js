@@ -3,7 +3,7 @@
 //Constant variables
 const cNameLong = "walltaker-wallpaper-engine";
 const cName = "Wallpaper-Engine-Client";
-const vNr = "v2.5.0";
+const vNr = "v2.5.1";
 
 //all area names
 const areaNames = {
