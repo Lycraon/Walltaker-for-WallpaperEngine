@@ -317,11 +317,15 @@ window.wallpaperPropertyListener = {
 			reloadCanvas = true;
 		}
 		
-		if(properties.e6_name)
+		if(properties.e6_name){
 			settings.e6_user = "" + properties.e6_name.value;
+			reloadCanvas = true;
+		}
 		
-		if(properties.e6_api)
+		if(properties.e6_api){
 			settings.e6_api = "" + properties.e6_api.value;
+			reloadCanvas = true;
+		}
 
 		//-----------------------------------------------------------------------------------------------
 		if (settings.overrideURL)
@@ -652,7 +656,7 @@ function NewPost_ProcessCurrentResponse(variables,data){
 }
 
 function NewPost_ProcessE6(variables){
-	console.log("gettings data for e6_user: " + settings.e6_user);
+	console.log("running newPost e6 method...");
 	
 	if (!settings.e6_Pos || settings.e6_Pos === areaNames.na || settings.e6_user === "" || settings.e6_api === "") return;
 	//welcome to the horny zone
@@ -737,7 +741,6 @@ function setEvents() {
 	jQuery(document).ready(function ($) {
 		
 		$('#addFav').click(function() {
-			$('#addFav').attr("disabled", true);
 			if(settings.e6_user && settings.e6_user != "") 
 				SetPostFavourite(settings.e6_api, settings.e6_user,lastPostId);
 			overrideUpdate = true;
@@ -890,30 +893,39 @@ function LoopSetterUpdate() {
 
 Loop_e6_Update();
 async function Loop_e6_Update() {
-	console.log("Updating e6 stuff");
+	await e6_Update();
+	setTimeout(Loop_e6_Update, settings.interval);
+}
+
+async function e6_Update(){
+	console.log("Updating e6 stuff ("+settings.e6_user+")");
 	if (!settings.e6_Pos || settings.e6_Pos === areaNames.na || settings.e6_user === "" || settings.e6_api === "") {
+		console.log("e6 is disabled, returning...")
 		return;
 	}
 
 	console.log("getting md5 of last url " + lastUrl);
 	var md5 = GetMd5(lastUrl);
 	console.log("md5 " + md5);
+	
+	//TODO: check if last and current md5 are the same
+	
+	console.log("updating e6 userdata for: " + settings.e6_user)
 	var e6Data = await GetPostInfo(md5, settings.e6_user, settings.e6_api);
-	if(e6Data && e6Data.posts )
+	if(e6Data && e6Data.posts && e6Data.posts[0]){
 		setE6Info(e6Data.posts[0]);
-	setTimeout(Loop_e6_Update, settings.interval);
-}
-
-function setE6Info(data){
-	if(!data){
+	} else {
 		console.log("no e6 data disabling ui");
 		$('#addFav').attr("disabled", true);
 		$('#addFav').html('loading...');
-		return;
 	}
-	
+}
+
+function setE6Info(data){	
 	console.log("setting e6 info");
 	$('#addFav').attr("disabled", false);
+	
+	console.log("[e6] isCurrentFav: " + data.is_favorited)
 	
 	$('#addFav').html(data.is_favorited? '-': '+');
 	lastPostId = data.id;
