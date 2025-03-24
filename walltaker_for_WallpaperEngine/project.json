@@ -77,6 +77,22 @@
 				"type" : "bool",
 				"value" : true
 			},
+			"e6_api" : 
+			{
+				"index" : 34,
+				"order" : 134,
+				"text" : "e6 api:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"e6_name" : 
+			{
+				"index" : 33,
+				"order" : 133,
+				"text" : "e6 name:",
+				"type" : "textinput",
+				"value" : ""
+			},
 			"emojireactions" : 
 			{
 				"index" : 25,
