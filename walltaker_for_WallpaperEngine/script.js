@@ -1,9 +1,11 @@
 /*jshint esversion: 8 */
 
-//Constant variables
-const cNameLong = "walltaker-wallpaper-engine";
-const cName = "Wallpaper-Engine-Client";
-const vNr = "v2.5.1";
+//Metadata
+const appInfo = {
+	nameLong: "walltaker-wallpaper-engine",
+    name: "Wallpaper-Engine-Client",
+    version: "v2.5.2"
+}
 
 //all area names
 const areaNames = {
@@ -18,7 +20,7 @@ const areaNames = {
 };
 const areas = Object.keys(areaNames).map(key => areaNames[key]);
 
-//all reactions
+//reaction-data
 const reacts = {
 	"": "[]",
 	"disgust": "😓",
@@ -121,189 +123,122 @@ const reactions = {
 	]
 };
 
-//Settings
-var settings = {
-	'overrideURL': "", // Put an Url here to only show this url (must be link to picture/video (static pages on e621))
-	'volume': "1",
-	'linkID': "",
-	'api_key': "",
-	'textColor': "255 255 255",
-	'background_color': "0 0 0",
-	'background_opacity': "1",
-	'fontSize': "100%", //x-small,small, medium, large or px / em / %
-	'interval': "10000", //ms do not run with small numbers(<10000) for long sessions
-	'objFit': "contain",
-	'videocontrols': "full",
-	'loop': "true",
-	'autoplay': "true",
-	'textPos': areaNames.topL,
-	'reactPos': areaNames.topC,
-	'reactPacks': [], //! only use strings ! !overrides WE settings!
-	'showTooltips': "true",
-	'showSetterData': "true",
-	'listSetterLinks': "true",
-	'responsePos': areaNames.topC,
-	'setterInfoPos': areaNames.botL,
-	'maxAreaWidth': "20vw",
-	'zoom_w': "100", //%
-	'zoom_h': "100", //%
-	'canv_x': "0", //px
-	'canv_y': "0", //px
-	'scrollSpeed': "4",
-	'e6_Pos': areaNames.topL,
-	'e6_user': "",
-	'e6_api': ""
+//Default-Settings
+const settings = {
+	overrideURL: "", // Put an Url here to only show this url (must be link to picture/video (static pages on e621))
+	volume: "1",
+	linkID: "",
+	api_key: "",
+	textColor: "255 255 255",
+	background_color: "0 0 0",
+	background_opacity: "1",
+	fontSize: "100%", //x-small,small, medium, large or px / em / %
+	interval: "10000", //ms do not run with small numbers(<10000) for long sessions
+	objfit: "contain",
+	videocontrols: "full",
+	loop: "true",
+	autoplay: "true",
+	textPos: areaNames.topL,
+	reactPos: areaNames.topC,
+	reactPacks: [], //! only use strings ! !overrides WE settings!
+	showTooltips: "true",
+	showSetterData: "true",
+	listSetterLinks: "true",
+	responsePos: areaNames.topC,
+	setterInfoPos: areaNames.botL,
+	maxAreaWidth: "20vw",
+	zoom_w: "100", //%
+	zoom_h: "100", //%
+	canv_x: "0", //px
+	canv_y: "0", //px
+	scrollspeed: "4",
+	e6_Pos: areaNames.topL,
+	e6_user: "",
+	e6_api: "",
 };
 
 //Global variables
-var lastUrl = "";
-var lastSetBy = "";
-var lastResponseType = "";
-var lastResponseText = "";
-var lastCanvas = "";
-var reactPacks = [];
-reactPacks.push(settings.reactPacks);
+const appState = {
+	lastUrl: "",
+    lastSetBy: "",
+    lastResponseType: "",
+    lastResponseText: "",
+    lastCanvas: "",
+    lastPostId: "",
+    overrideUpdate: false,
+	reactPacks: [...settings.reactPacks],
+	bOpacity: settings.background_opacity,
+};
 
-var Url = "";
-var overrideUpdate = false;
-var bOpacity = settings.background_opacity;
+const WT_API_KEY_LENGTH = 8; 
+const MIN_INTERVAL_MS = 8500;
+const wtBaseUrl = "https://walltaker.joi.how";
+const wtApiUrl = wtBaseUrl + "/api";
+const e6ApiUrl = "https://e621.net";
+
 var reloadColors = true;
 
 window.wallpaperPropertyListener = {
 	applyUserProperties: function (properties) {
-		var realoadSetter = false;
-		var reloadCanvas = false;
-
 		console.log("loading properties");
+		
+		let realoadSetter = false;
+		let reloadCanvas = false;
 
-		if (properties.vid_volume)
-			settings.volume = properties.vid_volume.value;
+		//process wallpaper properties
+		ProcessPropertyToSetting(properties, "vid_volume", () =>{}, settingName = "volume");
 
-		if (properties.linkID)
-			SetLinkId(properties.linkID.value);
+		ProcessPropertyToSetting(properties, "linkID", value => {
+			appState.lastUrl = "";
+			if (!value?.trim()) {
+				return;
+			}
+			
+			getJSON();
+			});
 
-		if (properties.api_key)
+		ProcessProperty(properties, "api_key", value => {
 			if (SetApiKey(properties.api_key.value)) {
 				reloadCanvas = true;
 			}
+			});
 
-		SetIntervalSeconds(settings.interval);
 
-		if (properties.interval)
-			SetIntervalSeconds(parseInt(properties.interval.value));
+		if(!ProcessProperty(properties,"interval", value => SetIntervalSeconds(parseInt(value)))){
+			SetIntervalSeconds();
+		}	
 
-		if (properties.objfit) {
-			settings.objFit = properties.objfit.value;
+		ProcessPropertyToSetting(properties, "objfit", ()=>{reloadCanvas = true;});
+		ProcessPropertyToSetting(properties, "videocontrols");
+		ProcessPropertyToSetting(properties, "autoplay");
+		ProcessPropertyToSetting(properties, "loop");
+		ProcessPropertyToSetting(properties,"backg_color", () => {reloadCanvas = true;}, settingName = "background_color");
+		ProcessPropertyToSetting(properties,"text_color",  () => {reloadCanvas = true;}, settingName = "textColor");
+		ProcessProperty(properties, "area_maxWidth", value => {settings.maxAreaWidth = value + "vw"});
+		ProcessPropertyToSetting(properties, "font_size",() =>{}, settingName = "fontSize");
+		ProcessPropertyToSetting(properties,"set_by",  () => {reloadCanvas = true;}, settingName = "textPos");
+		ProcessPropertyToSetting(properties, "setterData", () =>{}, settingName = "showSetterData");
+		ProcessPropertyToSetting(properties, "setterLinks",() =>{}, settingName = "listSetterLinks");
+		ProcessPropertyToSetting(properties,"setterInfo",  () => {reloadCanvas = true;}, settingName = "setterInfoPos");
+		ProcessProperty(properties, "reaction",     value => {
+			settings.reactPos    = value;
+			settings.responsePos = value;
 			reloadCanvas = true;
-		}
+			});
 
-		if (properties.videocontrols) {
-			settings.videocontrols = properties.videocontrols.value;
-		}
+		ProcessPropertyToSetting(properties, "zoom_w");
+		ProcessPropertyToSetting(properties, "zoom_h");
+		ProcessPropertyToSetting(properties, "canv_x");
+		ProcessPropertyToSetting(properties, "canv_y");
 
-		if (properties.autoplay) {
-			settings.autoplay = "" + properties.autoplay.value + "";
-		}
-
-		if (properties.loop) {
-			settings.loop = "" + properties.loop.value + "";
-		}
-
-		if (properties.backg_color) {
-			settings.background_color = properties.backg_color.value;
-			reloadColors = true;
-		}
-
-		if (properties.text_color) {
-			settings.textColor = properties.text_color.value;
-			reloadColors = true;
-		}
-
-		if (properties.area_maxWidth)
-			settings.maxAreaWidth = properties.area_maxWidth.value + "vw";
-
-		if (properties.font_size)
-			settings.fontSize = properties.font_size.value;
-
-		if (properties.set_by) {
-			settings.textPos = properties.set_by.value;
-			reloadCanvas = true;
-		}
-
-		if (properties.setterData) {
-			settings.showSetterData = "" + properties.setterData.value + "";
-			reloadCanvas = true;
-		}
-
-		if (properties.setterLinks) {
-			settings.listSetterLinks = "" + properties.setterLinks.value + "";
-			realoadSetter = true;
-		}
-
-		if (properties.setterInfo) {
-			settings.setterInfoPos = properties.setterInfo.value;
-			reloadCanvas = true;
-		}
-
-		if (properties.reaction) {
-			settings.reactPos = properties.reaction.value;
-			settings.responsePos = properties.reaction.value;
-			reloadCanvas = true;
-		}
-
-		if (properties.zoom_w)
-			settings.zoom_w = properties.zoom_w.value;
-
-		if (properties.zoom_h)
-			settings.zoom_h = properties.zoom_h.value;
-
-		if (properties.canv_x)
-			settings.canv_x = properties.canv_x.value;
-
-		if (properties.canv_y)
-			settings.canv_y = properties.canv_y.value;
-
-		var packs = [];
-
-		if (properties.customreactions)
-			packs.push("custom");
-
-		if (properties.standardreactions)
-			packs.push("standard");
-
-		if (properties.lycraonsreactions)
-			packs.push("lycraons");
-
-		if (properties.emoticonreactions)
-			packs.push("emoticons");
-
-		if (properties.emojireactions)
-			packs.push("emojis");
-
-		console.log(packs.toString());
+		let packs = Object.keys(reactions).sort((a, b) => (packWeights[b] ?? 0) - (packWeights[a] ?? 0));
+		console.log("[[packs:]]" + packs.toString());
 
 		if (SetReactionpacks(packs))
 			reloadCanvas = true;
 
-		var customReactions = [];
 
-		if (properties.reaction1)
-			customReactions.push(properties.reaction1.value);
-
-		if (properties.reaction2)
-			customReactions.push(properties.reaction2.value);
-
-		if (properties.reaction3)
-			customReactions.push(properties.reaction3.value);
-
-		if (properties.reaction4)
-			customReactions.push(properties.reaction4.value);
-
-		if (properties.reaction5)
-			customReactions.push(properties.reaction5.value);
-
-		if (properties.reaction6)
-			customReactions.push(properties.reaction6.value);
+		let customReactions = Array.from({ length: 6 }, (_, i) => properties[`reaction${i + 1}`]?.value || "");
 
 		if (customReactions != reactions.customReactions) {
 			console.log(customReactions);
@@ -311,28 +246,16 @@ window.wallpaperPropertyListener = {
 			reloadCanvas = true;
 		}
 
-		if (properties.scrollspeed) {
-			settings.scrollSpeed = properties.scrollspeed.value;
-			console.log("speed:" + settings.scrollSpeed);
-			reloadCanvas = true;
-		}
+		ProcessPropertyToSetting(properties, "scrollspeed", () => {reloadCanvas = true;});
+		ProcessPropertyToSetting(properties, "e6_name", () => {reloadCanvas = true;}, settingName = "e6_user");
+		ProcessPropertyToSetting(properties, "e6_api", () => {reloadCanvas = true;});
 		
-		if(properties.e6_name){
-			settings.e6_user = "" + properties.e6_name.value;
-			reloadCanvas = true;
-		}
-		
-		if(properties.e6_api){
-			settings.e6_api = "" + properties.e6_api.value;
-			reloadCanvas = true;
-		}
-
 		//-----------------------------------------------------------------------------------------------
 		if (settings.overrideURL)
 			ChangeSettings();
 
 		if (reloadCanvas) {
-			overrideUpdate = true;
+			appState.overrideUpdate = true;
 			getJSON();
 		} else
 			ChangeSettings();
@@ -342,53 +265,99 @@ window.wallpaperPropertyListener = {
 		}
 
 		if (realoadSetter)
-			UpdateSetterInfo(lastSetBy);
+			UpdateSetterInfo(appState.lastSetBy);
 	}
 };
 
-function SetLinkId(linkID) {
-	if (!linkID) {
-		return;
+
+/**
+ * Processes a property from the given properties object by its name and applies a callback function to its value.
+ *
+ * @param {Object} properties - The object containing properties to process.
+ * @param {string} propName - The name of the property to process. Must be a non-empty string.
+ * @param {Function} callback - The callback function to execute with the property's value.
+ * @returns {boolean} - Returns `true` if the property was successfully processed, otherwise `false`.
+ *
+ * @throws {Error} - If an error occurs during the execution of the callback function.
+ */
+function ProcessProperty(properties, propName, callback ) {
+	if(!propName?.trim()) {
+		console.error(`Propertyname is empty!`);
+		return false;
 	}
-	settings.linkID = linkID;
-	lastUrl = "";
-	getJSON();
+
+	if(!Object.hasOwn(properties, propName)){
+		//console.log(`No Property ${propName}`);
+		return false;
+	}
+
+	try {
+		callback(properties[propName].value);
+		return true;
+	} catch (error) {
+		console.error(`Error processing property ${propName}:`, error);
+	}
+	
+	return false;
+}
+
+/**
+ * Processes a property from a given properties object and maps it to a corresponding setting.
+ * Optionally, a callback can be executed after the property is processed.
+ *
+ * @param {Object} properties - The object containing the properties to process.
+ * @param {string} propName - The name of the property to process.
+ * @param {Function} [callback=() => {}] - An optional callback function to execute after processing the property.
+ * @param {string} [settingName=propName] - The name of the setting to map the property to. Defaults to the property name.
+ * @returns {boolean} - Returns `false` if the property name, setting name, or setting is invalid; otherwise, the result of `ProcessProperty`.
+ *
+ * @throws {Error} - If an error occurs during the execution of the callback function.
+ */
+function ProcessPropertyToSetting(properties, propName, callback = () => {}, settingName = propName) {
+	if(!propName?.trim() || !settingName?.trim()) {
+		console.error(`Property- or settingname is empty!`);
+		return false;
+	}
+
+	if(!Object.hasOwn(settings, settingName)){
+		console.error(`Setting ${settingName} not found`);
+		return false;
+	}
+	
+	return ProcessProperty(properties, propName, value => {
+		try{
+
+			settings[settingName] = "" + value;
+			console.log(`[prop]:${propName} → [setting]:${settingName}| value = ${value}`);
+			callback(value);
+		}catch (error) {
+			console.error(`Error processing propertyToSetting ${propName} to ${settingName}:`, error);
+		}
+	});
 }
 
 function SetApiKey(apiKey) {
-	if (!apiKey) {
-		return false;
-	}
-	settings.api_key = apiKey;
-	if (settings.api_key.length !== 8) {
+	settings.api_key = "" + apiKey?.trim();
+	if (settings.api_key.length !== WT_API_KEY_LENGTH) {
 		settings.reactPos = areaNames.na;
 		settings.responsePos = areaNames.na;
 	}
 	return true;
 }
 
-function SetIntervalSeconds(interval) {
+function SetIntervalSeconds(interval=0) {
 	//Setting min possible interval to avoid DOS spamming
-	settings.interval = Math.min(parseInt(interval) * 1000, 8500);
+	settings.interval = Math.min(parseInt(interval) * 1000, MIN_INTERVAL_MS);
 }
 
+// returns true if the reaction packs have changed
 function SetReactionpacks(packs) {
-	var oldPacks = [...reactPacks];
+	const oldPacks = [...appState.reactPacks];
 
-	var arr = Object.keys(reactions).sort((a, b) => {
-		var z1 = packWeights[b] ?? 0;
-		var z2 = packWeights[a] ?? 0;
-		return z1 - z2;
-	})
-
-		arr.forEach(pack => {
-			if (packs.includes(pack))
-				reactPacks.push(pack);
-			else
-				reackPacks = reackPacks.filter(x => x !== pack);
-
-		});
-	return oldPacks != reactPacks;
+	appState.reactPacks = Object.keys(reactions)
+		.sort((a, b) => (packWeights[b] ?? 0) - (packWeights[a] ?? 0))
+		.filter(packItem => packs.includes(packItem));
+	return JSON.stringify(oldPacks) !== JSON.stringify(appState.reactPacks);
 }
 
 //start Checks for Updates when page loaded
@@ -402,13 +371,9 @@ window.onload = function () {
 };
 
 function setCustomUrl(url) {
-	lastUrl = url;
+	appState.lastUrl = url;
 	ChangeSettings();
 	console.log("custom url " + settings.overrideURL);
-	var str = getBgHtml(url);
-
-	console.log(str);
-	$('#canvas').html(str);
 
 	settings.showTooltips = false;
 	setEvents();
@@ -418,7 +383,7 @@ function setCustomUrl(url) {
 
 //changes Settings mostly CSS stuff
 function ChangeSettings() {
-	var color = settings.background_color + " " + bOpacity;
+	let color = settings.background_color + " " + appState.bOpacity;
 
 	let css = `
 		* {
@@ -441,9 +406,9 @@ function ChangeSettings() {
 		}
 		.bImg {
 			background-repeat: no-repeat;
-			object-fit: ${settings.objFit} !important;
+			object-fit: ${settings.objfit} !important;
 			position: absolute;
-			content: url(${lastUrl || ''});
+			content: url(${appState.lastUrl || ''});
 		}
 	`;
 
@@ -453,13 +418,13 @@ function ChangeSettings() {
 	console.log("autoplay:" + (settings.autoplay == "true"));
 	console.log("loop:" + (settings.loop == "true"));
 
-	var bVid = document.getElementById("bVid");
+	let bVid = document.getElementById("bVid");
 	SetVideoSettings(bVid);
 
 }
 
 function SetVideoSettings(bVid) {
-	bVid.controls = settings.videocontrols === "full";
+	bVid.controls = (settings.videocontrols === "full");
 	bVid.defaultMuted = (settings.volume == 0);
 	bVid.autoplay = (settings.autoplay == "true");
 	bVid.loop = (settings.loop == "true");
@@ -469,15 +434,15 @@ function SetVideoSettings(bVid) {
 //takes WallpaperEngine color string and converts it into (usable) rgb/rgba format
 function GetRGBColor(customColor) {
 	//split string into values
-	var temp = customColor.split(' ');
-	var rgb = temp.slice(0, 3);
+	let temp = customColor.split(' ');
+	let rgb = temp.slice(0, 3);
 
 	//cap rgb values at 255
 	rgb = rgb.map(function _cap(c) {
 		return Math.ceil(c * 255);
 	});
 
-	var customColorAsCSS = "";
+	let customColorAsCSS = "";
 
 	//length is 3 for rgb values
 	if (temp.length > 3)
@@ -490,16 +455,18 @@ function GetRGBColor(customColor) {
 
 //sends POST to Website and passes data to setNewPost
 function postReaction(reactType) {
-	if (settings.api_key.length !== 8)
+	if (settings.api_key.length !== WT_API_KEY_LENGTH)
 		return;
 
-	console.log("ractPacks:" + reactPacks.length);
+	console.log("ractPacks:" + appState.reactPacks.length);
 
 	//Reaction Text
-	const txt = reactPacks.length > 0 ? $('#btn_reactDD_value').html() : "";
+	const txt = appState.reactPacks.length > 0 ? $('#btn_reactDD_value').html() : "";
 	console.log('Posting reaction (' + reactType + ',"' + txt + '") to Link ' + settings.linkID);
 
 	//POST
+	//wt_apiRequest("api/links/" + settings.linkID + "/response.json","POST",);
+
 	$.ajax({
 		type: "POST",
 		url: "https://walltaker.joi.how/api/links/" + settings.linkID + "/response.json",
@@ -511,7 +478,7 @@ function postReaction(reactType) {
 		dataType: "json",
 		contentType: "application/json",
 		success: function (data) {
-			overrideUpdate = true;
+			appState.overrideUpdate = true;
 			setNewPost(data);
 		},
 		failure: function (errMsg) {
@@ -520,149 +487,170 @@ function postReaction(reactType) {
 	});
 }
 
+function clearBackground() {
+    appState.bOpacity = "0";
+    $('#bVid').attr("src", "");
+    $('#bImg').attr("src", "");
+}
+
 function UpdatePostUrl(url){
-	if (url && url !== "") {
-		bOpacity = settings.background_opacity;
-		//bg += getBgHtml(data.post_url);
+	if (!url?.trim()) {
+        clearBackground();
+        return;
+    }
 
-		var filetype = url.split('.').pop();
+	appState.bOpacity = settings.background_opacity;
 
-		SetVisible('#bImg');
-		SetHidden('#bVid');
-		document.getElementById("bVid").src = url;
-
-		while (document.getElementById("temp"))
-			$('#temp').remove();
-
-		var img = document.createElement("Img");
-		img.style.visibility = "hidden";
-		img.src = url;
-		img.id = "temp";
-
-		document.body.appendChild(img);
-
-	} else {
-		bOpacity = "0";
-		//bg += getBgHtml(null);
-		$('#bVid').attr("src", "");
+	const filetype = url.split('.').pop().toString().toLowerCase();
+	if(["mp4", "webm", "ogg"].includes(filetype)) {
+		//Handle video
+		updateMedia("#bVid", url, "#bImg");
+	}else{
+		//Handle image
+		preloadImage(url);
+		updateMedia("#bImg", url, "#bVid");
 	}
 }
 
-function NewPost_ProcessSetBy(variables,data){
-	if (settings.textPos && settings.textPos != areaNames.na)
-		variables[settings.textPos] += '<p id="setBy" class="text"></p>';
+function preloadImage(url) {
+    // Remove any existing temporary images
+    while (document.getElementById("temp")) {
+        $('#temp').remove();
+    }
 
-	if (data.set_by) {
-		console.log("lastSetBy => " + data.set_by);
-		lastSetBy = data.set_by;
-	} else if (!lastSetBy || lastUrl != data.post_url) {
+    // Create and append a hidden image element to preload the image
+    const img = document.createElement("img");
+    img.style.visibility = "hidden";
+    img.src = url;
+    img.id = "temp";
+    document.body.appendChild(img);
+}
+
+function updateMedia(visibleSelector, url, hiddenSelector) {
+    $(visibleSelector).attr("src", url);
+    SetVisible(visibleSelector);
+
+    SetHidden(hiddenSelector);
+	$(hiddenSelector).attr("src", "");
+}
+
+function NewPost_ProcessSetBy(variables,data){
+	//Update appState.lastSetBy
+	if (data?.set_by) {
+		console.log(`appState.lastSetBy => ${data.set_by}`);
+		appState.lastSetBy = data.set_by;
+	} else if (!appState.lastSetBy || appState.lastUrl != data.post_url) {
 		console.log("new wallpaer without setBy => anon");
-		lastSetBy = null;
+		appState.lastSetBy = null;
 	}
+
+	if (!settings.textPos || settings.textPos == areaNames.na) { return; }
+
+	// Add element for "set by" text
+	variables[settings.textPos] += '<p id="setBy" class="text"></p>';
 }
 
 function NewPost_ProcessSetterData(variables){
 	if (settings.showSetterData !== "true" || !settings.setterInfoPos || settings.setterInfoPos == areaNames.na){ return;}
 	
+	// Add element for setter info text
 	variables[settings.setterInfoPos] += '<div id="SetterInfo"></div>';
 }
 
 function NewPost_ProcessReactionButtons(variables){
-	if (settings.reactPos && settings.reactPos != areaNames.na)
+	console.log("processReactionButtons");
+
+	if (!settings.reactPos || settings.reactPos == areaNames.na) {return}
 	if (!CheckApiKey()) { return;}
-		
-	var packs = reactPacks;
 
-	if (settings.reactPacks.length > 0)
-		packs = settings.reactPacks;
+	const packs = settings.reactPacks.length > 0 ? settings.reactPacks : appState.reactPacks;
 
-	var react = "";
-	react += '<form>';
-	react += buildReactDrop(packs);
-	react += '<p class="spacer"></p>';
-	react += buildReactButtons();
-	react += '</form>';
-	react += '<p class="spacer"></p>';
+	const reactionForm = `
+		<form>
+			${buildReactDrop(packs)}
+			<p class="spacer"></p>
+			${buildReactButtons()}
+		</form>
+		<p class="spacer"></p>
+	`;
 
-	variables[settings.reactPos] += react;
+	variables[settings.reactPos] += reactionForm;
 }
 
 function buildReactButtons() {
-	var react = "";
-	react += '<div id="buttons">'; 
+	const buttons = reactButttons
+			.map(btn => GetReactionButton(btn.id, reacts[btn.reactID], btn.elem, btn.txt))
+			.join('');
 
-	reactButttons.forEach(btn => {
-		react += GetReactionButton(btn.id, reacts[btn.reactID], btn.elem, btn.txt);
-	});
-	
-	react += '</div>'; 
-	return react;
+	return `
+		<div id="buttons">
+			${buttons}
+		</div>
+	`;
 }
 
 function buildReactDrop(packs){
-	if (packs.length == 0) { return; }
-	var react = "";
-	react += '<div id="reactDrop">';
-		react += '<button type="button" id="btn_reactDD" ><p id="btn_reactDD_value"> </p><p id="btn_reactDD_arrow">⏷</p></button>';
-		react += '<div id="reactDD">';
 
-		react += '<button id="reactDD_scrollBtn_up" class="reactDD_scrollBtn" ';
-		react += 'style="visibility: hidden;"';
-		react += '> ▲ </button>';
+	// Create the dropdown structure
+	const reactDrop = `
+		<div id="reactDrop">
+			<button type="button" id="btn_reactDD">
+				<p id="btn_reactDD_value"></p>
+				<p id="btn_reactDD_arrow">⏷</p>
+			</button>
+			<div id="reactDD">
+				${buildScrollButton('reactDD_scrollBtn_up', '▲')}
+				<div id="reactDD_scroll">
+					${buildReactOptions(packs)}
+				</div>
+				${buildScrollButton('reactDD_scrollBtn_down', '▼')}
+			</div>
+		</div>
+	`;
+	return reactDrop;
+}
 
-		react += '<div id="reactDD_scroll">';
+function buildScrollButton(id, symbol) {
+    return `
+        <button id="${id}" type="button" class="reactDD_scrollBtn" style="visibility: hidden;">
+            ${symbol}
+        </button>
+    `;
+}
 
-			react += '<a href="#" class="reactDD_litxt"> </a>';
-
-			for (const pack of packs) {
-				var packTexts = reactions[pack];
-
-				if (packTexts)
-				for (const packText of packTexts) {
-
-					if (packText.trim() > "")
-						react += '<a href="#" class="reactDD_litxt">' + packText + '</a>';
-				}
-			}
-
-			react += '</div>'; //reactDD_scroll
-
-		react += '<button id="reactDD_scrollBtn_down" class="reactDD_scrollBtn" ';
-		react += 'style="visibility: hidden;"';
-		react += '> ▼ </button>';
-
-		react += '</div>';
-	react += '</div>';		
-	return react;
+function buildReactOptions(packs) {
+    return packs
+		.flatMap(pack => packTexts = reactions[pack] || [])
+		.filter(packText => packText.trim())
+		.map(packText => `<a href="#" class="reactDD_litxt">${packText}</a>`)
+        .join("\r\n");
 }
 
 function NewPost_ProcessCurrentResponse(variables,data){
-	if (settings.responsePos && settings.responsePos != areaNames.na) {
-		var response = '<p id="reactText" class="text" height="auto" margin="0" text->';
+	if (!settings.responsePos || settings.responsePos === areaNames.na) {
+        return;
+    }
+	
+	const hasType = data.response_type && reacts[data.response_type];
+	const hasText = data.response_text && data.response_text.trim > "";
 
-		if (data.response_type && reacts[data.response_type])
-			response += reacts[data.response_type];
-
-		if (data.response_type && reacts[data.response_type] && data.response_text)
-			response += ": ";
-
-		if (data.response_text)
-			response += data.response_text;
-
-		response += ' </p>';
-
-		variables[settings.responsePos] += response;
-	}
+	// Append the response to the appropriate area
+	variables[settings.responsePos] += `
+		<p id="reactText" class="text" height="auto" margin="0">
+			${ hasType? reacts[data.response_type] : ''}${(hasType && hasText)? ': ' : ''}${hasText? data.response_text : ''}
+		</p>
+	`;
 }
 
 function NewPost_ProcessE6(variables){
 	console.log("running newPost e6 method...");
 	
-	if (!settings.e6_Pos || settings.e6_Pos === areaNames.na || settings.e6_user === "" || settings.e6_api === "") return;
+	if (!settings.e6_Pos || settings.e6_Pos === areaNames.na || !settings.e6_user?.trim() || !settings.e6_api?.trim() ) {return;}
 	//welcome to the horny zone
-	var e6Zone = '' //'<p id="e6Infos" class="text"></p>';
-	e6Zone += '<button id="addFav" disabled>...</button>'
-	variables[settings.e6_Pos] += e6Zone;
+	//'<p id="e6Infos" class="text"></p>';
+	variables[settings.e6_Pos] += ` 
+		<button id="addFav" disabled>...</button>
+	`;
 }
 
 function setNewPost(data) {
@@ -673,18 +661,18 @@ function setNewPost(data) {
 	if (!data)
 		return;
 	
-	var isSamePost = lastUrl == data.post_url && data.response_type == lastResponseType && data.response_text == lastResponseText && overrideUpdate != true;
+	var isSamePost = appState.lastUrl == data.post_url && data.response_type == appState.lastResponseType && data.response_text == appState.lastResponseText && appState.overrideUpdate != true;
 	if (isSamePost)
 		return;
 
 	//set in case override was ture
-	overrideUpdate = false;
+	appState.overrideUpdate = false;
 	
 	console.log("Updating link data!");
 	UpdatePostUrl(data.post_url);
 	
-
 	//String variables for areas
+	//let variables = Object.fromEntries(areas.map(area => [area, ""]));
 	var variables = {};
 	areas.forEach(area => variables[area]="");
 
@@ -694,23 +682,22 @@ function setNewPost(data) {
 	NewPost_ProcessCurrentResponse(variables,data);
 	NewPost_ProcessE6(variables);
 
-	//sets the html for each area with the coresponding variables
-	areas.forEach(area => {		
-		if(area == areaNames.na)return;
-		var html = variables[area];
-		if(!html)return;
-		
-		$("#" + area).html(html);
-	});
+    //sets the html for each area with the coresponding variables
+	areas
+    .filter(area => area != areaNames.na)
+    .forEach(area => {
+		if(!variables[area]) return;
+        $("#" + area).html(variables[area]);
+    });
 
 	//Event functions
 	setEvents();
 
 	//sets current dat for next check
-	lastUrl = data.post_url;
+	appState.lastUrl = data.post_url;
 
-	lastResponseType = data.response_type;
-	lastResponseText = data.response_text;
+	appState.lastResponseType = data.response_type;
+	appState.lastResponseText = data.response_text;
 
 	//calls ChangeSettings to update css / style
 	ChangeSettings();
@@ -720,115 +707,126 @@ function setNewPost(data) {
 }
 
 function GetReactionButton(id, emoji, ttId, tooltip) {
-	var html = "";
-
-	html += '<button type="button" id="' + id + '" >' + emoji;
-	html += '<p id="' + ttId + '" class="tooltipItem">' + tooltip + '</p>';
-	html += '</button>';
-
-	return html;
+	return `
+		<button type="button" id="${id}">
+			${emoji}
+			<p id="${ttId}" class="tooltipItem">${tooltip}</p>
+		</button>
+	`;
 }
 
-function getBgHtml(url) {
-	var bg = "";
-	bg += '<Img id="bImg" class="bImg" />';
-	bg += '<video id="bVid" src="' + url + '" class="bImg" style="visibility: hidden;" autoplay loop >Video error </video>';
-
-	return bg;
-}
-
-function setEvents() {
-	jQuery(document).ready(function ($) {
+function setAddFavEvents(){
+	$('#addFav').click(function() {
+		console.log("addFav clicked");
 		
-		$('#addFav').click(function() {
-			if(settings.e6_user && settings.e6_user != "") 
-				SetPostFavourite(settings.e6_api, settings.e6_user,lastPostId);
-			overrideUpdate = true;
-		});
+		if(settings.e6_user?.trim()) {
+			SetPostFavourite(settings.e6_api, settings.e6_user,appState.lastPostId);
+		}
+		appState.overrideUpdate = true;
+	});
+}
 
-		/*
+function setbImgEvents() {
+	/*
 		$("#bImg").on('load',function (){
 		console.log("test");
 		elem.style.visibility = "visible";
 		});*/
+}
 
-		document.getElementById("bVid").volume = 0;
-		$('#bVid').on("loadeddata", function () {
-			SetVisible('#bVid');
-			SetHidden('#bImg');
+function setbVideoEvents(){
+	const videoElement = document.getElementById("bVid");
 
-			document.getElementById("bVid").volume = settings.volume;
-			//if(settings["autoplay"] == "true")
-			//elVid.play();
+	videoElement.volume = 0;
+	$('#bVid').on("loadeddata", function () {
+		console.log("video loaded data");
+		SetVisible('#bVid');
+		SetHidden('#bImg');
+
+		videoElement.volume = settings.volume;
+		//if(settings["autoplay"] == "true")
+		//elVid.play();
+	});
+
+	$('#bVid').click(function () {
+		console.log("video clicked");
+		if (settings.videocontrols === "noUI")
+			this.paused ? this.play() : this.pause();
+	});
+}
+
+function setReactDropdownEvents(){	
+	$('#btn_reactDD').click(function () {
+		console.log("reactDropDown clicked");
+		if ($('#reactDD').css("visibility") === "hidden") {
+			SetVisible('#reactDD');
+			HandleDDScrollBtns();
+		} else {
+			SetHidden('#reactDD');
+			HideDDScrollbtns();
+		}
+	});
+	
+	/*
+	document.getElementById("reactDD_scroll");
+	if(elem)
+	elem.addEventListener("mouseenter",function(){
+	document.getElementById("reactDD_scroll").focus();
+	console.log("focus dd scroll");
+	});*/
+	
+	$('.reactDD_litxt').each(function () {
+		this.addEventListener("click", function (event) {
+			console.log("reactDD_litxt clicked");
+			
+			$("#btn_reactDD_value").html(this.innerHTML);
+			SetHidden('#reactDD');
+			HideDDScrollbtns();
 		});
+	});
+	
+	$('#reactDD_scroll').scroll(function () {
+		HandleDDScrollBtns();
+	});
+	
+	
+	const scrollContainer = document.getElementById("reactDD_scroll");
+	setupScrollButton($('#reactDD_scrollBtn_up')  , scrollContainer, -settings.scrollspeed);
+    setupScrollButton($('#reactDD_scrollBtn_down'), scrollContainer, settings.scrollspeed);
+}
 
-		$('#bVid').click(function () {
+function setupScrollButton(button, scrollContainer, scrollspeed) {
+	let scrollInterval = null;
 
-			if (settings.videocontrols === "noUI")
-				this.paused ? this.play() : this.pause();
-		});
+    button.hover(function () {
 
-		$('#btn_reactDD').click(function () {
+		scrollInterval = setInterval(function () {
+			scrollContainer.scrollBy(0, scrollspeed);
+		}, 10);
+	}, function () {
+		clearInterval(scrollInterval);
+	});
+}
 
-			if ($('#reactDD').css("visibility") === "hidden") {
-				SetVisible('#reactDD');
-				HandleDDScrollBtns();
-			} else {
-				SetHidden('#reactDD');
-				HideDDScrollbtns();
-			}
-		});
+function setReactButtonsEvents(){
+	if (settings.reactPos && settings.reactPos != areaNames.na)
+	if (CheckApiKey()) {
 
-		/*
-		document.getElementById("reactDD_scroll");
-		if(elem)
-		elem.addEventListener("mouseenter",function(){
-		document.getElementById("reactDD_scroll").focus();
-		console.log("focus dd scroll");
-		});*/
-
-		$('.reactDD_litxt').each(function () {
-			this.addEventListener("click", function (event) {
-				$("#btn_reactDD_value").html(this.innerHTML);
-				SetHidden('#reactDD');
-				HideDDScrollbtns();
+		reactButttons.forEach(btn => {
+			$('#' + btn.id).click(function () {
+				postReaction(btn.reactID);
 			});
 		});
+	}
+}
 
-		$('#reactDD_scroll').scroll(function () {
-			HandleDDScrollBtns();
-		});
-
-		var dd_scroll = document.getElementById("reactDD_scroll");
-
-		var loopUp = null;
-		$('#reactDD_scrollBtn_up').hover(function () {
-
-			loopUp = setInterval(function () {
-				dd_scroll.scrollBy(0, -settings.scrollSpeed);
-			}, 10);
-		}, function () {
-			clearInterval(loopUp);
-		});
-
-		var loopDown = null;
-		$('#reactDD_scrollBtn_down').hover(function () {
-			loopDown = setInterval(function () {
-				dd_scroll.scrollBy(0, settings.scrollSpeed);
-			}, 10);
-		}, function () {
-			clearInterval(loopDown);
-		});
-
-		if (settings.reactPos && settings.reactPos != areaNames.na)
-			if (CheckApiKey()) {
-
-				reactButttons.forEach(btn => {
-					$('#' + btn.id).click(function () {
-						postReaction(btn.reactID);
-					});
-				});
-			}
+function setEvents() {
+	jQuery(document).ready(function ($) {
+		setAddFavEvents();
+		setbImgEvents();
+		setbVideoEvents();
+		setReactDropdownEvents();
+		setReactButtonsEvents();	
 	});
 }
 
@@ -862,17 +860,12 @@ function HideDDScrollbtns() {
 }
 
 function HandleDDScrollBtns() {
-	var dd_scroll = document.getElementById("reactDD_scroll");
-	if (dd_scroll.scrollTop == 0)
-		SetHidden('#reactDD_scrollBtn_up');
-	else
-		SetVisible('#reactDD_scrollBtn_up');
+	const scrollContainer = document.getElementById('reactDD_scroll');
+	const scrollTop = scrollContainer.scrollTop;
+    const scrollBottom = scrollContainer.scrollHeight - scrollTop - scrollContainer.clientHeight;
 
-	var scrollBottom = dd_scroll.scrollHeight - dd_scroll.scrollTop - dd_scroll.clientHeight;
-	if (scrollBottom < 1)
-		SetHidden('#reactDD_scrollBtn_down');
-	else
-		SetVisible('#reactDD_scrollBtn_down');
+	SetVisibility('#reactDD_scrollBtn_up', scrollTop == 0 ? 'hidden' : 'visible' );
+    SetVisibility('#reactDD_scrollBtn_down', scrollBottom < 1 ? 'hidden' : 'visible');
 }
 
 function toggleAttribute(elem, attName, value) {
@@ -883,13 +876,11 @@ LoopSetterUpdate();
 function LoopSetterUpdate() {
 	if (!settings.overrideURL) {
 		console.log("refreshing last Setter ");
-		UpdateSetterInfo(lastSetBy);
+		UpdateSetterInfo(appState.lastSetBy);
 	}
 
 	setTimeout(LoopSetterUpdate, settings.interval);
 }
-
-
 
 Loop_e6_Update();
 async function Loop_e6_Update() {
@@ -897,84 +888,78 @@ async function Loop_e6_Update() {
 	setTimeout(Loop_e6_Update, settings.interval);
 }
 
-async function e6_Update(){
-	console.log("Updating e6 stuff ("+settings.e6_user+")");
-	if (!settings.e6_Pos || settings.e6_Pos === areaNames.na || settings.e6_user === "" || settings.e6_api === "") {
-		console.log("e6 is disabled, returning...")
-		return;
-	}
+function isE6Enabled() {
+    return settings.e6_Pos && settings.e6_Pos !== areaNames.na && settings.e6_user && settings.e6_api;
+}
 
-	console.log("getting md5 of last url " + lastUrl);
-	var md5 = GetMd5(lastUrl);
-	console.log("md5 " + md5);
+async function e6_Update(){
+	console.log(`Updating e6 data for user: ${settings.e6_user}`);
+	// Early return if e6 is disabled
+    if (!isE6Enabled()) {
+        console.log("e6 is disabled, skipping update...");
+        return;
+    }
+
+	console.log("getting md5 of last url " + appState.lastUrl);
+	const md5 = GetMd5(appState.lastUrl);
+    console.log(`MD5 of last URL: ${md5}`);
 	
 	//TODO: check if last and current md5 are the same
 	
 	console.log("updating e6 userdata for: " + settings.e6_user)
-	var e6Data = await GetPostInfo(md5, settings.e6_user, settings.e6_api);
-	if(e6Data && e6Data.posts && e6Data.posts[0]){
-		setE6Info(e6Data.posts[0]);
-	} else {
-		console.log("no e6 data disabling ui");
-		$('#addFav').attr("disabled", true);
-		$('#addFav').html('loading...');
-	}
+    try {
+        const e6Data = await fetchE6PostInfo(md5, settings.e6_user, settings.e6_api);
+        if (e6Data && e6Data.posts && e6Data.posts[0]) {
+            setE6Info(e6Data.posts[0]);
+        } else {
+            console.log("No e6 data found, disabling UI...");
+			//disable button
+            $('#addFav').attr("disabled", true);
+			$('#addFav').html('loading...');
+        }
+    } catch (error) {
+        console.error("Error updating e6 data:", error);
+		//disavle button
+        $('#addFav').attr("disabled", true);
+		$('#addFav').html(error);
+    }
 }
 
 function setE6Info(data){	
 	console.log("setting e6 info");
+	//enable button
 	$('#addFav').attr("disabled", false);
-	
-	console.log("[e6] isCurrentFav: " + data.is_favorited)
-	
 	$('#addFav').html(data.is_favorited? '-': '+');
-	lastPostId = data.id;
+	console.log(`[e6] Post ID: ${data.id}, Favorited: ${data.is_favorited}`);
+	appState.lastPostId = data.id;
 }
 
 function proccessSetterSetBy(userData,username){
-	var friend = '';
-	var name = '';
-	var online = '';
-	
-	//online and friend status
-	if (userData) {
-		if (userData.friend)
-			friend = '♥️ ';
+	const friendStatus = userData?.friend ? '♥️ ' : '';
+    const name = userData?.self ? 'you' : username || 'anon';
+    const onlineStatus = userData?.online ? ' 🟢' : '';
 
-		name = userData.self ? 'you' : username;
-
-		if (userData.online)
-			online = ' 🟢';
-		
-	} else {
-		name = 'anon';
-	}
-
-	$("#setBy").html(`👤set_by: ${friend}${name}${online}`);
+	$("#setBy").html(`👤set_by: ${friendStatus}${name}${onlineStatus}`);
 }
 
 function processSetterLinkInfos(userData){
 	if(!settings.setterInfoPos || settings.setterInfoPos == areaNames.na)return;
 	if(!userData || !userData.links) return;
 
-	var elInfo = $("<p class='text'></p>");
-	$(elInfo).html(`Links: ${userData.links.length}`);
+	var elInfo = $("<p class='text'></p>")
+					.html(`Links: ${userData.links.length}`);
 	$('#SetterInfo').html("").append(elInfo);
 
-	//list of links
-	if (settings.listSetterLinks == "true") 
-	for (const ulink of userData.links) {
-
-		var symbol = '';
-		if (ulink.response_type && reacts[ulink.response_type])
-			symbol = reacts[ulink.response_type];
-
-		var response = ulink.response_text ?? '';
-
-		var elLink = $("<p class='text'></p>");
-		$(elLink).html(` ➔ [${ulink.id}] last Response:${symbol} ${response}\n`);
-		$('#SetterInfo').append(elLink);
-	}
+	// Add individual links if listing is enabled
+	if (settings.listSetterLinks === "true") 
+	userData.links.forEach(link => {
+		const responseType = reacts[link.response_type];
+		const symbol = link.response_type && responseType ? responseType : '';
+		const response = link.response_text ?? '';
+		const linkElement = $("<p class='text'></p>")
+								.html(` ➔ [${link.id}] last Response: ${symbol} ${response}`);
+		$('#SetterInfo').append(linkElement);
+	});
 }
 
 async function UpdateSetterInfo(username) {
@@ -986,122 +971,139 @@ async function UpdateSetterInfo(username) {
 	processSetterLinkInfos(userData);
 }
 
-const wtBaseUrl = "https://walltaker.joi.how";
-const wtApiUrl = wtBaseUrl + "/api";
 
-//gets json from website
-//on sucess: calls function setNewPost() (updates background + infos)
-function getJSON() {
-	if (!settings.linkID) {
-		console.log("Did not request Link -> linkId was empty");
-		SetVisible("#rcenter-center");
-		return;
-	}
-	SetHidden("#rcenter-center");
+//gets json from walltaker website
+async function getJSON() {
+    if (!settings.linkID?.trim()) {
+        console.log("Did not request Link -> linkID was empty");
+        SetVisible("#rcenter-center");
+        return;
+    }
+    SetHidden("#rcenter-center");
 
-	$.ajaxSetup({
-		xhrFields: { /*withCredentials:true*/},
-		crossDomain: true,
-		beforeSend: function (request) {
-			request.setRequestHeader(cName, vNr);
-			console.log("fetching link " + settings.linkID);
-		}
-	});
-
-	let url = wtApiUrl + `/links/${settings.linkID}.json`;
-
-	$.getJSON(url)
-		.done( data => setNewPost(data))
-		.fail(function (jqXHR, textStatus, errorThrown) {
-			console.error('getJSON returned error');
-			$('#centerMessage').html(`Server returned ${textStatus}: ${errorThrown}! <br> Check your internet connection and link number!`);
-			SetVisible('#rcenter-center');
-		});
+    try {
+        const data = await wt_apiRequest(`/links/${settings.linkID}.json`);
+        setNewPost(data);
+    } catch (error) {
+        console.error("getJSON returned error:", error);
+        $('#centerMessage').html(
+            `Server returned an error! <br>
+			 Check your internet connection and link number! <br>
+			 [${error}]
+			`
+        );
+        SetVisible("#rcenter-center");
+    }
 }
 
 //gets Info from username and returns JSON object of response
 async function getUserInfo(username) {
-	if (!username) {
-		console.log("getUserInfo was called but username was empty, skipping fetch");
-		return;
-	}
+    if (!username?.trim()) {
+        console.log("getUserInfo was called but username was empty, skipping fetch");
+        return null;
+    }
 
-	$.ajaxSetup({
-		xhrFields: { /*withCredentials:true*/ },
-		crossDomain: true,
-		beforeSend: function (request) {
-			request.setRequestHeader(cName, vNr);
-			console.log("fetching UserInfo of " + username);
-		}
-	});
+    const query = CheckApiKey() ? `?api_key=${settings.api_key}` : "";
 
-	const query = CheckApiKey() ? `?api_key=${settings.api_key}` : ''
-	let url = wtApiUrl + `/users/${username}.json${query}`;
-	try{
-		let response = await fetch(url);
-		var json = await response.json();
-		return json;
-	} catch(error) {
-		console.error('Failed to fetch user info:',error);
-	}
+    try {
+        return await wt_apiRequest(`/users/${username}.json`, "GET", query);
+    } catch (error) {
+        console.error("Failed to fetch user info:", error);
+        return null;
+    }
+}
+
+async function wt_apiRequest(endpoint, method = "GET", queryParams = "", body = null) {
+    const headers = {
+		[appInfo.name]: appInfo.version,
+	};
+	return await REST_JsonRequest(wtApiUrl, endpoint, method, headers, queryParams, body);
 }
 
 function CheckApiKey() {
-	return (settings.api_key && settings.api_key.length === 8);
-}
+	//TODO: test API call during engine init
+	return true
 
-const e6ApiUrl = "https://e621.net";
+	settings.api_key = settings.api_key?.trim();
+	return (settings.api_key && settings.length === WT_API_KEY_LENGTH);
+}
 
 function GetMd5(url) {
 	return url.split('/').pop().split('.')[0];
 }
 
-var lastPostId = "";
-
-async function GetPostInfo(md5, username, api) {
-	console.log("fatching data of post (md5) " + md5);
-	let url = "https://e621.net" + `/posts.json?limit=1&tags=md5:${md5}`;
-	const response = await fetch(url, {
-	  headers: {
-		  "Authorization": "Basic " + btoa(`${username}:${api}`),
-		  "User-Agent": cNameLong +"/"+ vNr + " (by Lycraon)",
-		  "_client": cNameLong +"/"+ vNr + " (by Lycraon)",
-		  "Client-Name": cNameLong,
-		  "Client-Version": vNr,
-		  "Client-Author": "lycraon"
-	  }
-	});
-	
-	var json = await response.json();
-	return json;
+async function fetchE6PostInfo(md5, username, api) {
+    console.log(`Fetching data for post (md5): ${md5}`);
+    const endpoint = `/posts.json?limit=1&tags=md5:${md5}`;
+    try{
+		let json = await e6_ApiRequest(endpoint, "GET", username, api)
+		return json;
+	} catch (error) {
+		console.error("Failed to fetch e6 post info:", error);
+		return null;
+	}
 }
 
 async function SetPostFavourite(api, username, postId) {
-	if(!postId || postId == ""){
-		console.error("tried to set post as favourite, but id was empty");
-		return;
+    if (!postId?.toString().trim()) {
+        console.error("Tried to set post as favorite, but post ID was empty.");
+        return;
+    }
+
+    const endpoint = `/favorites.json?post_id=${postId}`;
+	try {
+    	await e6_ApiRequest(endpoint, "post", username, api, '{}' /*{ post_id: postId }*/);
 	}
+	catch (error) {
+		console.error("Failed to set post as favorite:", error);
+	}
+	console.log(`Post ${postId} set as favorite`);
+}
+
+async function e6_ApiRequest(endpoint, method = "GET", username, api, body = null) {
+    console.log(`e6_ApiRequest`);
 	
-	console.log("setting post as favourite " + postId);
-	let url = "https://e621.net" + `/favorites.json?post_id=${postId}`;
-	const response = await fetch(url, {
-		method: "post",
-		headers: {
-		  "Authorization": "Basic " + btoa(`${username}:${api}`),
-		  "User-Agent": cNameLong +"/"+ vNr + " (by Lycraon)",
-		  "_client": cNameLong +"/"+ vNr + " (by Lycraon)",
-		  "Client-Name": cNameLong,
-		  "Client-Version": vNr,
-		  "Client-Author": "lycraon"
-		},
-		body: JSON.stringify({
-			//post_id: postId
-		})
-	});
-	
+	const headers = getE6Headers(username, api);
+	return await REST_JsonRequest(e6ApiUrl, endpoint, method, headers, "", body);
+}
+
+function getE6Headers(username, api) {
+    return {
+        "Authorization": "Basic " + btoa(`${username}:${api}`),
+        "User-Agent": `${appInfo.nameLong}/${appInfo.version} (by Lycraon)`,
+        "_client": `${appInfo.nameLong}/${appInfo.version} (by Lycraon)`,
+        "Client-Name": appInfo.nameLong,
+        "Client-Version": appInfo.version,
+        "Client-Author": "lycraon"
+    };
 }
 
 var intervalID = null;
+
+async function REST_JsonRequest(baseUrl, endpoint, method = "GET", headers = {}, queryParams = "", body = null) {
+    const url = `${baseUrl}${endpoint}${queryParams}`;
+    const options = {
+        method,
+        headers,
+    };
+
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+	console.log(`Making ${method} request to ${url}`);
+
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`API request failed: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error during API request to ${url}:`, error);
+        throw error;
+    }
+}
 
 //Loops getJson (= get Data from Website)
 var UpdateCanvasRunning = false;
