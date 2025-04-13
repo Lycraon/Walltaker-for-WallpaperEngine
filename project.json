@@ -1,0 +1,479 @@
+{
+	"contentrating" : "Everyone",
+	"description" : "Uses walltaker.joi.how Link to show Backgrounds",
+	"file" : "Index.html",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"api_key" : 
+			{
+				"index" : 1,
+				"order" : 101,
+				"text" : "api_key ",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"area_maxWidth" : 
+			{
+				"fraction" : true,
+				"index" : 7,
+				"max" : 33,
+				"min" : 0,
+				"order" : 107,
+				"precision" : 1,
+				"step" : 0.1,
+				"text" : "Max area width",
+				"type" : "slider",
+				"value" : 30
+			},
+			"autoplay" : 
+			{
+				"index" : 12,
+				"order" : 112,
+				"text" : "Autoplay Video",
+				"type" : "bool",
+				"value" : true
+			},
+			"backg_color" : 
+			{
+				"index" : 5,
+				"order" : 105,
+				"text" : "Background Color",
+				"type" : "color",
+				"value" : "0 0 0"
+			},
+			"canv_x" : 
+			{
+				"fraction" : true,
+				"index" : 20,
+				"max" : 10000,
+				"min" : -10000,
+				"order" : 120,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Pos x",
+				"type" : "slider",
+				"value" : 0
+			},
+			"canv_y" : 
+			{
+				"fraction" : true,
+				"index" : 21,
+				"max" : 10000,
+				"min" : -10000,
+				"order" : 121,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Pos y",
+				"type" : "slider",
+				"value" : 0
+			},
+			"customreactions" : 
+			{
+				"index" : 26,
+				"order" : 126,
+				"text" : "Custom Reactions",
+				"type" : "bool",
+				"value" : true
+			},
+			"e6_api" : 
+			{
+				"index" : 34,
+				"order" : 134,
+				"text" : "e6 api:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"e6_name" : 
+			{
+				"index" : 33,
+				"order" : 133,
+				"text" : "e6 name:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"emojireactions" : 
+			{
+				"index" : 25,
+				"order" : 125,
+				"text" : "Emoji Reactions",
+				"type" : "bool",
+				"value" : true
+			},
+			"emoticonreactions" : 
+			{
+				"index" : 24,
+				"order" : 124,
+				"text" : "Emoticon Reactions",
+				"type" : "bool",
+				"value" : true
+			},
+			"font_size" : 
+			{
+				"index" : 8,
+				"order" : 108,
+				"text" : "Font Size",
+				"type" : "textinput",
+				"value" : "medium"
+			},
+			"interval" : 
+			{
+				"index" : 2,
+				"order" : 102,
+				"text" : "interval (sec.)",
+				"type" : "textinput",
+				"value" : "15"
+			},
+			"linkID" : 
+			{
+				"index" : 0,
+				"order" : 100,
+				"text" : "walltaker.joi.how/links/ ",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"loop" : 
+			{
+				"index" : 11,
+				"order" : 111,
+				"text" : "Loop Video",
+				"type" : "bool",
+				"value" : true
+			},
+			"lycraonsreactions" : 
+			{
+				"index" : 23,
+				"order" : 123,
+				"text" : "Lycraons Reactions",
+				"type" : "bool",
+				"value" : true
+			},
+			"objfit" : 
+			{
+				"index" : 4,
+				"options" : 
+				[
+					{
+						"label" : "contain",
+						"value" : "contain"
+					},
+					{
+						"label" : "fill",
+						"value" : "fill"
+					},
+					{
+						"label" : "cover",
+						"value" : "cover"
+					},
+					{
+						"label" : "scale-down",
+						"value" : "scale-down"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 104,
+				"text" : "Image Fit: ",
+				"type" : "combo",
+				"value" : "contain"
+			},
+			"reaction" : 
+			{
+				"condition" : "api_key.value.length == 8",
+				"index" : 17,
+				"options" : 
+				[
+					{
+						"label" : "top left",
+						"value" : "top-left"
+					},
+					{
+						"label" : "top center",
+						"value" : "top-center"
+					},
+					{
+						"label" : "top right",
+						"value" : "top-right"
+					},
+					{
+						"label" : "bottom left",
+						"value" : "bottom-left"
+					},
+					{
+						"label" : "bottom center",
+						"value" : "bottom-center"
+					},
+					{
+						"label" : "bottom right",
+						"value" : "bottom-right"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 117,
+				"text" : "Quick reactions: ",
+				"type" : "combo",
+				"value" : "top-center"
+			},
+			"reaction1" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 27,
+				"order" : 127,
+				"text" : "Reaction1:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction2" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 28,
+				"order" : 128,
+				"text" : "Reaction2:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction3" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 29,
+				"order" : 129,
+				"text" : "Reaction3:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction4" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 30,
+				"order" : 130,
+				"text" : "Reaction4:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction5" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 31,
+				"order" : 131,
+				"text" : "Reaction5:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"reaction6" : 
+			{
+				"condition" : "customreactions.value",
+				"index" : 32,
+				"order" : 132,
+				"text" : "Reaction6:",
+				"type" : "textinput",
+				"value" : ""
+			},
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0 0 0"
+			},
+			"scrollspeed" : 
+			{
+				"fraction" : true,
+				"index" : 9,
+				"max" : 10,
+				"min" : 1,
+				"order" : 109,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Scroll Speed",
+				"type" : "slider",
+				"value" : 4
+			},
+			"set_by" : 
+			{
+				"index" : 13,
+				"options" : 
+				[
+					{
+						"label" : "top left",
+						"value" : "top-left"
+					},
+					{
+						"label" : "top center",
+						"value" : "top-center"
+					},
+					{
+						"label" : "top right",
+						"value" : "top-right"
+					},
+					{
+						"label" : "bottom left",
+						"value" : "bottom-left"
+					},
+					{
+						"label" : "bottom center",
+						"value" : "bottom-center"
+					},
+					{
+						"label" : "bottom right",
+						"value" : "bottom-right"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 113,
+				"text" : "Set by: ",
+				"type" : "combo",
+				"value" : "top-left"
+			},
+			"setterData" : 
+			{
+				"index" : 14,
+				"order" : 114,
+				"text" : "Load setter data",
+				"type" : "bool",
+				"value" : true
+			},
+			"setterInfo" : 
+			{
+				"condition" : "setterData.value",
+				"index" : 15,
+				"options" : 
+				[
+					{
+						"label" : "top left",
+						"value" : "top-left"
+					},
+					{
+						"label" : "top center",
+						"value" : "top-center"
+					},
+					{
+						"label" : "top right",
+						"value" : "top-right"
+					},
+					{
+						"label" : "bottom left",
+						"value" : "bottom-left"
+					},
+					{
+						"label" : "bottom center",
+						"value" : "bottom-center"
+					},
+					{
+						"label" : "bottom right",
+						"value" : "bottom-right"
+					},
+					{
+						"label" : "none",
+						"value" : "none"
+					}
+				],
+				"order" : 115,
+				"text" : "Setter Infos: ",
+				"type" : "combo",
+				"value" : "top-left"
+			},
+			"setterLinks" : 
+			{
+				"condition" : "setterData.value",
+				"index" : 16,
+				"order" : 116,
+				"text" : "List setter links",
+				"type" : "bool",
+				"value" : false
+			},
+			"standardreactions" : 
+			{
+				"index" : 22,
+				"order" : 122,
+				"text" : "Standard Reactions",
+				"type" : "bool",
+				"value" : true
+			},
+			"text_color" : 
+			{
+				"index" : 6,
+				"order" : 106,
+				"text" : "Text Color",
+				"type" : "color",
+				"value" : "1 1 1"
+			},
+			"vid_volume" : 
+			{
+				"fraction" : true,
+				"index" : 3,
+				"max" : 1,
+				"min" : 0,
+				"order" : 103,
+				"precision" : 3,
+				"step" : 0.01,
+				"text" : "default video volume",
+				"type" : "slider",
+				"value" : 1
+			},
+			"videocontrols" : 
+			{
+				"index" : 10,
+				"options" : 
+				[
+					{
+						"label" : "Full UI",
+						"value" : "full"
+					},
+					{
+						"label" : "No UI",
+						"value" : "noUI"
+					},
+					{
+						"label" : "None",
+						"value" : "none"
+					}
+				],
+				"order" : 110,
+				"text" : "Video Controls",
+				"type" : "combo",
+				"value" : "full"
+			},
+			"zoom_h" : 
+			{
+				"fraction" : true,
+				"index" : 19,
+				"max" : 250,
+				"min" : 0,
+				"order" : 119,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Zoom heigth",
+				"type" : "slider",
+				"value" : 100
+			},
+			"zoom_w" : 
+			{
+				"fraction" : true,
+				"index" : 18,
+				"max" : 250,
+				"min" : 0,
+				"order" : 118,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "Zoom width",
+				"type" : "slider",
+				"value" : 100
+			}
+		}
+	},
+	"preview" : "preview.jpg",
+	"tags" : [ "Unspecified" ],
+	"title" : "Walltaker for Wallpaper Engine",
+	"type" : "web",
+	"version" : 10,
+	"visibility" : "private"
+}
