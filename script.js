@@ -4,8 +4,16 @@
 const appInfo = {
 	nameLong: "walltaker-wallpaper-engine",
     name: "Wallpaper-Engine-Client",
-    version: "v2.5.2"
+    version: "v2.5.1"
 }
+
+var tmp = document.createElement('script');
+tmp.type = 'text/javascript';
+tmp.src = "./test.js";
+document.head.insertBefore(tmp, document.head.children[5]);
+
+const E6Api = new E6Api_(appInfo);
+const WalltakerApi = new WalltakerApi_(appInfo);
 
 //all area names
 const areaNames = {
@@ -57,71 +65,69 @@ const packWeights = {
 }
 
 const reactions = {
-	standard: [
-		"I like this one",
-		"I don't like this one",
-		"That's a nice one!",
-		"I love it!",
-		"Great!",
-		"Nice",
-		"Cute!",
-		"More!",
-		"Thank you!",
-		"Next one please",
-		"YES!",
-		"Please?",
-		"Already had that one"
+	standard:[
+	   "I like this one",
+	   "I don't like this one",
+	   "That's a nice one!",
+	   "I love it!",
+	   "Great!",
+	   "Nice",
+	   "Cute!",
+	   "More!",
+	   "Thank you!",
+	   "Next one please",
+	   "YES!",
+	   "Please?",
+	   "Already had that one"
 	],
-	emojis: [
-		"👀",
-		"😣",
-		"😋",
-		"👍",
-		"😁",
-		"😶",
-		"😓",
-		"🤨",
-		"😖",
-		"🙁",
-		"🫤",
-		"😟",
-		"😵‍💫",
-		"🥺",
-		"😯",
-		"🤤",
-		"😭",
-		"🤯",
-		"🙂"
+	emojis:[
+	  "👀",
+	  "😣",
+	  "😋",
+	  "👍",
+	  "😁",
+	  "😶",
+	  "😓",
+	  "🤨",
+	  "😖",
+	  "🙁",
+	  "🫤",
+	  "😟",
+	  "😵‍💫",
+	  "🥺",
+	  "😯",
+	  "🤤",
+	  "😭",
+	  "🤯",
+	  "🙂"
 	],
-	lycraons: [
-		":3",
-		"X3",
-		":)",
-		":/",
-		":(",
-		"=3"
+	lycraons:[
+	   ":3",
+	   "X3",
+	   ":)",
+	   ":/",
+	   ":(",
+	   "=3"
 	],
-	emoticons: [
-		"°ω°",
-		"^ω^",
-		"0ω0",
-		"0ω*",
-		"ฅ^•ﻌ•^ฅ",
-		"U'ᴥ'U",
-		"(ʋ◕ᴥ◕)",
-		"∪･ω･∪",
-		"<~<",
-		">///<"
+	emoticons:[
+	 "°ω°",
+	 "^ω^",
+	 "0ω0",
+	 "0ω*",
+	 "ฅ^•ﻌ•^ฅ",
+	 "U'ᴥ'U",
+	 "(ʋ◕ᴥ◕)",
+	 "∪･ω･∪"
 	],
 	custom: [
-		" ",
-		" ",
-		" ",
-		" ",
-		" ",
-		" "
+	  " ",
+	  " ",
+	  " ",
+	  " ",
+	  " ",
+	  " "
 	]
-};
+ }
 
 //Default-Settings
 const settings = {
@@ -168,13 +174,16 @@ const appState = {
     overrideUpdate: false,
 	reactPacks: [...settings.reactPacks],
 	bOpacity: settings.background_opacity,
+	e6States: {
+        lastMd5: null,
+        lastUser: null,
+        lastApiKey: null,
+		overrideUpdate: false,
+    },
 };
 
-const WT_API_KEY_LENGTH = 8; 
 const MIN_INTERVAL_MS = 8500;
-const wtBaseUrl = "https://walltaker.joi.how";
-const wtApiUrl = wtBaseUrl + "/api";
-const e6ApiUrl = "https://e621.net";
+//const wtBaseUrl = "https://walltaker.joi.how";
 
 var reloadColors = true;
 
@@ -190,11 +199,10 @@ window.wallpaperPropertyListener = {
 
 		ProcessPropertyToSetting(properties, "linkID", value => {
 			appState.lastUrl = "";
-			if (!value?.trim()) {
-				return;
+			if (value?.trim() > "") {	
+				getJSON();
 			}
 			
-			getJSON();
 			});
 
 		ProcessProperty(properties, "api_key", value => {
@@ -204,10 +212,7 @@ window.wallpaperPropertyListener = {
 			});
 
 
-		if(!ProcessProperty(properties,"interval", value => SetIntervalSeconds(parseInt(value)))){
-			SetIntervalSeconds();
-		}	
-
+		ProcessProperty(properties,"interval", value => SetIntervalSeconds(parseInt(value)))
 		ProcessPropertyToSetting(properties, "objfit", ()=>{reloadCanvas = true;});
 		ProcessPropertyToSetting(properties, "videocontrols");
 		ProcessPropertyToSetting(properties, "autoplay");
@@ -231,6 +236,9 @@ window.wallpaperPropertyListener = {
 		ProcessPropertyToSetting(properties, "canv_x");
 		ProcessPropertyToSetting(properties, "canv_y");
 
+		ProcessPropertyToSetting(properties, "e6_name", () => {reloadCanvas = true;}, settingName = "e6_user");
+		ProcessPropertyToSetting(properties, "e6_api", () => {reloadCanvas = true;});
+
 		let packs = Object.keys(reactions).sort((a, b) => (packWeights[b] ?? 0) - (packWeights[a] ?? 0));
 		console.log("[[packs:]]" + packs.toString());
 
@@ -247,8 +255,6 @@ window.wallpaperPropertyListener = {
 		}
 
 		ProcessPropertyToSetting(properties, "scrollspeed", () => {reloadCanvas = true;});
-		ProcessPropertyToSetting(properties, "e6_name", () => {reloadCanvas = true;}, settingName = "e6_user");
-		ProcessPropertyToSetting(properties, "e6_api", () => {reloadCanvas = true;});
 		
 		//-----------------------------------------------------------------------------------------------
 		if (settings.overrideURL)
@@ -338,7 +344,7 @@ function ProcessPropertyToSetting(properties, propName, callback = () => {}, set
 
 function SetApiKey(apiKey) {
 	settings.api_key = "" + apiKey?.trim();
-	if (settings.api_key.length !== WT_API_KEY_LENGTH) {
+	if(!WalltakerApi_.IsAPIKeyValid(settings.apiKey)){
 		settings.reactPos = areaNames.na;
 		settings.responsePos = areaNames.na;
 	}
@@ -347,11 +353,13 @@ function SetApiKey(apiKey) {
 
 function SetIntervalSeconds(interval=0) {
 	//Setting min possible interval to avoid DOS spamming
+	console.log("setting interval: " + interval);
 	settings.interval = Math.min(parseInt(interval) * 1000, MIN_INTERVAL_MS);
 }
 
 // returns true if the reaction packs have changed
 function SetReactionpacks(packs) {
+	console.log("setting reaction packs: " + packs.toString());
 	const oldPacks = [...appState.reactPacks];
 
 	appState.reactPacks = Object.keys(reactions)
@@ -453,39 +461,7 @@ function GetRGBColor(customColor) {
 	return customColorAsCSS;
 }
 
-//sends POST to Website and passes data to setNewPost
-function postReaction(reactType) {
-	if (settings.api_key.length !== WT_API_KEY_LENGTH)
-		return;
 
-	console.log("ractPacks:" + appState.reactPacks.length);
-
-	//Reaction Text
-	const txt = appState.reactPacks.length > 0 ? $('#btn_reactDD_value').html() : "";
-	console.log('Posting reaction (' + reactType + ',"' + txt + '") to Link ' + settings.linkID);
-
-	//POST
-	//wt_apiRequest("api/links/" + settings.linkID + "/response.json","POST",);
-
-	$.ajax({
-		type: "POST",
-		url: "https://walltaker.joi.how/api/links/" + settings.linkID + "/response.json",
-		data: JSON.stringify({
-			"api_key": settings.api_key,
-			"type": "" + reactType + "",
-			"text": txt
-		}),
-		dataType: "json",
-		contentType: "application/json",
-		success: function (data) {
-			appState.overrideUpdate = true;
-			setNewPost(data);
-		},
-		failure: function (errMsg) {
-			console.error(`Failed to post reaction: ${errMsg}`);
-		}
-	});
-}
 
 function clearBackground() {
     appState.bOpacity = "0";
@@ -561,9 +537,9 @@ function NewPost_ProcessReactionButtons(variables){
 	console.log("processReactionButtons");
 
 	if (!settings.reactPos || settings.reactPos == areaNames.na) {return}
-	if (!CheckApiKey()) { return;}
+	if (!WalltakerApi_.IsAPIKeyValid(settings.api_key)) { return;}
 
-	const packs = settings.reactPacks.length > 0 ? settings.reactPacks : appState.reactPacks;
+	const packs = appState.reactPacks.length > 0 ? appState.reactPacks : appState.reactPacks;
 
 	const reactionForm = `
 		<form>
@@ -653,6 +629,18 @@ function NewPost_ProcessE6(variables){
 	`;
 }
 
+function hasPostChanged(data){
+	return appState.lastUrl != data.post_url ||
+			data.response_text != appState.lastResponseText ||
+			data.response_type != appState.lastResponseType;
+}
+
+function UpdateAppLinkState(data){
+	appState.lastUrl          = data.post_url;
+	appState.lastResponseType = data.response_type;
+	appState.lastResponseText = data.response_text;
+}
+
 function setNewPost(data) {
 	if (settings.overrideURL)
 		return;
@@ -661,7 +649,7 @@ function setNewPost(data) {
 	if (!data)
 		return;
 	
-	var isSamePost = appState.lastUrl == data.post_url && data.response_type == appState.lastResponseType && data.response_text == appState.lastResponseText && appState.overrideUpdate != true;
+	var isSamePost = !hasPostChanged(data) && appState.overrideUpdate != true;
 	if (isSamePost)
 		return;
 
@@ -694,10 +682,7 @@ function setNewPost(data) {
 	setEvents();
 
 	//sets current dat for next check
-	appState.lastUrl = data.post_url;
-
-	appState.lastResponseType = data.response_type;
-	appState.lastResponseText = data.response_text;
+	UpdateAppLinkState(data);
 
 	//calls ChangeSettings to update css / style
 	ChangeSettings();
@@ -718,9 +703,10 @@ function GetReactionButton(id, emoji, ttId, tooltip) {
 function setAddFavEvents(){
 	$('#addFav').click(function() {
 		console.log("addFav clicked");
-		
-		if(settings.e6_user?.trim()) {
-			SetPostFavourite(settings.e6_api, settings.e6_user,appState.lastPostId);
+		$('#addFav').attr("disabled", true);
+		if(settings.e6_user?.trim() > "" && settings.e6_api?.trim() > ""){
+			appState.e6States.overrideUpdate = true;
+		   	E6Api.SetPostFavourite(settings.e6_api, settings.e6_user,appState.lastPostId);
 		}
 		appState.overrideUpdate = true;
 	});
@@ -809,15 +795,14 @@ function setupScrollButton(button, scrollContainer, scrollspeed) {
 }
 
 function setReactButtonsEvents(){
-	if (settings.reactPos && settings.reactPos != areaNames.na)
-	if (CheckApiKey()) {
+	if (!settings.reactPos || settings.reactPos == areaNames.na) {return;}
+	if (!WalltakerApi_.IsAPIKeyValid(settings.api_key)) { return;}
 
 		reactButttons.forEach(btn => {
 			$('#' + btn.id).click(function () {
 				postReaction(btn.reactID);
 			});
 		});
-	}
 }
 
 function setEvents() {
@@ -879,17 +864,25 @@ function LoopSetterUpdate() {
 		UpdateSetterInfo(appState.lastSetBy);
 	}
 
-	setTimeout(LoopSetterUpdate, settings.interval);
+	setTimeout(LoopSetterUpdate, Math.min(settings.interval, MIN_INTERVAL_MS));
 }
 
 Loop_e6_Update();
 async function Loop_e6_Update() {
 	await e6_Update();
-	setTimeout(Loop_e6_Update, settings.interval);
+	setTimeout(Loop_e6_Update, Math.min(settings.interval,1000));
 }
 
 function isE6Enabled() {
     return settings.e6_Pos && settings.e6_Pos !== areaNames.na && settings.e6_user && settings.e6_api;
+}
+
+function hase6PostChanged(md5) {
+	return  !appState.e6States.lastMd5 ||
+			appState.e6States.lastMd5 != md5 ||
+			appState.e6States.lastUser != settings.e6_user ||
+			appState.e6States.lastApiKey != settings.e6_api ||
+			appState.e6States.overrideUpdate == true;;
 }
 
 async function e6_Update(){
@@ -904,11 +897,16 @@ async function e6_Update(){
 	const md5 = GetMd5(appState.lastUrl);
     console.log(`MD5 of last URL: ${md5}`);
 	
+	if(!hase6PostChanged(md5)){
+		console.log("e6 post has not changed, skipping update...");
+		return;
+	}
 	//TODO: check if last and current md5 are the same
-	
+	appState.e6States.overrideUpdate = false;
+
 	console.log("updating e6 userdata for: " + settings.e6_user)
     try {
-        const e6Data = await fetchE6PostInfo(md5, settings.e6_user, settings.e6_api);
+        const e6Data = await E6Api.GetPostInfo(md5, settings.e6_user, settings.e6_api);
         if (e6Data && e6Data.posts && e6Data.posts[0]) {
             setE6Info(e6Data.posts[0]);
         } else {
@@ -928,6 +926,10 @@ async function e6_Update(){
 function setE6Info(data){	
 	console.log("setting e6 info");
 	//enable button
+	appState.e6States.lastMd5 = data.file.md5;
+	appState.e6States.lastUser = settings.e6_user;
+	appState.e6States.lastApiKey = settings.e6_api;
+
 	$('#addFav').attr("disabled", false);
 	$('#addFav').html(data.is_favorited? '-': '+');
 	console.log(`[e6] Post ID: ${data.id}, Favorited: ${data.is_favorited}`);
@@ -966,145 +968,16 @@ async function UpdateSetterInfo(username) {
 	console.log("Updating Setter Info of " + username);
 	if (settings.showSetterData !== "true") { return; }
 
-	var userData = username ? await getUserInfo(username) : null;
+	var userData = username ? await WalltakerApi.GetUserInfo(username,settings.api_key) : null;
 	proccessSetterSetBy(userData,username);
 	processSetterLinkInfos(userData);
-}
-
-
-//gets json from walltaker website
-async function getJSON() {
-    if (!settings.linkID?.trim()) {
-        console.log("Did not request Link -> linkID was empty");
-        SetVisible("#rcenter-center");
-        return;
-    }
-    SetHidden("#rcenter-center");
-
-    try {
-        const data = await wt_apiRequest(`/links/${settings.linkID}.json`);
-        setNewPost(data);
-    } catch (error) {
-        console.error("getJSON returned error:", error);
-        $('#centerMessage').html(
-            `Server returned an error! <br>
-			 Check your internet connection and link number! <br>
-			 [${error}]
-			`
-        );
-        SetVisible("#rcenter-center");
-    }
-}
-
-//gets Info from username and returns JSON object of response
-async function getUserInfo(username) {
-    if (!username?.trim()) {
-        console.log("getUserInfo was called but username was empty, skipping fetch");
-        return null;
-    }
-
-    const query = CheckApiKey() ? `?api_key=${settings.api_key}` : "";
-
-    try {
-        return await wt_apiRequest(`/users/${username}.json`, "GET", query);
-    } catch (error) {
-        console.error("Failed to fetch user info:", error);
-        return null;
-    }
-}
-
-async function wt_apiRequest(endpoint, method = "GET", queryParams = "", body = null) {
-    const headers = {
-		[appInfo.name]: appInfo.version,
-	};
-	return await REST_JsonRequest(wtApiUrl, endpoint, method, headers, queryParams, body);
-}
-
-function CheckApiKey() {
-	//TODO: test API call during engine init
-	return true
-
-	settings.api_key = settings.api_key?.trim();
-	return (settings.api_key && settings.length === WT_API_KEY_LENGTH);
 }
 
 function GetMd5(url) {
 	return url.split('/').pop().split('.')[0];
 }
 
-async function fetchE6PostInfo(md5, username, api) {
-    console.log(`Fetching data for post (md5): ${md5}`);
-    const endpoint = `/posts.json?limit=1&tags=md5:${md5}`;
-    try{
-		let json = await e6_ApiRequest(endpoint, "GET", username, api)
-		return json;
-	} catch (error) {
-		console.error("Failed to fetch e6 post info:", error);
-		return null;
-	}
-}
-
-async function SetPostFavourite(api, username, postId) {
-    if (!postId?.toString().trim()) {
-        console.error("Tried to set post as favorite, but post ID was empty.");
-        return;
-    }
-
-    const endpoint = `/favorites.json?post_id=${postId}`;
-	try {
-    	await e6_ApiRequest(endpoint, "post", username, api, '{}' /*{ post_id: postId }*/);
-	}
-	catch (error) {
-		console.error("Failed to set post as favorite:", error);
-	}
-	console.log(`Post ${postId} set as favorite`);
-}
-
-async function e6_ApiRequest(endpoint, method = "GET", username, api, body = null) {
-    console.log(`e6_ApiRequest`);
-	
-	const headers = getE6Headers(username, api);
-	return await REST_JsonRequest(e6ApiUrl, endpoint, method, headers, "", body);
-}
-
-function getE6Headers(username, api) {
-    return {
-        "Authorization": "Basic " + btoa(`${username}:${api}`),
-        "User-Agent": `${appInfo.nameLong}/${appInfo.version} (by Lycraon)`,
-        "_client": `${appInfo.nameLong}/${appInfo.version} (by Lycraon)`,
-        "Client-Name": appInfo.nameLong,
-        "Client-Version": appInfo.version,
-        "Client-Author": "lycraon"
-    };
-}
-
 var intervalID = null;
-
-async function REST_JsonRequest(baseUrl, endpoint, method = "GET", headers = {}, queryParams = "", body = null) {
-    const url = `${baseUrl}${endpoint}${queryParams}`;
-    const options = {
-        method,
-        headers,
-    };
-
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
-
-	console.log(`Making ${method} request to ${url}`);
-
-    try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-            throw new Error(`API request failed: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(`Error during API request to ${url}:`, error);
-        throw error;
-    }
-}
-
 //Loops getJson (= get Data from Website)
 var UpdateCanvasRunning = false;
 function UpdateCanvas() {
@@ -1115,4 +988,39 @@ function UpdateCanvas() {
 		UpdateCanvasRunning = false;
 
 	intervalID = setTimeout(UpdateCanvas, settings.interval);
+}
+
+//sends POST to Website and passes data to setNewPost
+function postReaction(reactType) {
+	const txt = appState.reactPacks.length > 0 ? $('#btn_reactDD_value').html() : "";
+	WalltakerApi.PostReaction(settings.linkID,reactType,txt,settings.api_key, (response,data) => {
+		appState.overrideUpdate = true;
+		setNewPost(data);
+	});
+
+	console.log("ractPacks:" + appState.reactPacks.length);
+}
+
+//gets json from walltaker website
+async function getJSON() {
+    if (!settings.linkID?.trim()) {
+        console.log("Did not request Link -> linkID was empty");
+        SetVisible("#rcenter-center");
+        return;
+    }
+    SetHidden("#rcenter-center");
+
+	const data = await WalltakerApi.GetLinkInfo(settings.linkID,(error) => {
+		console.error("getJSON returned error:", error);
+        $('#centerMessage').html(
+            `Server returned an error! <br>
+			 Check your internet connection and link number! <br>
+			 [${error}]
+			`
+        );
+        SetVisible("#rcenter-center");
+		return null;
+	});
+
+	setNewPost(data);
 }
