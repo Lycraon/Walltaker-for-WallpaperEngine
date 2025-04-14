@@ -372,3 +372,60 @@ button:enabled:hover {
 	-ms-transform: translate(-25%, 0%);
     transform: translate(-25%, 0%);
 }
+
+.icon {
+    width: 1.5em; /* Adjust size */
+    height: 1.5em; /* Adjust size */
+    vertical-align: middle; /* Align with text if needed */
+}
+
+.fav {
+	color: gold;
+}
+
+.addFav > svg > path{
+	color:darkcyan;
+}
+
+#LinkTree{
+	list-style: none;
+	margin: 0;
+  	padding: 0;
+}
+
+.setterLink > p{
+	margin:2px 0 2px 5px;
+}
+
+.setterLink > p::before,
+.setterLink:first-child > p::before,
+.setterLink:last-child > p::before{
+	position:relative;
+	bottom: 0.5em;
+	display: inline-block;
+	margin-right: 5px;
+	color: white;
+	border-left: 1px solid white;
+	border-bottom: 1px solid white;
+	width: 4px;
+}
+
+.setterLink:first-child > p::before{
+	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
+	height: 0.65em;
+}
+
+.setterLink > p::before{
+	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
+}
+
+.setterLink > p::before,
+.setterLink:last-child > p::before{
+	height: 1.5em;
+	margin-top: -0.5em;
+}
+
+.setterLink:last-child > p::before{
+	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
+	/*border-radius: 1em;*/
+}

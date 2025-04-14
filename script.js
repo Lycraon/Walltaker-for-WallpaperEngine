@@ -624,8 +624,9 @@ function NewPost_ProcessE6(variables){
 	if (!settings.e6_Pos || settings.e6_Pos === areaNames.na || !settings.e6_user?.trim() || !settings.e6_api?.trim() ) {return;}
 	//welcome to the horny zone
 	//'<p id="e6Infos" class="text"></p>';
+
 	variables[settings.e6_Pos] += ` 
-		<button id="addFav" disabled>...</button>
+		<button id="addFav" disabled>${getAddFavHtml("loading")}</button>
 	`;
 }
 
@@ -655,6 +656,7 @@ function setNewPost(data) {
 
 	//set in case override was ture
 	appState.overrideUpdate = false;
+	appState.e6States.overrideUpdate = true;
 	
 	console.log("Updating link data!");
 	UpdatePostUrl(data.post_url);
@@ -711,7 +713,6 @@ function setAddFavEvents(){
 		   	E6Api.SetPostFavourite(settings.e6_api, settings.e6_user,appState.lastPostId);
 		}
 		appState.overrideUpdate = true;
-		appState.e6States.overrideUpdate = true;
 	});
 }
 
@@ -916,7 +917,7 @@ async function e6_Update(){
             console.log("No e6 data found, disabling UI...");
 			//disable button
             $('#addFav').attr("disabled", true);
-			$('#addFav').html('loading...');
+			$('#addFav').html(getAddFavHtml("noData"));
         }
     } catch (error) {
         console.error("Error updating e6 data:", error);
@@ -926,34 +927,75 @@ async function e6_Update(){
     }
 }
 
+function getAddFavHtml(state){
+	const addFavIcon  = `fa-regular fa-star`;
+	const isFavIcon   = `fa-solid   fa-star`;
+	const loadFavIcon = `fa-solid fa-spinner fa-spin-pulse fa-spin-reverse`;
+
+	switch(state){
+		case "loading":
+			return `<i class="${loadFavIcon}"></i>`;
+		case "isFav":
+			return `<i class="${isFavIcon} fav"></i>`;
+		case "addFav":
+			return `<i class="${addFavIcon} addFav"></i>`;
+		case "noData":
+			return `<i class="fa-solid fa-xmark"></i>`;
+		case "disabled":
+			return `<i class="${addFavIcon} disabled"></i>`;
+		default:
+			return `<i class=""></i>`;
+	}
+}
+
 function setE6Info(data){	
 	console.log("setting e6 info");
 	//enable button
 	appState.e6States.lastMd5 = data.file.md5;
 	appState.e6States.lastUser = settings.e6_user;
 	appState.e6States.lastApiKey = settings.e6_api;
-
-	$('#addFav').attr("disabled", false);
-	$('#addFav').html(data.is_favorited? '-': '+');
+	let state = data.is_favorited ? "isFav" : "addFav"
+	
+	$('#addFav').attr("disabled", false);	
+	$('#addFav').html(getAddFavHtml(state));
 	console.log(`[e6] Post ID: ${data.id}, Favorited: ${data.is_favorited}`);
 	appState.lastPostId = data.id;
 }
 
 function proccessSetterSetBy(userData,username){
-	const friendStatus = userData?.friend ? '♥️ ' : '';
+	const friendStatus = userData?.friend ? '<i class="fa-solid fa-heart"></i>' : '';
     const name = userData?.self ? 'you' : username || 'anon';
     const onlineStatus = userData?.online ? ' 🟢' : '';
 
-	$("#setBy").html(`👤set_by: ${friendStatus}${name}${onlineStatus}`);
+	const userIcon = `<i class="fa-solid fa-user"></i>`;
+	const anonIcon = `<i class="fa-solid fa-user-secret"></i>`;
+
+	const showText = true;
+
+
+	const icon = userData?.self ? userIcon : anonIcon;
+	$("#setBy").html(`${userIcon} ${showText?'set_by':''}: ${friendStatus} ${name}${onlineStatus}`);
 }
 
 function processSetterLinkInfos(userData){
 	if(!settings.setterInfoPos || settings.setterInfoPos == areaNames.na)return;
 	if(!userData || !userData.links) return;
 
-	var elInfo = $("<p class='text'></p>")
-					.html(`Links: ${userData.links.length}`);
-	$('#SetterInfo').html("").append(elInfo);
+	var elInfo = $(`
+		<p class='text'> 
+			<span class="fa-layers fa-fw">
+				<i class="fa-solid fa-link fa-sm"></i> 
+			</span>
+			Links: ${userData.links.length}
+		</p>`)
+
+	// clear element and edd info text
+	const setterElement = $('#SetterInfo').html("");
+
+	setterElement.append(elInfo);
+
+	let treeElement = $('<ul id="LinkTree"></ul>')
+	setterElement.append(treeElement);
 
 	// Add individual links if listing is enabled
 	if (settings.listSetterLinks === "true") 
@@ -961,10 +1003,12 @@ function processSetterLinkInfos(userData){
 		const responseType = reacts[link.response_type];
 		const symbol = link.response_type && responseType ? responseType : '';
 		const response = link.response_text ?? '';
-		const linkElement = $("<p class='text'></p>")
-								.html(` ➔ [${link.id}] last Response: ${symbol} ${response}`);
-		$('#SetterInfo').append(linkElement);
+		const linkElement = $('<li class="setterLink"></li>')
+								.html(`<p class="text">${link.id} <i class="fa-solid fa-message"></i> ${symbol} ${response}</p>`);
+		treeElement.append(linkElement);
 	});
+
+	element.append("</ul>");
 }
 
 async function UpdateSetterInfo(username) {
