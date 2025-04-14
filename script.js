@@ -702,6 +702,8 @@ function GetReactionButton(id, emoji, ttId, tooltip) {
 
 function setAddFavEvents(){
 	$('#addFav').click(function() {
+		if($(this).is(":disabled")) return;
+
 		console.log("addFav clicked");
 		$('#addFav').attr("disabled", true);
 		if(settings.e6_user?.trim() > "" && settings.e6_api?.trim() > ""){
@@ -709,6 +711,7 @@ function setAddFavEvents(){
 		   	E6Api.SetPostFavourite(settings.e6_api, settings.e6_user,appState.lastPostId);
 		}
 		appState.overrideUpdate = true;
+		appState.e6States.overrideUpdate = true;
 	});
 }
 

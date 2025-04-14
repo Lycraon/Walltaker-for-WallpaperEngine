@@ -221,11 +221,9 @@ button {
 	border-radius: 0.25em;
 }
 
-button:hover {
-	color: grey;
+button:enabled:hover {
+	background-color: lightgrey;
 }
-
-
 
 #rtop-left{
 	top: 10px;
