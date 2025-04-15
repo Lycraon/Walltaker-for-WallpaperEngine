@@ -513,11 +513,11 @@ button:enabled:hover {
 #LinksHeader > i,
 #LinksHeader > svg{
 	color: white;
-	border-radius: 1em;
+	border-radius: 0.5em;
 }
 
-#LinksHeader > i:hover,
-#LinksHeader > svg:hover{
+#LinksHeader > i:not(.transparent):hover,
+#LinksHeader > svg:not(.transparent):hover{
 	background-color: black;
 }
 

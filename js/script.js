@@ -7,10 +7,16 @@ const appInfo = {
     version: "v2.5.1"
 }
 
-var tmp = document.createElement('script');
-tmp.type = 'text/javascript';
-tmp.src = "./test.js";
-document.head.insertBefore(tmp, document.head.children[5]);
+function addScript(path){
+	var tmp = document.createElement('script');
+	tmp.type = 'text/javascript';
+	tmp.src = path;
+	document.head.insertBefore(tmp, document.head.children[7]);
+}
+
+addScript('./js/settings.js');
+addScript('./js/appState.js');
+addScript('./js/reactions.js');
 
 const E6Api = new E6Api_(appInfo);
 const WalltakerApi = new WalltakerApi_(appInfo);
@@ -60,134 +66,7 @@ const reactButttons = [{
 	},
 ];
 
-const packWeights = {
-	custom: 100
-}
-
-const reactions = {
-	standard:[
-	   "I like this one",
-	   "I don't like this one",
-	   "That's a nice one!",
-	   "I love it!",
-	   "Great!",
-	   "Nice",
-	   "Cute!",
-	   "More!",
-	   "Thank you!",
-	   "Next one please",
-	   "YES!",
-	   "Please?",
-	   "Already had that one"
-	],
-	emojis:[
-	  "👀",
-	  "😣",
-	  "😋",
-	  "👍",
-	  "😁",
-	  "😶",
-	  "😓",
-	  "🤨",
-	  "😖",
-	  "🙁",
-	  "🫤",
-	  "😟",
-	  "😵‍💫",
-	  "🥺",
-	  "😯",
-	  "🤤",
-	  "😭",
-	  "🤯",
-	  "🙂"
-	],
-	lycraons:[
-	   ":3",
-	   "X3",
-	   ":)",
-	   ":/",
-	   ":(",
-	   "=3"
-	],
-	emoticons:[
-	 "°ω°",
-	 "^ω^",
-	 "0ω0",
-	 "0ω*",
-	 "ฅ^•ﻌ•^ฅ",
-	 "U'ᴥ'U",
-	 "(ʋ◕ᴥ◕)",
-	 "∪･ω･∪"
-	],
-	custom: [
-	  " ",
-	  " ",
-	  " ",
-	  " ",
-	  " ",
-	  " "
-	]
- }
-
-//Default-Settings
-const settings = {
-	overrideURL: "", // Put an Url here to only show this url (must be link to picture/video (static pages on e621))
-	volume: "1",
-	linkID: "",
-	api_key: "",
-	textColor: "255 255 255",
-	background_color: "0 0 0",
-	background_opacity: "1",
-	fontSize: "100%", //x-small,small, medium, large or px / em / %
-	interval: "10000", //ms do not run with small numbers(<10000) for long sessions
-	objfit: "contain",
-	videocontrols: "full",
-	loop: "true",
-	autoplay: "true",
-	textPos: areaNames.topL,
-	reactPos: areaNames.topC,
-	reactPacks: [], //! only use strings ! !overrides WE settings!
-	showTooltips: "true",
-	showSetterData: "true",
-	listSetterLinks: "true",
-	responsePos: areaNames.topC,
-	setterInfoPos: areaNames.botL,
-	maxAreaWidth: "20vw",
-	zoom_w: "100", //%
-	zoom_h: "100", //%
-	canv_x: "0", //px
-	canv_y: "0", //px
-	scrollspeed: "4",
-	e6_Pos: areaNames.topL,
-	e6_user: "",
-	e6_api: "",
-};
-
-//Global variables
-const appState = {
-	lastUrl: "",
-    lastSetBy: "",
-    lastResponseType: "",
-    lastResponseText: "",
-    lastCanvas: "",
-    lastPostId: "",
-    overrideUpdate: false,
-	reactPacks: [...settings.reactPacks],
-	bOpacity: settings.background_opacity,
-	linksCollapsed: true,
-	e6States: {
-        lastMd5: null,
-        lastUser: null,
-        lastApiKey: null,
-		overrideUpdate: false,
-    },
-};
-
-const MIN_INTERVAL_MS = 8500;
-//const wtBaseUrl = "https://walltaker.joi.how";
-
 var reloadColors = true;
-
 window.wallpaperPropertyListener = {
 	applyUserProperties: function (properties) {
 		console.log("loading properties");
@@ -823,10 +702,22 @@ function setEvents() {
 		
 		 // Use event delegation for dynamically created #LinksHeader
 		 $(document).on('click', '#LinksHeader', function () {
-			 appState.linksCollapsed = !appState.linksCollapsed;
-			 console.log(`LinksHeader clicked → collapsed = ${appState.linksCollapsed}`);
+			console.log('#LinksHeader click spam prevention has triggered');
+			if(appState.isLinksHeaderClicked){
+				return;
+			}
+			appState.isLinksHeaderClicked = true;
+
+			appState.linksCollapsed = !appState.linksCollapsed;
+			console.log(`LinksHeader clicked → collapsed = ${appState.linksCollapsed}`);
             $('#LinkTree').attr("hidden", appState.linksCollapsed);
+
+			// Reset the flag after a short delay
+			setTimeout(() => {
+				appState.isLinksHeaderClicked = false;
+			}, 100); // Adjust delay as needed
         });
+
 	});
 }
 
