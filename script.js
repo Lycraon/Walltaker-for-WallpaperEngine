@@ -174,6 +174,7 @@ const appState = {
     overrideUpdate: false,
 	reactPacks: [...settings.reactPacks],
 	bOpacity: settings.background_opacity,
+	linksCollapesd: true,
 	e6States: {
         lastMd5: null,
         lastUser: null,
@@ -815,7 +816,14 @@ function setEvents() {
 		setbImgEvents();
 		setbVideoEvents();
 		setReactDropdownEvents();
-		setReactButtonsEvents();	
+		setReactButtonsEvents();
+		
+		 // Use event delegation for dynamically created #LinksHeader
+		 $(document).on('click', '#LinksHeader', function () {
+            console.log("LinksHeader clicked");
+			appState.linksCollapesd = !appState.linksCollapesd;
+            $('#LinkTree').attr("hidden", appState.linksCollapesd);
+        });
 	});
 }
 
@@ -980,35 +988,49 @@ function proccessSetterSetBy(userData,username){
 function processSetterLinkInfos(userData){
 	if(!settings.setterInfoPos || settings.setterInfoPos == areaNames.na)return;
 	if(!userData || !userData.links) return;
+	const setterElement = $('#SetterInfo').html("");
 
 	var elInfo = $(`
-		<p class='text'> 
-			<span class="fa-layers fa-fw">
-				<i class="fa-solid fa-link fa-sm"></i> 
-			</span>
-			Links: ${userData.links.length}
+		<p id="LinksHeader" class='text'> 
+			<i id="linkIcon" class="fas fa-link fa-lg" style="margin-right:0;font-weight:bold;padding:0;margin:0"></i> 
+			<span id="linkCounter" class="counter">${userData.links.length}</span>
+			<i id="messageIcon" class="fa-solid fa-message" hidden></i>
+			<span id="messageCounter" class="counter" hidden></span>
 		</p>`)
 
 	// clear element and edd info text
-	const setterElement = $('#SetterInfo').html("");
-
 	setterElement.append(elInfo);
 
-	let treeElement = $('<ul id="LinkTree"></ul>')
+	let treeElement = $(`<ul id="LinkTree" ${appState.linksCollapesd? 'hidden' : ''}></ul>`);
 	setterElement.append(treeElement);
 
+	let messageCounter = 0;
 	// Add individual links if listing is enabled
 	if (settings.listSetterLinks === "true") 
 	userData.links.forEach(link => {
 		const responseType = reacts[link.response_type];
 		const symbol = link.response_type && responseType ? responseType : '';
 		const response = link.response_text ?? '';
+
+		if(link.response || link.response_text > "")messageCounter++;
+
 		const linkElement = $('<li class="setterLink"></li>')
-								.html(`<p class="text">${link.id} <i class="fa-solid fa-message"></i> ${symbol} ${response}</p>`);
+								.html(`
+									<p class="text">
+										<span class="linkNumber">
+											<i class="fa-solid fa-circle fa-pull-left link-circle ${ link.online? 'online' : 'transparent'}"></i>
+											<span">${link.id}</span>
+										</span>
+										<span class="linkText" > ${symbol} ${response}</span>
+									</p>`);
 		treeElement.append(linkElement);
 	});
 
-	element.append("</ul>");
+	if(messageCounter > 0) {
+		$("#messageCounter").html(messageCounter);
+		$("#messageIcon").attr("hidden", false);
+		$("#messageCounter").attr("hidden", false);
+	}
 }
 
 async function UpdateSetterInfo(username) {

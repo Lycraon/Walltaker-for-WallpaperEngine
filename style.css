@@ -1,6 +1,9 @@
 :root{
 	--dd_item_height: 1em;
 	--dd_item_padding: 10px;
+
+	/*fontawesome*/
+	--fa-counter-line-height: 1.5em;
 }
 
 #i_joi{
@@ -380,7 +383,7 @@ button:enabled:hover {
 }
 
 .fav {
-	color: gold;
+	color: rgb(217, 161, 31);
 }
 
 .addFav > svg > path{
@@ -391,21 +394,23 @@ button:enabled:hover {
 	list-style: none;
 	margin: 0;
   	padding: 0;
+	margin-left: 0.5em;
 }
 
 .setterLink > p{
-	margin:2px 0 2px 5px;
+	/*top right bottom left*/
+	margin:2px 0 6px 4px;
 }
 
 .setterLink > p::before,
 .setterLink:first-child > p::before,
 .setterLink:last-child > p::before{
 	position:relative;
-	bottom: 0.5em;
+	bottom: 0.4em;
 	display: inline-block;
-	margin-right: 5px;
+	margin-right: 3px;
 	color: white;
-	border-left: 1px solid white;
+	border-left: 2px solid white;
 	border-bottom: 1px solid white;
 	width: 4px;
 }
@@ -421,11 +426,85 @@ button:enabled:hover {
 
 .setterLink > p::before,
 .setterLink:last-child > p::before{
-	height: 1.5em;
-	margin-top: -0.5em;
+	height: 1.7em;
+	margin-top: -0.7em;
 }
 
 .setterLink:last-child > p::before{
 	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
 	/*border-radius: 1em;*/
+}
+
+.linkNumber{
+	color: black;
+	background-color: white;
+	border-radius: 0.4em;
+	padding: 0.2em 0.5em 0.2em 0.5em;
+	font-size: 0.9em;
+	font-weight: bold;
+	font-family: Arial, sans-serif;
+	text-shadow: none;
+}
+
+#LinksHeader{
+	font-size: 1.3em;
+}
+
+#LinksHeader > i,
+#LinksHeader > svg{
+	color: white;
+}
+
+#linkIcon{
+	font-size: 1.2em;
+}
+
+#messageIcon{
+	font-size: 1em;
+}
+
+
+.counter{
+	position: relative;
+	top:0;
+	left: -1.2em;
+	margin:0;
+	padding: 0.1em 0.4em 0.1em 0.4em;
+	font-size: 0.55em;
+	border-radius: 0.3em;
+	background-color: #333;
+	color: white;
+}
+
+#linkCounter{
+	left: -1.6em;
+}
+
+.online{
+	color: rgb(83, 154, 83);
+}
+
+.offline{
+	color: rgb(209, 31, 31);
+}
+
+.transparent{
+	color: transparent;
+}
+
+
+
+.link-circle{
+	position: relative;
+	margin:0;
+	top:0;
+	left: 20px;
+	font-size: 0.6em;
+}
+
+#SetterInfo{
+	background-color: #00000074;
+	padding: 10px;
+	margin-right: -5px;
+	border-radius: 0.5em;
 }
