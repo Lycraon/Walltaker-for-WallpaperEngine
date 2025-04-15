@@ -2,6 +2,10 @@
 	--dd_item_height: 1em;
 	--dd_item_padding: 10px;
 
+	--default_width: 210px;
+
+	--content_outer_margin: 1em;
+
 	/*fontawesome*/
 	--fa-counter-line-height: 1.5em;
 }
@@ -24,13 +28,21 @@ body {
 	font-family: Verdana , sans-serif;
 }
 
+.darkBackground{	
+	border-radius: 0.5em;
+	padding: 0.5em;
+}
+
+.darkBackground:not(:empty){
+	background-color: #00000060;
+}
 
 
 #reactDrop{
 	position: relative;	
 	z-index: 2000;
 	overflow: visible;
-	width: 210px;
+	width: var(--default_width);
 }
 
 #btn_reactDD{
@@ -170,22 +182,31 @@ body {
 }
 
 #reactText{
-	width: 100%;
 	position: relative;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space:normal;
-	padding-top: 0.5em;
+	padding: 0.5em;
+}
+
+#reactText:empty {
+	margin: 0;
+	padding: 0;
+	height: 0;
+	background-color: transparent;
 }
 
 .area {
 	position: absolute;
-	color: black;
-	background-color: rgba(100, 100, 100, 0.4);
+	color: black;	
 	z-index: 100;
 	overflow: visible;
 	max-width: 33vw;
 	border-radius: 0.25em;
+}
+
+.area:not(:empty){
+	background-color: rgba(100, 100, 100, 0.4);
 }
 
 .content {
@@ -198,16 +219,18 @@ body {
 }
 
 .content > *:first-child{
-	margin-top: 0.5em;
+	margin-top: var(--content_outer_margin) !important;
 }
 
 .content > *:last-child{
-	margin-bottom: 1em;
+	margin-bottom: var(--content_outer_margin) !important;
 }
 
 .content > * {
-	padding: 0.25em;
-	margin: 0;
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
+	margin-left: var(--content_outer_margin);
+	margin-right: var(--content_outer_margin);
 }
 
 .content p {
@@ -231,8 +254,6 @@ button:enabled:hover {
 #rtop-left{
 	top: 10px;
 	left: 10px;
-	padding-left: 10px;
-	padding-right: 20px;
 	justify-content: left;
 }
 
@@ -245,8 +266,6 @@ button:enabled:hover {
 }
 
 #top-center{
-	padding-left: 10px;
-	padding-right: 10px;
 	justify-content: center;
 	align-items: center ;
 	text-align: center;
@@ -261,8 +280,6 @@ button:enabled:hover {
 }
 
 #center-center{
-	padding-left: 10px;
-	padding-right: 10px;
 	justify-content: center;
 	align-items: center ;
 	text-align: center;
@@ -275,8 +292,7 @@ button:enabled:hover {
 #rtop-right{
 	top: 10px;
 	right: 10px;
-	padding-left: 10px;
-	padding-right: 20px;
+	/*padding-right: 20px;*/
 	justify-content: left;
 	
 }
@@ -284,8 +300,6 @@ button:enabled:hover {
 #rbottom-left{
 	bottom: 3vh;
 	left: 10px;
-	padding-left: 10px;
-	padding-right: 20px;
 	justify-content: left;
 }
 
@@ -298,8 +312,6 @@ button:enabled:hover {
 }
 
 #bottom-center{
-	padding-left: 10px;
-	padding-right: 10px;
 	justify-content: center;
 	align-items: center ;
 	text-align: center;
@@ -308,19 +320,17 @@ button:enabled:hover {
 #rbottom-right{
 	bottom: 3vh;
 	right: 10px;
-	padding-left: 10px;
-	padding-right: 20px;
+	/*padding-right: 20px;*/
 	display: flex;
 	justify-content: left;
 }
 
 #buttons{
-	margin: 0;
 	align-items: center;
 	display: flex;
 	justify-content: center;
 	flex-wrap: nowrap;
-	padding: 0;
+	padding: 0 10px 0 10px;
 }
 
 #buttons > button {
@@ -390,6 +400,11 @@ button:enabled:hover {
 	color:darkcyan;
 }
 
+#addFav{
+	padding: 0.25em 0.5em 0.25em 0.5em;
+	width: var(--default_width);
+}
+
 #LinkTree{
 	list-style: none;
 	margin: 0;
@@ -397,40 +412,82 @@ button:enabled:hover {
 	margin-left: 0.5em;
 }
 
-.setterLink > p{
-	/*top right bottom left*/
-	margin:2px 0 6px 4px;
+#setBy{
+	min-width: var(--default_width);
 }
 
-.setterLink > p::before,
-.setterLink:first-child > p::before,
-.setterLink:last-child > p::before{
+.linkRow{
+	/*top right bottom left*/
+	margin:2px 0 6px 4px;
+	white-space: nowrap;
+	/*overflow: hidden;*/
+	display:flex;
+	max-width: 100%;
+}
+
+.setterLink{
+	display: flex;
+	flex-wrap: nowrap;
+	width: 100%;
+}
+
+.linkText{
+	display: inline-block;
+	white-space: nowrap;
+	border-radius: 0.5em;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	margin: 0;
+	flex-grow: 1;
+}
+
+.linkText > span {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding: 2px;
+}
+
+
+.linkText:hover{
+	overflow: visible;
+	padding: 2px;
+	white-space: wrap;
+}
+
+.linkText:hover > span{
+	overflow: visible;
+	white-space: wrap;
+}
+
+.linkRow::before {
 	position:relative;
 	bottom: 0.4em;
 	display: inline-block;
-	margin-right: 3px;
 	color: white;
 	border-left: 2px solid white;
 	border-bottom: 1px solid white;
 	width: 4px;
+	overflow: visible;
+	flex-shrink: 0;
 }
 
-.setterLink:first-child > p::before{
+.setterLink:first-child > .linkRow::before{
 	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
-	height: 0.65em;
+	height: 0.9em;
+	margin-top: 0.25em;
 }
 
-.setterLink > p::before{
+.setterLink > .linkRow::before{
 	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
 }
 
-.setterLink > p::before,
-.setterLink:last-child > p::before{
-	height: 1.7em;
-	margin-top: -0.7em;
+.setterLink > .linkRow::before,
+.setterLink:last-child > .linkRow::before{
+	height: 2.4em;
+	margin-top: -1em;
 }
 
-.setterLink:last-child > p::before{
+.setterLink:last-child > .linkRow::before{
 	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
 	/*border-radius: 1em;*/
 }
@@ -444,6 +501,9 @@ button:enabled:hover {
 	font-weight: bold;
 	font-family: Arial, sans-serif;
 	text-shadow: none;
+	flex-shrink: 0;
+	align-self: flex-start;
+	margin-left: 0;
 }
 
 #LinksHeader{
@@ -453,6 +513,12 @@ button:enabled:hover {
 #LinksHeader > i,
 #LinksHeader > svg{
 	color: white;
+	border-radius: 1em;
+}
+
+#LinksHeader > i:hover,
+#LinksHeader > svg:hover{
+	background-color: black;
 }
 
 #linkIcon{
@@ -481,7 +547,7 @@ button:enabled:hover {
 }
 
 .online{
-	color: rgb(83, 154, 83);
+	color: rgb(63, 183, 55);
 }
 
 .offline{
@@ -489,22 +555,13 @@ button:enabled:hover {
 }
 
 .transparent{
-	color: transparent;
+	color:  transparent!important;
 }
-
-
 
 .link-circle{
 	position: relative;
 	margin:0;
 	top:0;
-	left: 20px;
+	right: -5px;
 	font-size: 0.6em;
-}
-
-#SetterInfo{
-	background-color: #00000074;
-	padding: 10px;
-	margin-right: -5px;
-	border-radius: 0.5em;
 }

@@ -174,7 +174,7 @@ const appState = {
     overrideUpdate: false,
 	reactPacks: [...settings.reactPacks],
 	bOpacity: settings.background_opacity,
-	linksCollapesd: true,
+	linksCollapsed: true,
 	e6States: {
         lastMd5: null,
         lastUser: null,
@@ -524,14 +524,14 @@ function NewPost_ProcessSetBy(variables,data){
 	if (!settings.textPos || settings.textPos == areaNames.na) { return; }
 
 	// Add element for "set by" text
-	variables[settings.textPos] += '<p id="setBy" class="text"></p>';
+	variables[settings.textPos] += '<div><p id="setBy" class="text"></p></div>';
 }
 
 function NewPost_ProcessSetterData(variables){
 	if (settings.showSetterData !== "true" || !settings.setterInfoPos || settings.setterInfoPos == areaNames.na){ return;}
 	
 	// Add element for setter info text
-	variables[settings.setterInfoPos] += '<div id="SetterInfo"></div>';
+	variables[settings.setterInfoPos] += '<div id="SetterInfo" class="darkBackground"></div>';
 }
 
 function NewPost_ProcessReactionButtons(variables){
@@ -573,14 +573,14 @@ function buildReactDrop(packs){
 		<div id="reactDrop">
 			<button type="button" id="btn_reactDD">
 				<p id="btn_reactDD_value"></p>
-				<p id="btn_reactDD_arrow">⏷</p>
+				<p id="btn_reactDD_arrow"><i class="fa-solid fa-chevron-down"></i></p>
 			</button>
 			<div id="reactDD">
-				${buildScrollButton('reactDD_scrollBtn_up', '▲')}
+				${buildScrollButton('reactDD_scrollBtn_up', '<i class="fa-solid fa-caret-up fa-lg"></i>')}
 				<div id="reactDD_scroll">
 					${buildReactOptions(packs)}
 				</div>
-				${buildScrollButton('reactDD_scrollBtn_down', '▼')}
+				${buildScrollButton('reactDD_scrollBtn_down', '<i class="fa-solid fa-caret-down fa-lg"></i>')}
 			</div>
 		</div>
 	`;
@@ -611,11 +611,12 @@ function NewPost_ProcessCurrentResponse(variables,data){
 	const hasType = data.response_type && reacts[data.response_type];
 	const hasText = data.response_text && data.response_text.trim > "";
 
+	const response = `${ hasType? reacts[data.response_type] : ''}${(hasType && hasText)? ': ' : ''}${hasText? data.response_text : ''}`
 	// Append the response to the appropriate area
 	variables[settings.responsePos] += `
-		<p id="reactText" class="text" height="auto" margin="0">
-			${ hasType? reacts[data.response_type] : ''}${(hasType && hasText)? ': ' : ''}${hasText? data.response_text : ''}
-		</p>
+		<div>
+			<p id="reactText" class="text darkBackground" >${response?.trim() > ""? response : ''}</p>
+		</div>
 	`;
 }
 
@@ -623,11 +624,13 @@ function NewPost_ProcessE6(variables){
 	console.log("running newPost e6 method...");
 	
 	if (!settings.e6_Pos || settings.e6_Pos === areaNames.na || !settings.e6_user?.trim() || !settings.e6_api?.trim() ) {return;}
-	//welcome to the horny zone
 	//'<p id="e6Infos" class="text"></p>';
-
+	
+	//welcome to the horny zone
 	variables[settings.e6_Pos] += ` 
-		<button id="addFav" disabled>${getAddFavHtml("loading")}</button>
+		<div id="e6Zone">
+			<button id="addFav" disabled>${getAddFavHtml("loading")}</button>
+		</div>
 	`;
 }
 
@@ -820,9 +823,9 @@ function setEvents() {
 		
 		 // Use event delegation for dynamically created #LinksHeader
 		 $(document).on('click', '#LinksHeader', function () {
-            console.log("LinksHeader clicked");
-			appState.linksCollapesd = !appState.linksCollapesd;
-            $('#LinkTree').attr("hidden", appState.linksCollapesd);
+			 appState.linksCollapsed = !appState.linksCollapsed;
+			 console.log(`LinksHeader clicked → collapsed = ${appState.linksCollapsed}`);
+            $('#LinkTree').attr("hidden", appState.linksCollapsed);
         });
 	});
 }
@@ -973,7 +976,7 @@ function setE6Info(data){
 function proccessSetterSetBy(userData,username){
 	const friendStatus = userData?.friend ? '<i class="fa-solid fa-heart"></i>' : '';
     const name = userData?.self ? 'you' : username || 'anon';
-    const onlineStatus = userData?.online ? ' 🟢' : '';
+    const onlineStatus = userData?.online ? '<i class="fas fa-circle fa-pull-right fa-xs online"></i>' : ''; //🟢
 
 	const userIcon = `<i class="fa-solid fa-user"></i>`;
 	const anonIcon = `<i class="fa-solid fa-user-secret"></i>`;
@@ -994,43 +997,64 @@ function processSetterLinkInfos(userData){
 		<p id="LinksHeader" class='text'> 
 			<i id="linkIcon" class="fas fa-link fa-lg" style="margin-right:0;font-weight:bold;padding:0;margin:0"></i> 
 			<span id="linkCounter" class="counter">${userData.links.length}</span>
-			<i id="messageIcon" class="fa-solid fa-message" hidden></i>
+			<i id="messageIcon" class="fa-solid fa-message transparent"></i>
 			<span id="messageCounter" class="counter" hidden></span>
 		</p>`)
 
 	// clear element and edd info text
 	setterElement.append(elInfo);
 
-	let treeElement = $(`<ul id="LinkTree" ${appState.linksCollapesd? 'hidden' : ''}></ul>`);
+	let treeElement = $(`<ul id="LinkTree" ${appState.linksCollapsed? 'hidden' : ''}></ul>`);
 	setterElement.append(treeElement);
 
 	let messageCounter = 0;
+	let messageTypes = {};
+
 	// Add individual links if listing is enabled
 	if (settings.listSetterLinks === "true") 
 	userData.links.forEach(link => {
 		const responseType = reacts[link.response_type];
-		const symbol = link.response_type && responseType ? responseType : '';
+		const symbol = responseType ?? '';
 		const response = link.response_text ?? '';
 
-		if(link.response || link.response_text > "")messageCounter++;
+		if(symbol > "" || response > "")messageCounter++;
+
+
+		if(!messageTypes[symbol] || messageTypes[symbol] < 1)messageTypes[symbol] = 0;
+
+		messageTypes[symbol] ++;
+		console.log(Object.keys(messageTypes).length + '|'+ symbol + ": " + messageTypes[symbol]);
 
 		const linkElement = $('<li class="setterLink"></li>')
 								.html(`
-									<p class="text">
+									<div class="text linkRow">
+										<i class="fas fa-circle link-circle ${ link.online? 'online' : 'transparent'}"></i>
 										<span class="linkNumber">
-											<i class="fa-solid fa-circle fa-pull-left link-circle ${ link.online? 'online' : 'transparent'}"></i>
 											<span">${link.id}</span>
 										</span>
-										<span class="linkText" > ${symbol} ${response}</span>
-									</p>`);
+										<p class="linkText" ><span class="text">${symbol} ${response}</span></p>
+									</div>`);
 		treeElement.append(linkElement);
 	});
 
+	
 	if(messageCounter > 0) {
-		$("#messageCounter").html(messageCounter);
-		$("#messageIcon").attr("hidden", false);
+		let msg = '';
+		const temp = Object.entries(messageTypes).filter(([key,value]) => key > "");
+
+		if(Object.keys(messageTypes).length > 1) 
+			msg = messageCounter>1 ? messageCounter + '|' : '';
+
+		//Object.entries(messageTypes).filter(([key,value]) => key > "").forEach(([key, value]) => { msg += `${value>1?value:''}${key} `;})
+		Object.entries(messageTypes).filter(([key,value]) => key > "").map(([key, value]) => { msg += `${value>1?value:''}${key}`;}).join(' ');
+
+		$("#messageCounter").html(msg);
 		$("#messageCounter").attr("hidden", false);
+		
+		//$("#messageIcon").attr("hidden", false);
+		$("#messageIcon").removeClass("transparent");
 	}
+
 }
 
 async function UpdateSetterInfo(username) {
