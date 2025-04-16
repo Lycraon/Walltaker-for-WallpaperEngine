@@ -1,48 +1,19 @@
 /*jshint esversion: 8 */
 
-//Metadata
-const appInfo = {
-	nameLong: "walltaker-wallpaper-engine",
-    name: "Wallpaper-Engine-Client",
-    version: "v2.5.1"
-}
-
 function addScript(path){
-	var tmp = document.createElement('script');
-	tmp.type = 'text/javascript';
-	tmp.src = path;
-	document.head.insertBefore(tmp, document.head.children[7]);
+	$(`<script type="text/javascript" src="${path}" ></script>`).insertBefore($('#apiScript'));
 }
 
+addScript('./js/metadata.js');
+addScript('./js/areas.js');
 addScript('./js/settings.js');
-addScript('./js/appState.js');
 addScript('./js/reactions.js');
+addScript('./js/appState.js');
 
 const E6Api = new E6Api_(appInfo);
 const WalltakerApi = new WalltakerApi_(appInfo);
 
-//all area names
-const areaNames = {
-	na: "none",
-	topL: "top-left",
-	topC: "top-center",
-	topR: "top-right",
-	botL: "bottom-left",
-	botC: "bottom-center",
-	botR: "bottom-right",
-	cc: "canvas"
-};
-const areas = Object.keys(areaNames).map(key => areaNames[key]);
-
 //reaction-data
-const reacts = {
-	"": "[]",
-	"disgust": "😓",
-	"ok": "👍",
-	"horny": "😍",
-	"came": "💦",
-};
-
 const reactButttons = [{
 		id: 'btn_hate',
 		elem: 'tt_hate',
@@ -66,7 +37,63 @@ const reactButttons = [{
 	},
 ];
 
-var reloadColors = true;
+
+function Initialization(){
+	appState.init = true;
+
+	Loop_e6_Update();
+	LoopSetterUpdate();
+	UpdateCanvas();
+	/*uset setInterval instead of setTimeout? */
+}
+
+//start Checks for Updates when page loaded
+window.onload = function () {
+	if (settings.overrideURL)
+		setCustomUrl(settings.overrideURL);
+	else if (!appState.init)
+		Initialization();
+	
+	console.log("window loaded!");
+};
+
+
+class UpdateLooper{
+	static Canvas = null;
+	static e6 = null;
+	static Setter = null;
+}
+
+//Loops getJson (= get Data from Website)
+var UpdateCanvasRunning = false;
+function UpdateCanvas() {
+	console.log('[tick]Canvas');
+
+	UpdateCanvasRunning = true;
+	if (!settings.overrideURL)
+		getJSON();
+	else
+		UpdateCanvasRunning = false;
+
+	UpdateLooper.Canvas = setTimeout(UpdateCanvas, Math.min(settings.interval,MIN_INTERVAL_MS));
+}
+
+function LoopSetterUpdate() {
+	console.log('[tick]Setter');
+	if (!settings.overrideURL) {
+		console.log("refreshing last Setter ");
+		UpdateSetterInfo(appState.lastSetBy);
+	}
+
+	UpdateLooper.Setter = setTimeout(LoopSetterUpdate, Math.min(settings.interval, MIN_INTERVAL_MS));
+}
+
+async function Loop_e6_Update() {
+	console.log("[tick]e6");
+	await e6_Update();
+	UpdateLooper.e6 = setTimeout(Loop_e6_Update, Math.min(settings.interval,1000));
+}
+
 window.wallpaperPropertyListener = {
 	applyUserProperties: function (properties) {
 		console.log("loading properties");
@@ -97,8 +124,8 @@ window.wallpaperPropertyListener = {
 		ProcessPropertyToSetting(properties, "videocontrols");
 		ProcessPropertyToSetting(properties, "autoplay");
 		ProcessPropertyToSetting(properties, "loop");
-		ProcessPropertyToSetting(properties,"backg_color", () => {reloadCanvas = true;}, settingName = "background_color");
-		ProcessPropertyToSetting(properties,"text_color",  () => {reloadCanvas = true;}, settingName = "textColor");
+		ProcessPropertyToSetting(properties,"backg_color", () => {appState.reloadColors = true;}, settingName = "background_color");
+		ProcessPropertyToSetting(properties,"text_color",  () => {appState.reloadColors = true;}, settingName = "textColor");
 		ProcessProperty(properties, "area_maxWidth", value => {settings.maxAreaWidth = value + "vw"});
 		ProcessPropertyToSetting(properties, "font_size",() =>{}, settingName = "fontSize");
 		ProcessPropertyToSetting(properties,"set_by",  () => {reloadCanvas = true;}, settingName = "textPos");
@@ -146,7 +173,7 @@ window.wallpaperPropertyListener = {
 		} else
 			ChangeSettings();
 
-		if (reloadColors) {
+		if (appState.reloadColors) {
 			ChangeSettings();
 		}
 
@@ -248,16 +275,6 @@ function SetReactionpacks(packs) {
 	return JSON.stringify(oldPacks) !== JSON.stringify(appState.reactPacks);
 }
 
-//start Checks for Updates when page loaded
-window.onload = function () {
-	if (settings.overrideURL)
-		setCustomUrl(settings.overrideURL);
-	else if (!UpdateCanvasRunning)
-		UpdateCanvas();
-
-	console.log("window loaded!");
-};
-
 function setCustomUrl(url) {
 	appState.lastUrl = url;
 	ChangeSettings();
@@ -271,9 +288,10 @@ function setCustomUrl(url) {
 
 //changes Settings mostly CSS stuff
 function ChangeSettings() {
-	let color = settings.background_color + " " + appState.bOpacity;
+	appState.reloadColors = false;
 
-	let css = `
+	const color = settings.background_color + " " + appState.bOpacity;
+	const css = `
 		* {
 			font-size: ${settings.fontSize};
 		}
@@ -475,7 +493,8 @@ function buildScrollButton(id, symbol) {
 }
 
 function buildReactOptions(packs) {
-    return packs
+    return '<a href="#" class="reactDD_litxt"></a>' + //empty reaction
+	packs
 		.flatMap(pack => packTexts = reactions[pack] || [])
 		.filter(packText => packText.trim())
 		.map(packText => `<a href="#" class="reactDD_litxt">${packText}</a>`)
@@ -487,14 +506,13 @@ function NewPost_ProcessCurrentResponse(variables,data){
         return;
     }
 	
-	const hasType = data.response_type && reacts[data.response_type];
-	const hasText = data.response_text && data.response_text.trim > "";
+	const hasResponse = data.response_type > '' || data.response_text > '';
+	const response = `<span id="responseType">${reacts[data.response_type] ?? ' '}</span id="responseText">${data.response_text ?? ''}<span></span>`
 
-	const response = `${ hasType? reacts[data.response_type] : ''}${(hasType && hasText)? ': ' : ''}${hasText? data.response_text : ''}`
 	// Append the response to the appropriate area
 	variables[settings.responsePos] += `
 		<div>
-			<p id="reactText" class="text darkBackground" >${response?.trim() > ""? response : ''}</p>
+			<p id="reactText" class="text darkBackground" >${hasResponse? response : ''}</p>
 		</div>
 	`;
 }
@@ -545,9 +563,7 @@ function setNewPost(data) {
 	UpdatePostUrl(data.post_url);
 	
 	//String variables for areas
-	//let variables = Object.fromEntries(areas.map(area => [area, ""]));
-	var variables = {};
-	areas.forEach(area => variables[area]="");
+	const variables = areas.reduce((acc, area) => ({ ...acc, [area]: '' }), {});
 
 	NewPost_ProcessSetBy(variables,data);
 	NewPost_ProcessSetterData(variables);
@@ -557,22 +573,15 @@ function setNewPost(data) {
 
     //sets the html for each area with the coresponding variables
 	areas
-    .filter(area => area != areaNames.na)
-    .forEach(area => {
-		if(!variables[area]) return;
-        $("#" + area).html(variables[area]);
-    });
+		.filter(area => area != areaNames.na)
+		.forEach(area => {
+			if(!variables[area]) return;
+			$("#" + area).html(variables[area]);
+		});
 
-	//Event functions
 	setEvents();
-
-	//sets current dat for next check
 	UpdateAppLinkState(data);
-
-	//calls ChangeSettings to update css / style
 	ChangeSettings();
-
-	//Get infos of setter
 	UpdateSetterInfo(data.set_by);
 }
 
@@ -586,7 +595,7 @@ function GetReactionButton(id, emoji, ttId, tooltip) {
 }
 
 function setAddFavEvents(){
-	$('#addFav').click(function() {
+	updateClickEvent('#addFav',function() {
 		if($(this).is(":disabled")) return;
 
 		console.log("addFav clicked");
@@ -611,7 +620,7 @@ function setbVideoEvents(){
 	const videoElement = document.getElementById("bVid");
 
 	videoElement.volume = 0;
-	$('#bVid').on("loadeddata", function () {
+	updateOnEvent('#bVid','loaddata', function() {
 		console.log("video loaded data");
 		SetVisible('#bVid');
 		SetHidden('#bImg');
@@ -621,7 +630,8 @@ function setbVideoEvents(){
 		//elVid.play();
 	});
 
-	$('#bVid').click(function () {
+
+	updateClickEvent('#bVid',function(){
 		console.log("video clicked");
 		if (settings.videocontrols === "noUI")
 			this.paused ? this.play() : this.pause();
@@ -629,7 +639,7 @@ function setbVideoEvents(){
 }
 
 function setReactDropdownEvents(){	
-	$('#btn_reactDD').click(function () {
+	updateClickEvent('#btn_reactDD',function(){
 		console.log("reactDropDown clicked");
 		if ($('#reactDD').css("visibility") === "hidden") {
 			SetVisible('#reactDD');
@@ -648,29 +658,32 @@ function setReactDropdownEvents(){
 	console.log("focus dd scroll");
 	});*/
 	
-	$('.reactDD_litxt').each(function () {
-		this.addEventListener("click", function (event) {
-			console.log("reactDD_litxt clicked");
-			
-			$("#btn_reactDD_value").html(this.innerHTML);
-			SetHidden('#reactDD');
-			HideDDScrollbtns();
-		});
+	$('.reactDD_litxt').each(function (event) {
+		this.removeEventListener('click', () => reactDDButtonClickEvent(this));
+		this.addEventListener('click', () => reactDDButtonClickEvent(this));
 	});
 	
-	$('#reactDD_scroll').scroll(function () {
+	updateOnEvent('#reactDD_scroll','scroll',function(){
 		HandleDDScrollBtns();
-	});
-	
-	
+	})
+
 	const scrollContainer = document.getElementById("reactDD_scroll");
 	setupScrollButton($('#reactDD_scrollBtn_up')  , scrollContainer, -settings.scrollspeed);
     setupScrollButton($('#reactDD_scrollBtn_down'), scrollContainer, settings.scrollspeed);
 }
 
+function reactDDButtonClickEvent(element){
+	console.log("reactDD_litxt clicked");
+			
+	$("#btn_reactDD_value").html(element.innerHTML);
+	SetHidden('#reactDD');
+	HideDDScrollbtns();
+}
+
 function setupScrollButton(button, scrollContainer, scrollspeed) {
 	let scrollInterval = null;
 
+	button.off('hover');
     button.hover(function () {
 
 		scrollInterval = setInterval(function () {
@@ -686,9 +699,7 @@ function setReactButtonsEvents(){
 	if (!WalltakerApi_.IsAPIKeyValid(settings.api_key)) { return;}
 
 		reactButttons.forEach(btn => {
-			$('#' + btn.id).click(function () {
-				postReaction(btn.reactID);
-			});
+			updateClickEvent('#' + btn.id,() => postReaction(btn.reactID));
 		});
 }
 
@@ -701,7 +712,7 @@ function setEvents() {
 		setReactButtonsEvents();
 		
 		 // Use event delegation for dynamically created #LinksHeader
-		 $(document).on('click', '#LinksHeader', function () {
+		updateDynEvent('#LinksHeader','click', function () {
 			console.log('#LinksHeader click spam prevention has triggered');
 			if(appState.isLinksHeaderClicked){
 				return;
@@ -716,9 +727,22 @@ function setEvents() {
 			setTimeout(() => {
 				appState.isLinksHeaderClicked = false;
 			}, 100); // Adjust delay as needed
-        });
-
+		});
 	});
+}
+
+function updateOnEvent(elementName,event, callback = () => {}){
+	$(elementName).off(event)
+	$(elementName).on(event,callback);
+}
+
+function updateClickEvent(elementName,callback = () => {}){
+   updateOnEvent(elementName,'click',callback)
+}
+
+function updateDynEvent(elementName,event,callback = () => {}){
+   $(document).off(event,elementName)
+   $(document).on(event,elementName, callback);
 }
 
 function SetVisibility(jqItemName, state) {
@@ -737,9 +761,12 @@ function SetCollapsed(jqItemName) {
 
 function HandleTooltip(jqItemName, jqToolTipName) {
 	if (!settings.showTooltips) { return; }
+	$(jqItemName).off('mouseenter');
 	$(jqItemName).mouseenter(function () {
 		SetVisible(jqToolTipName);
 	});
+
+	$(jqItemName).off('mouseleave');
 	$(jqItemName).mouseleave(function () {
 		SetCollapsed(jqToolTipName);
 	});
@@ -761,22 +788,6 @@ function HandleDDScrollBtns() {
 
 function toggleAttribute(elem, attName, value) {
 	elem.hasAttribute(attName) ? elem.removeAttribute(attName) : elem.setAttribute(attName, value);
-}
-
-LoopSetterUpdate();
-function LoopSetterUpdate() {
-	if (!settings.overrideURL) {
-		console.log("refreshing last Setter ");
-		UpdateSetterInfo(appState.lastSetBy);
-	}
-
-	setTimeout(LoopSetterUpdate, Math.min(settings.interval, MIN_INTERVAL_MS));
-}
-
-Loop_e6_Update();
-async function Loop_e6_Update() {
-	await e6_Update();
-	setTimeout(Loop_e6_Update, Math.min(settings.interval,1000));
 }
 
 function isE6Enabled() {
@@ -895,48 +906,40 @@ function processSetterLinkInfos(userData){
 	// clear element and edd info text
 	setterElement.append(elInfo);
 
-	let treeElement = $(`<ul id="LinkTree" ${appState.linksCollapsed? 'hidden' : ''}></ul>`);
+	const treeElement = $(`<ul id="LinkTree" ${appState.linksCollapsed? 'hidden' : ''}></ul>`);
 	setterElement.append(treeElement);
 
-	let messageCounter = 0;
-	let messageTypes = {};
+	//add link list and count messages and types
+	const {messageCounter, messageTypes} = userData.links.reduce(
+		(acc,link) => {
+			const symbol = reacts[link.response_type] ?? '';
+			const response = link.response_text ?? '';
 
-	// Add individual links if listing is enabled
-	if (settings.listSetterLinks === "true") 
-	userData.links.forEach(link => {
-		const responseType = reacts[link.response_type];
-		const symbol = responseType ?? '';
-		const response = link.response_text ?? '';
+			if(symbol || response)  acc.messageCounter++;
+			if(symbol) acc.messageTypes[symbol] = (acc.messageTypes[symbol] || 0) + 1;
 
-		if(symbol > "" || response > "")messageCounter++;
-
-
-		if(!messageTypes[symbol] || messageTypes[symbol] < 1)messageTypes[symbol] = 0;
-
-		messageTypes[symbol] ++;
-		console.log(Object.keys(messageTypes).length + '|'+ symbol + ": " + messageTypes[symbol]);
-
-		const linkElement = $('<li class="setterLink"></li>')
-								.html(`
-									<div class="text linkRow">
-										<i class="fas fa-circle link-circle ${ link.online? 'online' : 'transparent'}"></i>
-										<span class="linkNumber">
-											<span">${link.id}</span>
-										</span>
-										<p class="linkText" ><span class="text">${symbol} ${response}</span></p>
-									</div>`);
-		treeElement.append(linkElement);
-	});
-
+			const linkElement = $(`
+				<li class="setterLink">
+					<div class="text linkRow">
+						<i class="fas fa-circle link-circle ${ link.online? 'online' : 'transparent'}"></i>
+						<span class="linkNumber">
+							<span">${link.id}</span>
+						</span>
+						<p class="linkText" ><span class="text">${symbol} ${response}</span></p>
+					</div>
+				</li>`
+			);
+			treeElement.append(linkElement);
+			return acc;
+		},
+		{messageCounter:0, messageTypes: {}}
+	);
 	
-	if(messageCounter > 0) {
+	if(messageCounter > 0) {		
 		let msg = '';
-		const temp = Object.entries(messageTypes).filter(([key,value]) => key > "");
-
 		if(Object.keys(messageTypes).length > 1) 
 			msg = messageCounter>1 ? messageCounter + '|' : '';
 
-		//Object.entries(messageTypes).filter(([key,value]) => key > "").forEach(([key, value]) => { msg += `${value>1?value:''}${key} `;})
 		Object.entries(messageTypes).filter(([key,value]) => key > "").map(([key, value]) => { msg += `${value>1?value:''}${key}`;}).join(' ');
 
 		$("#messageCounter").html(msg);
@@ -959,19 +962,6 @@ async function UpdateSetterInfo(username) {
 
 function GetMd5(url) {
 	return url.split('/').pop().split('.')[0];
-}
-
-var intervalID = null;
-//Loops getJson (= get Data from Website)
-var UpdateCanvasRunning = false;
-function UpdateCanvas() {
-	UpdateCanvasRunning = true;
-	if (!settings.overrideURL)
-		getJSON();
-	else
-		UpdateCanvasRunning = false;
-
-	intervalID = setTimeout(UpdateCanvas, settings.interval);
 }
 
 //sends POST to Website and passes data to setNewPost

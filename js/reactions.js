@@ -1,3 +1,4 @@
+
 const packWeights = {
 	custom: 100
 }
@@ -66,3 +67,11 @@ const reactions = {
 	  " "
 	]
  }
+
+ const reacts = {
+	"": "[]",
+	"disgust": "😓",
+	"ok": "👍",
+	"horny": "😍",
+	"came": "💦",
+};

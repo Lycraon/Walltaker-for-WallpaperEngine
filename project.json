@@ -46,10 +46,10 @@
 			"canv_x" : 
 			{
 				"fraction" : true,
-				"index" : 20,
+				"index" : 19,
 				"max" : 10000,
 				"min" : -10000,
-				"order" : 120,
+				"order" : 119,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Pos x",
@@ -59,10 +59,10 @@
 			"canv_y" : 
 			{
 				"fraction" : true,
-				"index" : 21,
+				"index" : 20,
 				"max" : 10000,
 				"min" : -10000,
-				"order" : 121,
+				"order" : 120,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Pos y",
@@ -71,40 +71,40 @@
 			},
 			"customreactions" : 
 			{
-				"index" : 26,
-				"order" : 126,
+				"index" : 25,
+				"order" : 125,
 				"text" : "Custom Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"e6_api" : 
 			{
-				"index" : 34,
-				"order" : 134,
+				"index" : 33,
+				"order" : 133,
 				"text" : "e6 api:",
 				"type" : "textinput",
 				"value" : ""
 			},
 			"e6_name" : 
 			{
-				"index" : 33,
-				"order" : 133,
+				"index" : 32,
+				"order" : 132,
 				"text" : "e6 name:",
 				"type" : "textinput",
 				"value" : ""
 			},
 			"emojireactions" : 
 			{
-				"index" : 25,
-				"order" : 125,
+				"index" : 24,
+				"order" : 124,
 				"text" : "Emoji Reactions",
 				"type" : "bool",
 				"value" : true
 			},
 			"emoticonreactions" : 
 			{
-				"index" : 24,
-				"order" : 124,
+				"index" : 23,
+				"order" : 123,
 				"text" : "Emoticon Reactions",
 				"type" : "bool",
 				"value" : true
@@ -143,8 +143,8 @@
 			},
 			"lycraonsreactions" : 
 			{
-				"index" : 23,
-				"order" : 123,
+				"index" : 22,
+				"order" : 122,
 				"text" : "Lycraons Reactions",
 				"type" : "bool",
 				"value" : true
@@ -183,7 +183,7 @@
 			"reaction" : 
 			{
 				"condition" : "api_key.value.length == 8",
-				"index" : 17,
+				"index" : 16,
 				"options" : 
 				[
 					{
@@ -215,7 +215,7 @@
 						"value" : "none"
 					}
 				],
-				"order" : 117,
+				"order" : 116,
 				"text" : "Quick reactions: ",
 				"type" : "combo",
 				"value" : "top-center"
@@ -223,8 +223,8 @@
 			"reaction1" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 27,
-				"order" : 127,
+				"index" : 26,
+				"order" : 126,
 				"text" : "Reaction1:",
 				"type" : "textinput",
 				"value" : ""
@@ -232,8 +232,8 @@
 			"reaction2" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 28,
-				"order" : 128,
+				"index" : 27,
+				"order" : 127,
 				"text" : "Reaction2:",
 				"type" : "textinput",
 				"value" : ""
@@ -241,8 +241,8 @@
 			"reaction3" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 29,
-				"order" : 129,
+				"index" : 28,
+				"order" : 128,
 				"text" : "Reaction3:",
 				"type" : "textinput",
 				"value" : ""
@@ -250,8 +250,8 @@
 			"reaction4" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 30,
-				"order" : 130,
+				"index" : 29,
+				"order" : 129,
 				"text" : "Reaction4:",
 				"type" : "textinput",
 				"value" : ""
@@ -259,8 +259,8 @@
 			"reaction5" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 31,
-				"order" : 131,
+				"index" : 30,
+				"order" : 130,
 				"text" : "Reaction5:",
 				"type" : "textinput",
 				"value" : ""
@@ -268,8 +268,8 @@
 			"reaction6" : 
 			{
 				"condition" : "customreactions.value",
-				"index" : 32,
-				"order" : 132,
+				"index" : 31,
+				"order" : 131,
 				"text" : "Reaction6:",
 				"type" : "textinput",
 				"value" : ""
@@ -381,19 +381,10 @@
 				"type" : "combo",
 				"value" : "top-left"
 			},
-			"setterLinks" : 
-			{
-				"condition" : "setterData.value",
-				"index" : 16,
-				"order" : 116,
-				"text" : "List setter links",
-				"type" : "bool",
-				"value" : false
-			},
 			"standardreactions" : 
 			{
-				"index" : 22,
-				"order" : 122,
+				"index" : 21,
+				"order" : 121,
 				"text" : "Standard Reactions",
 				"type" : "bool",
 				"value" : true
@@ -445,10 +436,10 @@
 			"zoom_h" : 
 			{
 				"fraction" : true,
-				"index" : 19,
+				"index" : 18,
 				"max" : 250,
 				"min" : 0,
-				"order" : 119,
+				"order" : 118,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Zoom heigth",
@@ -458,10 +449,10 @@
 			"zoom_w" : 
 			{
 				"fraction" : true,
-				"index" : 18,
+				"index" : 17,
 				"max" : 250,
 				"min" : 0,
-				"order" : 118,
+				"order" : 117,
 				"precision" : 2,
 				"step" : 0.1,
 				"text" : "Zoom width",

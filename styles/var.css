@@ -1,0 +1,25 @@
+:root{
+	--dd_item_height: 1em;
+	--dd_item_padding: 10px;
+
+	--default_width: 210px;
+
+	--content_outer_margin: 1em;
+
+	/*colors*/
+	--text_light:white;
+	--text_dark: black;
+
+	--icon_light: white;
+	--icon_dark: black;
+	--icon_background: black;
+	--counter_background: black;
+	--coutner_text: white;
+
+	--color-online: rgb(63, 183, 55);
+    --color-offline: rgb(209, 31, 31);
+	--color-fav: rgb(217, 161, 31);
+
+	/*fontawesome*/
+	--fa-counter-line-height: 1.5em;
+}
