@@ -33,15 +33,17 @@ You can choos between 6 postion for some elements like:
 #### Setter Informations
 
 Show Information about the Setter of your current wallpaper, like online status, friend status, links and last responses to links wallpapers <br>
-<img width="250" alt="image" src="https://user-images.githubusercontent.com/80824508/170127679-b6659bec-7c61-4270-ad80-c0941b4e82c3.png">
-
+![image](https://github.com/user-attachments/assets/85c198d8-80ed-4f97-9feb-0a4b224032cd)
+![image](https://github.com/user-attachments/assets/341807fe-f5da-4512-9c6a-d0cbff6f0a40)
 
 **note:** From version 3.0 onwards, the links can be expanded by clicking on the area displaying the link data.
 
-#### Quick reactions (+ link response)
+### Quick reactions (+ link response)
 
 Set quick reactions to your wallpaper and see the current reaction <br>
-<img width="250" alt="image" src="https://user-images.githubusercontent.com/80824508/170127488-0d7992e3-12b1-463c-89a3-fb64f072fd52.png">
+
+ ![image](https://github.com/user-attachments/assets/04c32cb3-f47b-4fb3-b3af-1c3c9ea7fc26)
+
 
 ### Videos & Gifs
 
@@ -62,6 +64,9 @@ the walltaker api also makes it possible to see if you are friends with your set
 ### e6 API Integration
 
 With the new e6 API feature, you can now check if you have favorited your current wallpaper. If it is not already favorited, you can easily do so by pressing the star button. 
+
+![image](https://github.com/user-attachments/assets/80dc0920-8718-49a2-abd6-c31e0d60c253)
+![image](https://github.com/user-attachments/assets/fe20dc1e-670f-443f-a251-c3105af97e91)
 
 **Note:** This feature requires your e6 API key to function properly.<br> Ensure you have provided your e6 username and API key in the settings to enable this functionality.
 
