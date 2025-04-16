@@ -57,7 +57,7 @@ There are some preset Text, but you can set 6 custom ones.
 <img width=250 src="https://user-images.githubusercontent.com/80824508/171394562-64a5f6c0-487d-4fb0-ab3b-95c9d46609a9.gif">
 
 #### personal information
-the walltaker allso makes it possible to see if you are friends with your setter and other information specific to your account
+the walltaker api also makes it possible to see if you are friends with your setter and other information specific to your account
 
 ### e6 API Integration
 
