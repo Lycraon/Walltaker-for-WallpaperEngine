@@ -1,3 +1,5 @@
+/** @format */
+
 //all area names
 const areaNames = {
 	na: "none",
@@ -7,6 +9,6 @@ const areaNames = {
 	botL: "bottom-left",
 	botC: "bottom-center",
 	botR: "bottom-right",
-	cc: "canvas"
+	cc: "canvas",
 };
-const areas = Object.keys(areaNames).map(key => areaNames[key]);
+const areas = Object.keys(areaNames).map((key) => areaNames[key]);
