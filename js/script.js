@@ -1047,24 +1047,21 @@ function setE6Info(data) {
 }
 
 function proccessSetterSetBy(userData, username) {
-  const friendStatus = userData?.friend
-    ? '<i class="fa-solid fa-heart"></i>'
-    : '';
+  const friendStatus = `<i id="friendIcon" class="fa-solid fa-xs fa-heart ${userData?.friend ? '' : 'transparent '}"></i>`;
   const name = userData?.self ? 'you' : username || 'anon';
-  const onlineStatus = userData?.online
-    ? '<i class="fas fa-circle fa-pull-right fa-xs online"></i>'
-    : ''; //🟢
+  const onlineStatus = `<i id="userOnlineIcon" class="fas fa-circle fa-pull-left fa-xs ${userData?.online ? 'online' : 'transparent'}"></i>`
 
-  const userIcon = `<i class="fa-solid fa-user"></i>`;
-  const anonIcon = `<i class="fa-solid fa-user-secret"></i>`;
+  const userIcon = `<i id="userIcon" class="fa-solid fa-user userIcon"></i>`;
+  const anonIcon = `<i id="anonIcon" class="fa-solid fa-user-secret userIcon"></i>`;
 
-  const showText = true;
+  const showText = false;
 
-  const icon = userData?.self ? userIcon : anonIcon;
+  const icon = userIcon || anonIcon;
+
   $('#setBy').html(
-    `${userIcon} ${
-      showText ? 'set_by' : ''
-    }: ${friendStatus} ${name}${onlineStatus}`
+    `${icon}${friendStatus}${
+      showText ? ' set_by:' : ''
+    } ${name}${onlineStatus}`
   );
 }
 

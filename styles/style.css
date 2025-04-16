@@ -23,7 +23,7 @@ body {
 }
 
 .darkBackground:not(:empty) {
-  background-color: #00000060;
+  background-color: #00000050;
 }
 
 #reactDrop {
@@ -496,7 +496,7 @@ button:enabled:hover {
 }
 
 #LinksHeader > i,
-#LinksHeader > svg {
+#LinksHeader > svg > path {
   color: white;
   border-radius: 0.5em;
   padding: 0.2em;
@@ -553,7 +553,7 @@ button:enabled:hover {
   position: relative;
   margin: 0;
   top: 0;
-  right: -5px;
+  right: -0.25;
   font-size: 0.6em;
 }
 
@@ -564,4 +564,27 @@ button:enabled:hover {
 
 #responseText {
   padding-left: 0.5em; /*#reactText padding*/
+}
+
+#SetterInfo {
+  padding:  0.25em 0.25em 0.25em 0.4em;
+}
+
+#userOnlineIcon {
+  position: relative;
+  margin-right: 0.1em;
+  margin-top: -0.1em;
+  font-size: 0.6em;
+}
+
+.userIcon {
+  color: #bc5abc;
+}
+
+#friendIcon {
+  position: relative;
+  color: #d04755;
+  top: -0.7em;
+  margin-right: -0.25em;
+  font-size: 0.6em;
 }
