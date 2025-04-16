@@ -1,14 +1,25 @@
 /*jshint esversion: 8 */
 
 function addScript(path){
-	$(`<script type="text/javascript" src="${path}" ></script>`).insertBefore($('#apiScript'));
+	/*$.getScript(path)
+		.done( () => {
+			console.log('[addScript] loaded: ' + path );
+		})
+		.fail( () => {
+			console.error('[addScript] error loading ' + path);
+		});*/
+	
+	const script = $(`<script type="text/javascript" src="${path}" ></script>`);
+	script.onload = () => console.log('[script] loaded: ' + path );
+	script.onerror = e => console.error('[script] error loading ' + path);
+	script.insertBefore($('#apiScript'));
 }
 
-addScript('./js/metadata.js');
-addScript('./js/areas.js');
-addScript('./js/settings.js');
-addScript('./js/reactions.js');
-addScript('./js/appState.js');
+addScript('js/metadata.js');
+addScript('js/areas.js');
+addScript('js/settings.js');
+addScript('js/reactions.js');
+addScript('js/appState.js');
 
 const E6Api = new E6Api_(appInfo);
 const WalltakerApi = new WalltakerApi_(appInfo);
@@ -130,7 +141,7 @@ window.wallpaperPropertyListener = {
 		ProcessPropertyToSetting(properties, "font_size",() =>{}, settingName = "fontSize");
 		ProcessPropertyToSetting(properties,"set_by",  () => {reloadCanvas = true;}, settingName = "textPos");
 		ProcessPropertyToSetting(properties, "setterData", () =>{}, settingName = "showSetterData");
-		ProcessPropertyToSetting(properties, "setterLinks",() =>{}, settingName = "listSetterLinks");
+		ProcessPropertyToSetting(properties, "setterLinks",() =>{reloadCanvas = true;}, settingName = "listSetterLinks");
 		ProcessPropertyToSetting(properties,"setterInfo",  () => {reloadCanvas = true;}, settingName = "setterInfoPos");
 		ProcessProperty(properties, "reaction",     value => {
 			settings.reactPos    = value;
@@ -164,8 +175,10 @@ window.wallpaperPropertyListener = {
 		ProcessPropertyToSetting(properties, "scrollspeed", () => {reloadCanvas = true;});
 		
 		//-----------------------------------------------------------------------------------------------
-		if (settings.overrideURL)
+		if (settings.overrideURL){
 			ChangeSettings();
+			return;
+		}
 
 		if (reloadCanvas) {
 			appState.overrideUpdate = true;
@@ -330,7 +343,12 @@ function ChangeSettings() {
 }
 
 function SetVideoSettings(bVid) {
-	bVid.controls = (settings.videocontrols === "full");
+	if(!bVid){
+		console.error('[SetVideoSettings] element not found!');
+		return;
+	}
+
+	bVid.controls = settings.videocontrols == "full";
 	bVid.defaultMuted = (settings.volume == 0);
 	bVid.autoplay = (settings.autoplay == "true");
 	bVid.loop = (settings.loop == "true");
@@ -507,7 +525,7 @@ function NewPost_ProcessCurrentResponse(variables,data){
     }
 	
 	const hasResponse = data.response_type > '' || data.response_text > '';
-	const response = `<span id="responseType">${reacts[data.response_type] ?? ' '}</span id="responseText">${data.response_text ?? ''}<span></span>`
+	const response = `<span id="responseType">${reacts[data.response_type] ?? ' '}</span><span id="responseText">${data.response_text ?? ''}</span>`
 
 	// Append the response to the appropriate area
 	variables[settings.responsePos] += `
@@ -575,7 +593,9 @@ function setNewPost(data) {
 	areas
 		.filter(area => area != areaNames.na)
 		.forEach(area => {
-			if(!variables[area]) return;
+			if(area == areaNames.cc){return;}
+			$("#" + area).html('');
+			if(!variables[area]) {return;}
 			$("#" + area).html(variables[area]);
 		});
 
@@ -897,7 +917,7 @@ function processSetterLinkInfos(userData){
 
 	var elInfo = $(`
 		<p id="LinksHeader" class='text'> 
-			<i id="linkIcon" class="fas fa-link fa-lg" style="margin-right:0;font-weight:bold;padding:0;margin:0"></i> 
+			<i id="linkIcon" class="fas fa-link fa-lg"></i> 
 			<span id="linkCounter" class="counter">${userData.links.length}</span>
 			<i id="messageIcon" class="fa-solid fa-message transparent"></i>
 			<span id="messageCounter" class="counter" hidden></span>

@@ -381,15 +381,8 @@ button:enabled:hover {
 }
 
 #addFav{
-	padding: 0.25em 0.5em 0.25em 0.5em;
+	padding: 0.5em;
 	width: var(--default_width);
-}
-
-#LinkTree{
-	list-style: none;
-	margin: 0;
-  	padding: 0;
-	margin-left: 0.5em;
 }
 
 #setBy{
@@ -419,18 +412,19 @@ button:enabled:hover {
 	overflow: hidden;
 	margin: 0;
 	flex-grow: 1;
+	padding: 2px;
 }
 
 .linkText > span {
 	white-space: nowrap;
 	text-overflow: ellipsis;
-	padding: 2px;
+	padding: 0.2em;
 }
 
 
 .linkText:hover{
 	overflow: visible;
-	padding: 2px;
+	padding: 0.25em;
 	white-space: wrap;
 }
 
@@ -453,8 +447,8 @@ button:enabled:hover {
 
 .setterLink:first-child > .linkRow::before{
 	content: "";/*↳ ⌞ ∟ ⨽ ⊢*/
-	height: 0.9em;
-	margin-top: 0.25em;
+	height: 1.2em;
+	margin-top: -0em;
 }
 
 .setterLink > .linkRow::before{
@@ -488,27 +482,43 @@ button:enabled:hover {
 
 #LinksHeader{
 	font-size: 1.3em;
+	padding-bottom: 0.1em;
+}
+
+#LinkTree{
+	list-style: none;
+	margin: 0;
+	padding: 0 0.1em 0 0.4em;
+	padding-top: 0.25em;
+	margin: 0.1em 0.2em 0.1em 0.4em;
+	border-top: 2px solid rgb(255 255 255 / 17%);
 }
 
 #LinksHeader > i,
 #LinksHeader > svg{
 	color: white;
 	border-radius: 0.5em;
+	padding: 0.2em;
 }
 
 #LinksHeader > i:not(.transparent):hover,
 #LinksHeader > svg:not(.transparent):hover{
-	background-color: black;
+	background-color: #00000040;
 }
 
 #linkIcon{
 	font-size: 1.2em;
+	margin: 0;
+	padding-right: 0.5em!important;
+	margin-right: -0.4em;
 }
 
 #messageIcon{
 	font-size: 1em;
+	padding: 0.35em 0.5em 0.25em 0.35em !important;
+	margin-right: -0.6em;
+	margin-left: -0.4em;
 }
-
 
 .counter{
 	position: relative;
@@ -546,7 +556,11 @@ button:enabled:hover {
 	font-size: 0.6em;
 }
 
-#responseType{
+#responseType {
 	padding-right: calc(0.5em - 3px); /*#reactText - custom*/
 	border-right: 1px solid  rgba(255, 255, 255, 0.458);
+}
+
+#responseText {
+	padding-left: 0.5em; /*#reactText padding*/
 }
