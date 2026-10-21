@@ -713,7 +713,7 @@ function NewPost_ProcessSetBy(variables, data) {
       appState.walltakerWatchedUser = null;
     }
     appState.lastSetBy = data.set_by;
-  } else if (!appState.lastSetBy || appState.lastUrl != data.post_url) {
+  } else if (!appState.lastSetBy || appState.lastUrl != data.post_url_backup) {
     console.log('new wallpaer without setBy => anon');
     appState.walltakerWatchedUser = null;
     appState.lastSetBy = null;
@@ -868,14 +868,14 @@ function NewPost_ProcessE6(variables) {
 
 function hasPostChanged(data) {
   return (
-    appState.lastUrl != data.post_url ||
+    appState.lastUrl != data.post_url_backup ||
     data.response_text != appState.lastResponseText ||
     data.response_type != appState.lastResponseType
   );
 }
 
 function UpdateAppLinkState(data) {
-  appState.lastUrl = data.post_url;
+  appState.lastUrl = data.post_url_backup;
   appState.lastResponseType = data.response_type;
   appState.lastResponseText = data.response_text;
 }
@@ -895,7 +895,7 @@ function setNewPost(data) {
   appState.e6States.overrideUpdate = true;
 
   console.log('Updating link data!');
-  UpdatePostUrl(data.post_url);
+  UpdatePostUrl(data.post_url_backup);
 
   //String variables for areas
   const variables = areas.reduce((acc, area) => ({ ...acc, [area]: '' }), {});
