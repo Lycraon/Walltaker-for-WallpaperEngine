@@ -24,6 +24,233 @@ addScript('js/appState.js');
 const E6Api = new E6Api_(appInfo);
 const WalltakerApi = new WalltakerApi_(appInfo);
 
+function getWalltakerClientName() {
+  return `${appInfo.name}/${appInfo.version}`;
+}
+
+function clearWalltakerReconnect() {
+  if (appState.walltakerSocketReconnect) {
+    clearTimeout(appState.walltakerSocketReconnect);
+    appState.walltakerSocketReconnect = null;
+  }
+}
+
+function showWalltakerError(message) {
+  $('#centerMessage').html(message);
+  SetVisible('#rcenter-center');
+}
+
+function disconnectWalltakerSocket() {
+  clearWalltakerReconnect();
+  appState.walltakerSocketIntent = null;
+  appState.walltakerSubscriptionIdentifier = null;
+  appState.walltakerWatchedUser = null;
+
+  if (appState.walltakerSocket) {
+    appState.walltakerSocket.onopen = null;
+    appState.walltakerSocket.onmessage = null;
+    appState.walltakerSocket.onerror = null;
+    appState.walltakerSocket.onclose = null;
+    appState.walltakerSocket.close();
+    appState.walltakerSocket = null;
+  }
+}
+
+function performWalltakerAction(action, data = {}) {
+  if (
+    !appState.walltakerSocket ||
+    appState.walltakerSocket.readyState !== WebSocket.OPEN ||
+    !appState.walltakerSubscriptionIdentifier
+  ) {
+    return false;
+  }
+
+  appState.walltakerSocket.send(
+    JSON.stringify({
+      command: 'message',
+      identifier: appState.walltakerSubscriptionIdentifier,
+      data: JSON.stringify({
+        action,
+        ...data,
+      }),
+    })
+  );
+  return true;
+}
+
+function clearSetterInfo() {
+  proccessSetterSetBy(null, appState.lastSetBy);
+  $('#SetterInfo').html('');
+}
+
+function watchSetterUser(username, force = false) {
+  if (settings.showSetterData !== 'true') {
+    clearSetterInfo();
+    return;
+  }
+
+  const trimmedUsername = username?.trim();
+  if (!trimmedUsername) {
+    clearSetterInfo();
+    return;
+  }
+
+  const watchIntent = {
+    username: trimmedUsername,
+    api_key: settings.api_key?.trim() || '',
+  };
+
+  if (
+    !force &&
+    appState.walltakerWatchedUser &&
+    appState.walltakerWatchedUser.username === watchIntent.username &&
+    appState.walltakerWatchedUser.api_key === watchIntent.api_key
+  ) {
+    return;
+  }
+
+  if (!performWalltakerAction('watch_user', watchIntent)) {
+    return;
+  }
+
+  appState.walltakerWatchedUser = watchIntent;
+}
+
+function handleWalltakerUserMessage(data) {
+  if (!data.watching) {
+    clearSetterInfo();
+    return;
+  }
+
+  const userData = data.user;
+  proccessSetterSetBy(userData, userData?.username || appState.lastSetBy);
+  processSetterLinkInfos(userData);
+}
+
+function scheduleWalltakerReconnect(intent) {
+  clearWalltakerReconnect();
+
+  if (!intent || settings.overrideURL || !settings.linkID?.trim()) {
+    return;
+  }
+
+  appState.walltakerSocketReconnect = setTimeout(() => {
+    if (JSON.stringify(appState.walltakerSocketIntent) === JSON.stringify(intent)) {
+      connectWalltakerSocket();
+    }
+  }, appState.walltakerSocketReconnectDelay);
+}
+
+function connectWalltakerSocket() {
+  if (settings.overrideURL) {
+    disconnectWalltakerSocket();
+    return;
+  }
+
+  const linkID = settings.linkID?.trim();
+  if (!linkID) {
+    disconnectWalltakerSocket();
+    showWalltakerError(
+      'Looks like there is no Link set yet <br />Got to the wallpaper settings and put your link-number into the first box'
+    );
+    return;
+  }
+
+  const serverURL = WalltakerApi_.NormalizeServerUrl(settings.serverURL);
+  settings.serverURL = serverURL;
+  WalltakerApi.SetServerUrl(serverURL);
+
+  const intent = { linkID, serverURL };
+  appState.walltakerSocketIntent = intent;
+  clearWalltakerReconnect();
+
+  if (appState.walltakerSocket) {
+    appState.walltakerSocket.onclose = null;
+    appState.walltakerSocket.close();
+    appState.walltakerSocket = null;
+  }
+
+  const cableUrl = WalltakerApi_.GetCableUrl(serverURL);
+  const identifier = JSON.stringify({
+    channel: 'LinkChannel',
+    link_id: linkID,
+    client: getWalltakerClientName(),
+  });
+  appState.walltakerSubscriptionIdentifier = identifier;
+
+  console.log(`Connecting Walltaker websocket to ${cableUrl}`);
+  const socket = new WebSocket(cableUrl);
+  appState.walltakerSocket = socket;
+
+  socket.onopen = () => {
+    console.log('Walltaker websocket opened');
+    socket.send(
+      JSON.stringify({
+        command: 'subscribe',
+        identifier,
+      })
+    );
+  };
+
+  socket.onmessage = (event) => {
+    let envelope = null;
+    try {
+      envelope = JSON.parse(event.data);
+    } catch (error) {
+      console.error('Invalid Walltaker websocket payload:', error);
+      return;
+    }
+
+    if (envelope.type === 'ping' || envelope.type === 'welcome') {
+      return;
+    }
+
+    if (envelope.type === 'confirm_subscription') {
+      console.log('Walltaker subscription confirmed');
+      SetHidden('#rcenter-center');
+      watchSetterUser(appState.lastSetBy);
+      return;
+    }
+
+    if (envelope.type === 'reject_subscription') {
+      showWalltakerError('Walltaker rejected the websocket subscription.');
+      return;
+    }
+
+    const data = envelope.message;
+    if (!data) {
+      return;
+    }
+
+    if (data.type === 'user') {
+      handleWalltakerUserMessage(data);
+      return;
+    }
+
+    if (!data.success) {
+      showWalltakerError(
+        `Server returned an error! <br>Check your server URL and link number! <br>[${data.why || 'Unknown error'}]`
+      );
+      return;
+    }
+
+    SetHidden('#rcenter-center');
+    setNewPost(data);
+  };
+
+  socket.onerror = (error) => {
+    console.error('Walltaker websocket error:', error);
+  };
+
+  socket.onclose = () => {
+    console.log('Walltaker websocket closed');
+    if (appState.walltakerSocket === socket) {
+      appState.walltakerSocket = null;
+      scheduleWalltakerReconnect(intent);
+    }
+  };
+}
+
 //reaction-data
 const reactButttons = [
   {
@@ -55,9 +282,7 @@ const reactButttons = [
 function Initialization() {
   appState.init = true;
 
-  Loop_e6_Update();
-  LoopSetterUpdate();
-  UpdateCanvas();
+  connectWalltakerSocket();
   /*uset setInterval instead of setTimeout? */
 }
 
@@ -75,43 +300,6 @@ class UpdateLooper {
   static Setter = null;
 }
 
-//Loops getJson (= get Data from Website)
-var UpdateCanvasRunning = false;
-function UpdateCanvas() {
-  console.log('[tick]Canvas');
-
-  UpdateCanvasRunning = true;
-  if (!settings.overrideURL) getJSON();
-  else UpdateCanvasRunning = false;
-
-  UpdateLooper.Canvas = setTimeout(
-    UpdateCanvas,
-    Math.min(settings.interval, MIN_INTERVAL_MS)
-  );
-}
-
-function LoopSetterUpdate() {
-  console.log('[tick]Setter');
-  if (!settings.overrideURL) {
-    console.log('refreshing last Setter ');
-    UpdateSetterInfo(appState.lastSetBy);
-  }
-
-  UpdateLooper.Setter = setTimeout(
-    LoopSetterUpdate,
-    Math.min(settings.interval, MIN_INTERVAL_MS)
-  );
-}
-
-async function Loop_e6_Update() {
-  console.log('[tick]e6');
-  await e6_Update();
-  UpdateLooper.e6 = setTimeout(
-    Loop_e6_Update,
-    Math.min(settings.interval, 1000)
-  );
-}
-
 window.wallpaperPropertyListener = {
   applyUserProperties: function (properties) {
     console.log('loading properties');
@@ -122,6 +310,16 @@ window.wallpaperPropertyListener = {
     //process wallpaper properties
     ProcessPropertyToSetting(
       properties,
+      'server_url',
+      () => {
+        appState.lastLinkData = null;
+        connectWalltakerSocket();
+      },
+      (settingName = 'serverURL')
+    );
+
+    ProcessPropertyToSetting(
+      properties,
       'vid_volume',
       () => {},
       (settingName = 'volume')
@@ -129,20 +327,18 @@ window.wallpaperPropertyListener = {
 
     ProcessPropertyToSetting(properties, 'linkID', (value) => {
       appState.lastUrl = '';
-      if (value?.trim() > '') {
-        getJSON();
-      }
+      appState.lastLinkData = null;
+      connectWalltakerSocket();
     });
 
     ProcessProperty(properties, 'api_key', (value) => {
       if (SetApiKey(properties.api_key.value)) {
         reloadCanvas = true;
+        appState.walltakerWatchedUser = null;
+        watchSetterUser(appState.lastSetBy);
       }
     });
 
-    ProcessProperty(properties, 'interval', (value) =>
-      SetIntervalSeconds(parseInt(value))
-    );
     ProcessPropertyToSetting(properties, 'objfit', () => {
       reloadCanvas = true;
     });
@@ -185,7 +381,10 @@ window.wallpaperPropertyListener = {
     ProcessPropertyToSetting(
       properties,
       'setterData',
-      () => {},
+      () => {
+        appState.walltakerWatchedUser = null;
+        watchSetterUser(appState.lastSetBy);
+      },
       (settingName = 'showSetterData')
     );
     ProcessPropertyToSetting(
@@ -220,11 +419,13 @@ window.wallpaperPropertyListener = {
       'e6_name',
       () => {
         reloadCanvas = true;
+        appState.e6States.overrideUpdate = true;
       },
       (settingName = 'e6_user')
     );
     ProcessPropertyToSetting(properties, 'e6_api', () => {
       reloadCanvas = true;
+      appState.e6States.overrideUpdate = true;
     });
 
     let packs = Object.keys(reactions).sort(
@@ -257,14 +458,15 @@ window.wallpaperPropertyListener = {
 
     if (reloadCanvas) {
       appState.overrideUpdate = true;
-      getJSON();
+      if (appState.lastLinkData) setNewPost(appState.lastLinkData);
+      else connectWalltakerSocket();
     } else ChangeSettings();
 
     if (appState.reloadColors) {
       ChangeSettings();
     }
 
-    if (realoadSetter) UpdateSetterInfo(appState.lastSetBy);
+    if (realoadSetter) watchSetterUser(appState.lastSetBy);
   },
 };
 
@@ -345,17 +547,7 @@ function ProcessPropertyToSetting(
 
 function SetApiKey(apiKey) {
   settings.api_key = '' + apiKey?.trim();
-  if (!WalltakerApi_.IsAPIKeyValid(settings.apiKey)) {
-    settings.reactPos = areaNames.na;
-    settings.responsePos = areaNames.na;
-  }
   return true;
-}
-
-function SetIntervalSeconds(interval = 0) {
-  //Setting min possible interval to avoid DOS spamming
-  console.log('setting interval: ' + interval);
-  settings.interval = Math.min(parseInt(interval) * 1000, MIN_INTERVAL_MS);
 }
 
 // returns true if the reaction packs have changed
@@ -370,6 +562,7 @@ function SetReactionpacks(packs) {
 }
 
 function setCustomUrl(url) {
+  disconnectWalltakerSocket();
   appState.lastUrl = url;
   ChangeSettings();
   console.log('custom url ' + settings.overrideURL);
@@ -428,8 +621,18 @@ function SetVideoSettings(bVid) {
     return;
   }
 
+  if (appState.videoVolume === null) {
+    const configuredVolume = Number(settings.volume);
+    appState.videoVolume = Number.isFinite(configuredVolume)
+      ? Math.min(1, Math.max(0, configuredVolume))
+      : 1;
+    appState.videoMuted = appState.videoVolume === 0;
+  }
+
   bVid.controls = settings.videocontrols == 'full';
-  bVid.defaultMuted = settings.volume == 0;
+  bVid.volume = appState.videoVolume;
+  bVid.muted = appState.videoMuted;
+  bVid.defaultMuted = appState.videoMuted;
   bVid.autoplay = settings.autoplay == 'true';
   bVid.loop = settings.loop == 'true';
   bVid.load();
@@ -506,9 +709,13 @@ function NewPost_ProcessSetBy(variables, data) {
   //Update appState.lastSetBy
   if (data?.set_by) {
     console.log(`appState.lastSetBy => ${data.set_by}`);
+    if (appState.lastSetBy !== data.set_by) {
+      appState.walltakerWatchedUser = null;
+    }
     appState.lastSetBy = data.set_by;
-  } else if (!appState.lastSetBy || appState.lastUrl != data.post_url) {
+  } else if (!appState.lastSetBy || appState.lastUrl != data.post_url_backup) {
     console.log('new wallpaer without setBy => anon');
+    appState.walltakerWatchedUser = null;
     appState.lastSetBy = null;
   }
 
@@ -661,14 +868,14 @@ function NewPost_ProcessE6(variables) {
 
 function hasPostChanged(data) {
   return (
-    appState.lastUrl != data.post_url ||
+    appState.lastUrl != data.post_url_backup ||
     data.response_text != appState.lastResponseText ||
     data.response_type != appState.lastResponseType
   );
 }
 
 function UpdateAppLinkState(data) {
-  appState.lastUrl = data.post_url;
+  appState.lastUrl = data.post_url_backup;
   appState.lastResponseType = data.response_type;
   appState.lastResponseText = data.response_text;
 }
@@ -678,6 +885,7 @@ function setNewPost(data) {
   //Check for changes if false skip code
   //this is for perfomance (local & network)
   if (!data) return;
+  appState.lastLinkData = data;
 
   var isSamePost = !hasPostChanged(data) && appState.overrideUpdate != true;
   if (isSamePost) return;
@@ -687,7 +895,7 @@ function setNewPost(data) {
   appState.e6States.overrideUpdate = true;
 
   console.log('Updating link data!');
-  UpdatePostUrl(data.post_url);
+  UpdatePostUrl(data.post_url_backup);
 
   //String variables for areas
   const variables = areas.reduce((acc, area) => ({ ...acc, [area]: '' }), {});
@@ -715,7 +923,8 @@ function setNewPost(data) {
   setEvents();
   UpdateAppLinkState(data);
   ChangeSettings();
-  UpdateSetterInfo(data.set_by);
+  watchSetterUser(data.set_by, true);
+  e6_Update();
 }
 
 function GetReactionButton(id, emoji, ttId, tooltip) {
@@ -728,18 +937,19 @@ function GetReactionButton(id, emoji, ttId, tooltip) {
 }
 
 function setAddFavEvents() {
-  updateClickEvent('#addFav', function () {
+  updateClickEvent('#addFav', async function () {
     if ($(this).is(':disabled')) return;
 
     console.log('addFav clicked');
     $('#addFav').attr('disabled', true);
     if (settings.e6_user?.trim() > '' && settings.e6_api?.trim() > '') {
       appState.e6States.overrideUpdate = true;
-      E6Api.SetPostFavourite(
+      await E6Api.SetPostFavourite(
         settings.e6_api,
         settings.e6_user,
         appState.lastPostId
       );
+      await e6_Update();
     }
     appState.overrideUpdate = true;
   });
@@ -756,15 +966,17 @@ function setbImgEvents() {
 function setbVideoEvents() {
   const videoElement = document.getElementById('bVid');
 
-  videoElement.volume = 0;
-  updateOnEvent('#bVid', 'loaddata', function () {
+  updateOnEvent('#bVid', 'loadeddata', function () {
     console.log('video loaded data');
     SetVisible('#bVid');
     SetHidden('#bImg');
-
-    videoElement.volume = settings.volume;
     //if(settings["autoplay"] == "true")
     //elVid.play();
+  });
+
+  updateOnEvent('#bVid', 'volumechange', function () {
+    appState.videoVolume = this.volume;
+    appState.videoMuted = this.muted;
   });
 
   updateClickEvent('#bVid', function () {
@@ -1134,19 +1346,6 @@ function processSetterLinkInfos(userData) {
   }
 }
 
-async function UpdateSetterInfo(username) {
-  console.log('Updating Setter Info of ' + username);
-  if (settings.showSetterData !== 'true') {
-    return;
-  }
-
-  var userData = username
-    ? await WalltakerApi.GetUserInfo(username, settings.api_key)
-    : null;
-  proccessSetterSetBy(userData, username);
-  processSetterLinkInfos(userData);
-}
-
 function GetMd5(url) {
   return url.split('/').pop().split('.')[0];
 }
@@ -1162,33 +1361,10 @@ function postReaction(reactType) {
     settings.api_key,
     (response, data) => {
       appState.overrideUpdate = true;
-      setNewPost(data);
+      if (data?.success) setNewPost(data);
     }
   );
 
   console.log('ractPacks:' + appState.reactPacks.length);
 }
 
-//gets json from walltaker website
-async function getJSON() {
-  if (!settings.linkID?.trim()) {
-    console.log('Did not request Link -> linkID was empty');
-    SetVisible('#rcenter-center');
-    return;
-  }
-  SetHidden('#rcenter-center');
-
-  const data = await WalltakerApi.GetLinkInfo(settings.linkID, (error) => {
-    console.error('getJSON returned error:', error);
-    $('#centerMessage').html(
-      	`Server returned an error! <br>
-		Check your internet connection and link number! <br>
-		[${error}]
-	`
-    );
-    SetVisible('#rcenter-center');
-    return null;
-  });
-
-  setNewPost(data);
-}

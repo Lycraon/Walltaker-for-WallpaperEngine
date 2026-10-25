@@ -243,7 +243,8 @@ class E6Api_ {
 
 class WalltakerApi_ {
 	static API_KEY_LENGTH = 8;
-	static url = "https://walltaker.joi.how/api";
+	static DEFAULT_SERVER_URL = "https://walltaker.joi.how";
+	static url = WalltakerApi_.GetApiUrl(WalltakerApi_.DEFAULT_SERVER_URL);
 
 	static AppInfo;
 	static clientHeaders;
@@ -260,28 +261,35 @@ class WalltakerApi_ {
 		};
 	}
 
-	//gets Info from username and returns JSON object of response
-	async GetUserInfo(username, apiKey) {
-		if (!username?.trim()) {
-			console.log(
-				"getUserInfo was called but username was empty, skipping fetch"
-			);
-			return null;
-		}
-
-		if (!WalltakerApi_.IsAPIKeyValid(apiKey)) {
-			console.log("couldn’t get user info api key was invalid");
-			return null;
-		}
+	static NormalizeServerUrl(url) {
+		const fallback = WalltakerApi_.DEFAULT_SERVER_URL;
+		const rawUrl = url?.trim() || fallback;
 
 		try {
-			return await this.Request(`/users/${username}.json`, "GET", {
-				api_key: apiKey,
-			});
+			const parsed = new URL(rawUrl);
+			parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+			parsed.search = "";
+			parsed.hash = "";
+			return parsed.toString().replace(/\/+$/, "");
 		} catch (error) {
-			console.error("Failed to fetch user info:", error);
-			return null;
+			console.error("Invalid Walltaker server URL, using default:", error);
+			return fallback;
 		}
+	}
+
+	static GetApiUrl(serverUrl) {
+		return `${WalltakerApi_.NormalizeServerUrl(serverUrl)}/api`;
+	}
+
+	static GetCableUrl(serverUrl) {
+		const baseUrl = WalltakerApi_.NormalizeServerUrl(serverUrl);
+		const cableUrl = new URL(`${baseUrl}/cable`);
+		cableUrl.protocol = cableUrl.protocol === "http:" ? "ws:" : "wss:";
+		return cableUrl.toString();
+	}
+
+	SetServerUrl(serverUrl) {
+		this.REST_API.url = WalltakerApi_.GetApiUrl(serverUrl);
 	}
 
 	async Request(
@@ -339,18 +347,6 @@ class WalltakerApi_ {
 			null,
 			data,
 			onSuccess,
-			onError
-		);
-	}
-
-	async GetLinkInfo(linkID, onError = () => {}) {
-		return await this.Request(
-			`/links/${linkID}.json`,
-			"Get",
-			{},
-			null,
-			null,
-			() => {},
 			onError
 		);
 	}

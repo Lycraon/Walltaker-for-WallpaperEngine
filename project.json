@@ -14,6 +14,14 @@
 				"type" : "textinput",
 				"value" : ""
 			},
+			"server_url" : 
+			{
+				"index" : 2,
+				"order" : 102,
+				"text" : "Walltaker server URL",
+				"type" : "textinput",
+				"value" : "https://walltaker.joi.how"
+			},
 			"area_maxWidth" : 
 			{
 				"fraction" : true,
@@ -117,19 +125,11 @@
 				"type" : "textinput",
 				"value" : "medium"
 			},
-			"interval" : 
-			{
-				"index" : 2,
-				"order" : 102,
-				"text" : "interval (sec.)",
-				"type" : "textinput",
-				"value" : "15"
-			},
 			"linkID" : 
 			{
 				"index" : 0,
 				"order" : 100,
-				"text" : "walltaker.joi.how/links/ ",
+				"text" : "Walltaker link ID",
 				"type" : "textinput",
 				"value" : ""
 			},
